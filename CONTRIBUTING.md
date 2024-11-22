@@ -37,6 +37,7 @@ le dossier `.githooks`.
     cohérence du projet.
 -   **Respectez les conventions des commits** : Utilisez des préfixes comme
     `feat`, `fix`, `docs`, `style`, `refactor`, etc., suivis d’une description
-    concise.
+    concise. Se référer aux
+    [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 -   **En cas de problème avec un hook** : Vérifiez vos modifications et
     assurez-vous qu’elles respectent les règles définies.
