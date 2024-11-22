@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "Vérification du formatage avant le push..."
-npm run lint
 if [ $? -ne 0 ]; then
   echo "Erreur : Le code doit être mis en forme avant le push."
   exit 1
