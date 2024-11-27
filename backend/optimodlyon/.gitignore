@@ -78,4 +78,4 @@ Desktop.ini
 # Caches divers
 *.class
 # Fichiers de configuration de DS_Store
-.DS_Store
+*.DS_Store
