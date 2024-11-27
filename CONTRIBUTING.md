@@ -1,3 +1,37 @@
+## Git Flow
+
+Utiliser Git Flow est une excellente manière d’automatiser le workflow. Pour installer l’extension Git Flow, vous pouvez utiliser la commande suivante sur un système basé sur Linux :
+
+```
+sudo apt-get install git-flow
+```
+
+### Setup git flow
+
+```
+git flow init -d
+```
+
+### Démarrer une fonctionnalité
+Pour commencer à travailler sur une nouvelle fonctionnalité :
+```
+git flow feature start nom_de_la_fonctionnalité
+```
+
+### Terminer une fonctionnalité
+Pour finaliser une fonctionnalité :
+```
+git flow feature finish nom_de_la_fonctionnalité
+```
+
+Cela est beaucoup plus pratique que de devoir faire ceci pour créer une branche de fonctionnalité :
+```
+git checkout develop
+git checkout -b nom_de_la_fonctionnalité
+```
+
+Pour plus d'informations, consultez le [guide d'Atlassian](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) sur Git Flow.
+
 ## Installation des hooks partagés
 
 Pour garantir une cohérence dans le développement, ce projet utilise des hooks
