@@ -18,14 +18,14 @@ export default function Home() {
       />
       <main className={styles.main}>
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
-        <Map
-            style={{width: '800px', height: '500px'}}
-            defaultCenter={{lat: 46.54992, lng: 2.44}}
-            defaultZoom={3}
-            gestureHandling={'greedy'}
-            disableDefaultUI={true}
-            colorScheme='DARK'
-          />
+          <Map
+              style={{width: '800px', height: '500px'}}
+              defaultCenter={{lat: 46.54992, lng: 2.44}}
+              defaultZoom={3}
+              gestureHandling={'greedy'}
+              disableDefaultUI={true}
+              colorScheme='DARK'
+            />
         </APIProvider>
       </main>
       <footer className={styles.footer}>
