@@ -12,7 +12,7 @@ package util;
 
 import metier.Map;
 import metier.Intersection;
-import metier.Segment;
+import metier.Adjacent;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,17 +20,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import metier.Coords;
 
-public class XmlMapParser implements FileParser<Map> {
+public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
 
     @Override
-    public Map parse(String filePath) {
-        List<Intersection> intersections = new ArrayList<>();
-        List<Segment> segments = new ArrayList<>();
+    public HashMap<Long, Intersection> parse(String filePath) {
         HashMap<Long, Intersection> intersectionMap = new HashMap<>();
 
         try {
-
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -45,35 +43,35 @@ public class XmlMapParser implements FileParser<Map> {
                 Long id = Long.parseLong(noeud.getAttribute("id"));
                 Double latitude = Double.parseDouble(noeud.getAttribute("latitude"));
                 Double longitude = Double.parseDouble(noeud.getAttribute("longitude"));
-
-                Intersection intersection = new Intersection(id, latitude, longitude);
-                intersections.add(intersection);
+                Coords location = new Coords(latitude, longitude);
+                
+                Intersection intersection = new Intersection(id, location);
                 intersectionMap.put(id, intersection); // Stocker dans la HashMap
 
             }
 
-            // Parsing segments
+            // Parsing adjacents
             NodeList troncons = document.getElementsByTagName("troncon");
             
             for (int i = 0; i < troncons.getLength(); i++) {
                 Element troncon = (Element) troncons.item(i);
-                Long origine = Long.parseLong(troncon.getAttribute("origine"));
-                Long destination = Long.parseLong(troncon.getAttribute("destination"));
+                Long origineId = Long.parseLong(troncon.getAttribute("origine"));
+                Long destinationId = Long.parseLong(troncon.getAttribute("destination"));
                 Double longueur = Double.parseDouble(troncon.getAttribute("longueur"));
                 String nomRue = troncon.getAttribute("nomRue");
 
                 // Recherche dans la HashMap pour les intersections
-                Intersection origin = intersectionMap.get(origine);
-                Intersection dest = intersectionMap.get(destination);
+                Intersection origin = intersectionMap.get(origineId);
+                Intersection dest = intersectionMap.get(destinationId);
 
                 // Vérification d'existence
                 if (origin == null || dest == null) {
-                    System.err.println("Skipping troncon with missing intersections: origine=" + origine + ", destination=" + destination);
+                    System.err.println("Skipping troncon with missing intersections: origine=" + origineId + ", destination=" + destinationId);
                     continue;
                 }
 
-                Segment segment = new Segment(origin, dest, nomRue, longueur);
-                segments.add(segment);
+                Adjacent adjacent = new Adjacent( dest, nomRue, longueur);
+                intersectionMap.get(origineId).addAdjacent(destinationId, adjacent);
 
             }
 
@@ -81,6 +79,6 @@ public class XmlMapParser implements FileParser<Map> {
             e.printStackTrace();
         }
 
-        return new Map(intersections, segments);
+        return intersectionMap;
     }
 }

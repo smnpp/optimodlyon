@@ -4,6 +4,7 @@
  */
 package metier;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -12,45 +13,34 @@ import java.util.List;
  */
 public class Map {
 
-    private List<Intersection> intersections;
-    private List<Segment> segments;
+    private HashMap<Long, Intersection> intersections;
 
-    public Map(List<Intersection> intersections, List<Segment> segments) {
-        this.intersections = intersections;
-        this.segments = segments;
+    public Map(HashMap<Long, Intersection> mapData) {
+        this.intersections = mapData; 
     }
 
-    public List<Intersection> getIntersections() {
+    public HashMap<Long, Intersection> getIntersections() {
         return intersections;
     }
 
-    public void setIntersections(List<Intersection> intersections) {
-        this.intersections = intersections;
+    public void addIntersection(Intersection intersection) {
+        intersections.put(intersection.getId(), intersection);
     }
 
-    public List<Segment> getSegments() {
-        return segments;
-    }
-
-    public void setSegments(List<Segment> segments) {
-        this.segments = segments;
+    public void displayMap() {
+        for (Intersection intersection : intersections.values()) {
+            System.out.println(intersection);
+        }
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("==== Map Details ====\n");
-
-        sb.append("Intersections:\n");
-        for (Intersection intersection : intersections) {
-            sb.append(intersection).append("\n");
-        }
-
-        sb.append("Segments:\n");
-        for (Segment segment : segments) {
-            sb.append(segment).append("\n");
-        }
-
-        return sb.toString();
+        StringBuilder sb = new StringBuilder("Map:\n");
+        for (Intersection intersection : intersections.values()) {
+        sb.append(intersection).append("\n");
     }
+    return sb.toString();
 }
+
+}
+

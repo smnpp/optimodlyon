@@ -8,26 +8,16 @@ package metier;
  *
  * @author simonperret
  */
-public class Segment {
+public class Adjacent {
 
-    private Intersection origin;
     private Intersection destination;
-    private String name;
+    private String segmentName;
     private Double length;
 
-    public Segment(Intersection origin, Intersection destination, String name, Double length) {
-        this.origin = origin;
+    public Adjacent(Intersection destination, String name, Double length) {
         this.destination = destination;
-        this.name = name;
+        this.segmentName = name;
         this.length = length;
-    }
-
-    public Intersection getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(Intersection origin) {
-        this.origin = origin;
     }
 
     public Intersection getDestination() {
@@ -39,11 +29,11 @@ public class Segment {
     }
 
     public String getName() {
-        return name;
+        return segmentName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.segmentName = name;
     }
 
     public Double getLength() {
@@ -56,11 +46,10 @@ public class Segment {
 
     @Override
     public String toString() {
-        return "Segment{"
-                + "origin=" + origin
-                + ", destination=" + destination
-                + ", name='" + name + '\''
-                + ", length=" + length
+        return "Adjacent{ " 
+                + "destinationId = " + destination.getId()
+                + ", segmentName = '" + segmentName + '\''
+                + ", length = " + length
                 + '}';
     }
 }
