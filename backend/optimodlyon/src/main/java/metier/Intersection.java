@@ -8,14 +8,22 @@ package metier;
  *
  * @author simonperret
  */
+import java.util.HashMap;
+
 public class Intersection {
 
     private Long id;
     private Coords location;
+    private HashMap<Long, Adjacent> adjacents;
 
     public Intersection(Long id, Coords location) {
         this.id = id;
         this.location = location;
+        this.adjacents = new HashMap<>();
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Coords getLocation() {
@@ -26,10 +34,28 @@ public class Intersection {
         this.location = location;
     }
 
+    public HashMap<Long, Adjacent> getAdjacents() {
+        return adjacents;
+    }
+
+    public void addAdjacent(Long id, Adjacent adj) {
+        adjacents.put(id, adj);
+    }
+
     @Override
     public String toString() {
-        return "Intersection{" + "id=" + id + ", location=" + location + '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("Intersection{ id=").append(id)
+          .append(", location = ").append(location)
+          .append(", adjacents = [ ");
+        for (Adjacent adjacent : adjacents.values()) {
+            sb.append(adjacent).append(", ");
+        }
+        if (!adjacents.isEmpty()) {
+            sb.setLength(sb.length() - 2); // Retirer la dernière virgule et espace
+        }
+        sb.append(" ] }");
+        return sb.toString();
     }
-    
-
 }
+

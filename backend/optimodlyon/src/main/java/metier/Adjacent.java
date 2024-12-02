@@ -46,10 +46,10 @@ public class Adjacent {
 
     @Override
     public String toString() {
-        return "Adjacent{" 
-                + " destination=" + destination
-                + ", segmentName='" + segmentName + '\''
-                + ", length=" + length
+        return "Adjacent{ " 
+                + "destinationId = " + destination.getId()
+                + ", segmentName = '" + segmentName + '\''
+                + ", length = " + length
                 + '}';
     }
 }

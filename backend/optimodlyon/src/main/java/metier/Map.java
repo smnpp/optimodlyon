@@ -13,13 +13,34 @@ import java.util.List;
  */
 public class Map {
 
-    private HashMap<Integer, Intersection> intersections;
+    private HashMap<Long, Intersection> intersections;
 
-    public Map() {
-        this.intersections = new HashMap<Integer, Intersection>();
+    public Map(HashMap<Long, Intersection> mapData) {
+        this.intersections = mapData; 
     }
-    
-    
-    
-    
+
+    public HashMap<Long, Intersection> getIntersections() {
+        return intersections;
+    }
+
+    public void addIntersection(Intersection intersection) {
+        intersections.put(intersection.getId(), intersection);
+    }
+
+    public void displayMap() {
+        for (Intersection intersection : intersections.values()) {
+            System.out.println(intersection);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Map:\n");
+        for (Intersection intersection : intersections.values()) {
+        sb.append(intersection).append("\n");
+    }
+    return sb.toString();
 }
+
+}
+

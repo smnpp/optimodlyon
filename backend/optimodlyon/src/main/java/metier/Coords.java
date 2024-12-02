@@ -18,7 +18,7 @@ public class Coords {
         this.latitude = latitude;
         this.longitude = longitude;
     }
-
+    
     public Double getLatitude() {
         return latitude;
     }
@@ -27,10 +27,17 @@ public class Coords {
         return longitude;
     }
 
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
     @Override
     public String toString() {
-        return "Coords{" + "latitude=" + latitude + ", longitude=" + longitude + '}';
+        return "Coords{ " + "latitude = " + latitude + ", longitude = " + longitude + '}';
     }
-    
     
 }

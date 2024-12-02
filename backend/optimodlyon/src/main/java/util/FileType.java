@@ -10,6 +10,8 @@ package util;
  */
 public enum FileType {
 
-    XmlMap, XmlDemande, Txt
+    XMLMAP, 
+    XMLDEMANDE, 
+    TXT
 
 }
