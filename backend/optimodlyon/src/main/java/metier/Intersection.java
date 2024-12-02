@@ -11,46 +11,25 @@ package metier;
 public class Intersection {
 
     private Long id;
-    private Double latitude;
-    private Double longitude;
+    private Coords location;
 
-    public Intersection(Long id, Double latitude, Double longitude) {
+    public Intersection(Long id, Coords location) {
         this.id = id;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.location = location;
     }
 
-    public Long getId() {
-        return id;
+    public Coords getLocation() {
+        return location;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
+    public void setLocation(Coords location) {
+        this.location = location;
     }
 
     @Override
     public String toString() {
-        return "Intersection{"
-                + "id=" + id
-                + ", latitude=" + latitude
-                + ", longitude=" + longitude
-                + '}';
+        return "Intersection{" + "id=" + id + ", location=" + location + '}';
     }
+    
 
 }

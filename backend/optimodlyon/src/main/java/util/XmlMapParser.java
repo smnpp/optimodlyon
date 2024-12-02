@@ -12,7 +12,7 @@ package util;
 
 import metier.Map;
 import metier.Intersection;
-import metier.Segment;
+import metier.Adjacent;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,13 +20,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import metier.Coords;
 
 public class XmlMapParser implements FileParser<Map> {
 
     @Override
     public Map parse(String filePath) {
         List<Intersection> intersections = new ArrayList<>();
-        List<Segment> segments = new ArrayList<>();
+        List<Adjacent> segments = new ArrayList<>();
         HashMap<Long, Intersection> intersectionMap = new HashMap<>();
 
         try {
@@ -45,8 +46,9 @@ public class XmlMapParser implements FileParser<Map> {
                 Long id = Long.parseLong(noeud.getAttribute("id"));
                 Double latitude = Double.parseDouble(noeud.getAttribute("latitude"));
                 Double longitude = Double.parseDouble(noeud.getAttribute("longitude"));
-
-                Intersection intersection = new Intersection(id, latitude, longitude);
+                Coords location = new Coords(latitude, longitude);
+                
+                Intersection intersection = new Intersection(id, location);
                 intersections.add(intersection);
                 intersectionMap.put(id, intersection); // Stocker dans la HashMap
 
@@ -72,8 +74,8 @@ public class XmlMapParser implements FileParser<Map> {
                     continue;
                 }
 
-                Segment segment = new Segment(origin, dest, nomRue, longueur);
-                segments.add(segment);
+                Adjacent adjacent = new Adjacent( dest, nomRue, longueur);
+                segments.add(adjacent);
 
             }
 
@@ -81,6 +83,6 @@ public class XmlMapParser implements FileParser<Map> {
             e.printStackTrace();
         }
 
-        return new Map(intersections, segments);
+        return new Map();
     }
 }
