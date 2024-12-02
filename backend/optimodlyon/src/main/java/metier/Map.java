@@ -11,7 +11,7 @@ import java.util.List;
  * @author simonperret
  */
 public class Map {
-    
+
     private List<Intersection> intersections;
     private List<Segment> segments;
 
@@ -35,5 +35,22 @@ public class Map {
     public void setSegments(List<Segment> segments) {
         this.segments = segments;
     }
-    
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("==== Map Details ====\n");
+
+        sb.append("Intersections:\n");
+        for (Intersection intersection : intersections) {
+            sb.append(intersection).append("\n");
+        }
+
+        sb.append("Segments:\n");
+        for (Segment segment : segments) {
+            sb.append(segment).append("\n");
+        }
+
+        return sb.toString();
+    }
 }
