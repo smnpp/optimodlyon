@@ -9,22 +9,22 @@ package metier;
  * @author simonperret
  */
 public class Intersection {
-    
-    private Integer id;
+
+    private Long id;
     private Double latitude;
     private Double longitude;
 
-    public Intersection(Integer id, Double latitude, Double longitude) {
+    public Intersection(Long id, Double latitude, Double longitude) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -43,7 +43,14 @@ public class Intersection {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
-    
-    
-    
+
+    @Override
+    public String toString() {
+        return "Intersection{"
+                + "id=" + id
+                + ", latitude=" + latitude
+                + ", longitude=" + longitude
+                + '}';
+    }
+
 }

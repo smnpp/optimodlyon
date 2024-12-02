@@ -9,7 +9,7 @@ package metier;
  * @author simonperret
  */
 public class Segment {
-    
+
     private Intersection origin;
     private Intersection destination;
     private String name;
@@ -53,5 +53,14 @@ public class Segment {
     public void setLength(Double length) {
         this.length = length;
     }
-        
+
+    @Override
+    public String toString() {
+        return "Segment{"
+                + "origin=" + origin
+                + ", destination=" + destination
+                + ", name='" + name + '\''
+                + ", length=" + length
+                + '}';
+    }
 }
