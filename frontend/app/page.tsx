@@ -16,6 +16,7 @@ export default function Home() {
         height={38}
         priority
       />
+
       <main className={styles.main}>
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
           <Map
@@ -27,6 +28,9 @@ export default function Home() {
               colorScheme='DARK'
             />
         </APIProvider>
+
+        <div className={styles.buttonsContainer}>
+        </div>
       </main>
       <footer className={styles.footer}>
         <p>© 2024 All rights reserved.</p>
