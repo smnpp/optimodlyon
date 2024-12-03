@@ -10,10 +10,10 @@ export default function Home() {
     <div className={styles.page}>
       <Image
         className={styles.logo}
-        src="/next.svg"
-        alt="Next.js logo"
-        width={180}
-        height={38}
+        src="/logo.svg"
+        alt="OptimodLyon logo"
+        width={500}
+        height={500}
         priority
       />
 
