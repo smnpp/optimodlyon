@@ -4,18 +4,26 @@ import Image from "next/image";
 import styles from "./page.module.css";
 import React from 'react';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import FileDialog from "./components/home/file-dialog";
 
 export default function Home() {
+
   return (
     <div className={styles.page}>
-      <Image
-        className={styles.logo}
-        src="/logo.svg"
-        alt="OptimodLyon logo"
-        width={500}
-        height={500}
-        priority
-      />
+      <header className={styles.header}>
+        <Image
+          className={styles.logo}
+          src="/logo.svg"
+          alt="OptimodLyon logo"
+          width={500}
+          height={500}
+          priority
+        />
+
+        <FileDialog
+          logo="/archive.svg"
+        />
+      </header>
 
       <main className={styles.main}>
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
@@ -28,13 +36,11 @@ export default function Home() {
               colorScheme='DARK'
             />
         </APIProvider>
-
-        <div className={styles.buttonsContainer}>
-        </div>
       </main>
       <footer className={styles.footer}>
         <p>© 2024 All rights reserved.</p>
       </footer>
     </div>
+    
   );
 }
