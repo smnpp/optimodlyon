@@ -5,6 +5,7 @@
 package modele;
 
 import javax.servlet.http.HttpServletRequest;
+import service.Service;
 
 /**
  *
@@ -18,7 +19,11 @@ public class ChargerMapAction extends Action {
 
 	@Override
 	public void execute(HttpServletRequest request) {
-
+		String file = request.getParameter("file");
+		System.out.println(file);
+		
+		
+		service.loadMap(file);
 	}
 	
 }

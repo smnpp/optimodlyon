@@ -6,7 +6,7 @@
 package modele;
 
 import javax.servlet.http.HttpServletRequest;
-import metier.Service;
+import service.Service;
 
 /**
  *
