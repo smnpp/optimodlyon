@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import React from 'react';
 import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import FileDialog from "./components/home/file-dialog";
+import OptimodApiService from "./services/service";
 
 export default function Home() {
 
@@ -22,6 +23,10 @@ export default function Home() {
 
         <FileDialog
           logo="/archive.svg"
+          validateFile={(file) => {
+            new OptimodApiService().testApi();
+            new OptimodApiService().loadMap(file);
+          }}
         />
       </header>
 
