@@ -4,7 +4,14 @@
  */
 package modele;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import metier.Map;
 import service.Service;
 
 /**
@@ -19,11 +26,29 @@ public class ChargerMapAction extends Action {
 
 	@Override
 	public void execute(HttpServletRequest request) {
-		String file = request.getParameter("file");
-		System.out.println(file);
+		BufferedReader reader = null;
+		try {
+			reader = request.getReader();
+		} catch (IOException ex) {
+			Logger.getLogger(ChargerMapAction.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		Gson gson = new Gson();
+		JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
+		String fileContent = jsonRequest.get("file-content").getAsString();
+		String fileName = jsonRequest.get("file-name").getAsString();
 		
 		
-		service.loadMap(file);
+		if(fileContent != null && fileName != null) {
+			try {
+				Map map = service.loadMap(fileContent, fileName);
+				request.setAttribute("success", true);
+				request.setAttribute("map", map);
+			} catch (IOException ex) {
+				Logger.getLogger(ChargerMapAction.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		} else {
+			request.setAttribute("success", false);
+		}
 	}
 	
 }
