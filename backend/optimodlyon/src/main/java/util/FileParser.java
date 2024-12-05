@@ -4,11 +4,13 @@
  */
 package util;
 
+import java.io.File;
+
 /**
  *
  * @author jassirhabba
  */
 public interface FileParser<T> {
 
-    T parse(String filePath);
+    T parse(File file);
 }

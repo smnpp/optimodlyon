@@ -10,29 +10,27 @@ package util;
  */
 
 
-import metier.Map;
+import java.io.BufferedWriter;
 import metier.Intersection;
 import metier.Adjacent;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.FileWriter;
 import java.util.HashMap;
-import java.util.List;
 import metier.Coords;
 
 public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
 
     @Override
-    public HashMap<Long, Intersection> parse(String filePath) {
+    public HashMap<Long, Intersection> parse(File file) {
         HashMap<Long, Intersection> intersectionMap = new HashMap<>();
 
         try {
-
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new File(filePath));
+            DocumentBuilder builder = factory.newDocumentBuilder();	   
+            Document document = builder.parse(file);
             document.getDocumentElement().normalize();
 
             // Parsing intersections

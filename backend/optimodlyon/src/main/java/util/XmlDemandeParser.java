@@ -4,6 +4,8 @@
  */
 package util;
 
+import java.io.File;
+
 /**
  *
  * @author jassirhabba
@@ -11,8 +13,8 @@ package util;
 public class XmlDemandeParser implements FileParser<Void> {
 
     @Override
-    public Void parse(String filePath) {
-        System.out.println("Parsing XML Demande from file: " + filePath);
+    public Void parse(File file) {
+        System.out.println("Parsing XML Demande from file: " + file);
         // Logique pour parser le fichier demande
         return null;
     }
