@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import metier.Intersection;
 import metier.Map;
+import metier.TourRequest;
 import util.FileParser;
 import util.FileParserFactory;
 import util.FileType;
@@ -21,34 +22,56 @@ import util.FileType;
  * @author jnoukam
  */
 public class Service {
-    
-	public Map loadMap(String fileContent, String fileName) throws IOException {
 
-		// Déterminer le type de fichier
-		File file = File.createTempFile("temp", ".xml");
-		file.deleteOnExit();
-		
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-			writer.write(fileContent);
-		}
-		
-		FileType fileType = FileParserFactory.determineFileType(file);
-		// Vérifier si le type de fichier est bien XmlMap
-		if (fileType != FileType.XMLMAP) {
-			throw new IllegalArgumentException("Invalid file type for loading a map: " + fileType);
-		}
+    public Map loadMap(String fileContent, String fileName) throws IOException {
 
-		// Récupérer le parser approprié via la factory
-		FileParser<HashMap<Long, Intersection>> parser = (FileParser<HashMap<Long, Intersection>>) FileParserFactory.getParser(fileType);
+        // Déterminer le type de fichier
+        File file = File.createTempFile("temp", ".xml");
+        file.deleteOnExit();
 
-		// Parse le fichier et récupère la HashMap d'intersections
-		HashMap<Long, Intersection> intersectionMap = parser.parse(file);
+        try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(fileContent);
+        }
 
-		// Construire l'objet Map à partir de la HashMap d'intersections
-		Map map = new Map(intersectionMap);
+        FileType fileType = FileParserFactory.determineFileType(file);
+        // Vérifier si le type de fichier est bien XmlMap
+        if (fileType != FileType.XMLMAP) {
+            throw new IllegalArgumentException("Invalid file type for loading a map: " + fileType);
+        }
 
-		return map;
-	}
+        // Récupérer le parser approprié via la factory
+        FileParser<HashMap<Long, Intersection>> parser = (FileParser<HashMap<Long, Intersection>>) FileParserFactory.getParser(fileType);
 
+        // Parse le fichier et récupère la HashMap d'intersections
+        HashMap<Long, Intersection> intersectionMap = parser.parse(file);
 
+        // Construire l'objet Map à partir de la HashMap d'intersections
+        Map map = new Map(intersectionMap);
+
+        return map;
+    }
+
+    public TourRequest loadRequestFile(String fileContent, String fileName) throws IOException {
+
+        // Déterminer le type de fichier
+        File file = File.createTempFile("temp", ".xml");
+        file.deleteOnExit();
+
+        try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(fileContent);
+        }
+
+        FileType fileType = FileParserFactory.determineFileType(file);
+        // Vérifier si le type de fichier est bien XmlMap
+        if (fileType != FileType.XMLDEMANDE) {
+            throw new IllegalArgumentException("Invalid file type for loading delivery request: " + fileType);
+        }
+
+        // Récupérer le parser approprié via la factory
+        FileParser<TourRequest> parser = (FileParser<TourRequest>) FileParserFactory.getParser(fileType);
+
+        TourRequest tourRequest = parser.parse(file);
+
+        return tourRequest;
+    }
 }
