@@ -4,12 +4,16 @@
  */ 
 package controller;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import metier.Map;
 import modele.ChargerMapAction;
 import service.Service;
 import vue.MapSerialisation;
@@ -32,6 +36,11 @@ public class ActionServlet extends HttpServlet {
 	 */
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+		response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
 		Service service = new Service();
 		String action = request.getParameter("action");
 		if(action != null) {
@@ -39,6 +48,18 @@ public class ActionServlet extends HttpServlet {
 				case "load-map" : {
 					new ChargerMapAction(service).execute(request);
 					new MapSerialisation().appliquer(request, response);
+					break;
+				}
+				case "test" : {
+
+					JsonObject container = new JsonObject();
+
+					container.addProperty("success", true);
+
+					response.setContentType("application/json;charset=UTF-8");
+					PrintWriter out = response.getWriter();
+					out.println(container.toString());
+					out.close();
 					break;
 				}
 				default:

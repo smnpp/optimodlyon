@@ -37,10 +37,10 @@ public class ChargerMapAction extends Action {
 		String fileContent = jsonRequest.get("file-content").getAsString();
 		String fileName = jsonRequest.get("file-name").getAsString();
 		
-		
 		if(fileContent != null && fileName != null) {
 			try {
 				Map map = service.loadMap(fileContent, fileName);
+				
 				request.setAttribute("success", true);
 				request.setAttribute("map", map);
 			} catch (IOException ex) {
