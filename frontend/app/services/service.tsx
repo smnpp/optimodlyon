@@ -29,11 +29,6 @@ class OptimodApiService {
 				throw new Error(`Error: ${response.statusText}`);
 			}
 			const data = await response.json();
-			console.log('data:', data);
-			const map = data.map;
-
-			console.log('map:', map);
-
 			const intersections: Intersection[] = data.map.map((item: { id: string; location: { latitude: number; longitude: number } }) => {
 				const latitude = item.location.latitude;
 				const longitude = item.location.longitude;
