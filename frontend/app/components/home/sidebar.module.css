@@ -9,7 +9,6 @@
 }
 
 .sidebar {
-    width: 50px;
     height: 100vh;
     background: #1a202c;
     color: #edf2f7;
@@ -18,8 +17,6 @@
     padding: 16px;
     gap: 16px;
     border-right: 2px solid #ffffff;
-    transform: translateX(0);
-    transition: width 0.3s ease-in-out;
     align-items: stretch; /* Étend les enfants horizontalement */
 }
 
@@ -29,25 +26,12 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-}
-
-.sidebar-nav-item {
-    display: flex; /* Icône et texte alignés horizontalement */
-    align-items: center;
-    gap: 8px;
-    color: hsl(0, 24%, 96%);
-    text-decoration: none;
-    font-size: 18px; /* Taille du texte */
-}
-
-.sidebar-nav-item svg {
-    font-size: 24px; /* Taille des icônes */
-    min-width: 24px; /* Empêche le rétrécissement des icônes */
-    min-height: 24px;
+    flex-shrink: 0; /* Empêche la réduction de la barre de navigation */
 }
 
 .sidebar-nav-item:hover {
-    color: #2d3748;
+    color: #66686c;
+    cursor: pointer;
 }
 
 .sidebar-nav {
@@ -62,20 +46,23 @@
     display: flex;
     flex-direction: column;
     padding: 16px;
-    gap: 50px;
+    gap: 20px;
     border-right: 2px solid #ffffff;
 }
+
 .item-bar-header {
+    gap: 8px;
     display: flex;
     flex-direction: row;
-    gap: 8px;
     align-items: center;
+    justify-content: flex-end;
 }
+
 .item-bar-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 50px;
+    gap: 10px;
 }
 
 @media (prefers-color-scheme: dark) {

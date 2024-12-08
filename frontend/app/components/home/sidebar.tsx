@@ -11,7 +11,6 @@ export default function Sidebar() {
     const [activeItem, setActiveItem] = useState('');
     const handleClick = (item: string) => {
         setActiveItem(item);
-        console.log(`Clicked on ${item}`);
     };
 
     const renderContent = () => {
@@ -20,17 +19,21 @@ export default function Sidebar() {
                 return (
                     <div className={activeItem ? styles['item-bar'] : ''}>
                         <div className={styles['item-bar-header']}>
-                            <VscClose
-                                onClick={() => setActiveItem('')}
-                                role="button"
-                                aria-label="Close item bar"
-                            />
+                            <div className={styles['sidebar-nav-item']}>
+                                <VscClose
+                                    onClick={() => setActiveItem('')}
+                                    role="button"
+                                    aria-label="Close item bar"
+                                    size={24}
+                                />
+                            </div>
+
                         </div>
                         <div className={styles['item-bar-content']}>
-                            <p>Nombre de points de passage :</p>
-                            <p>durée:</p>
-                            <p>Point de départ :</p>
-                            <p>Point d'arrivée :</p>
+                            <p>Waypoints:</p>
+                            <p>Starting point:</p>
+                            <p>End point:</p>
+                            <p>Duration:</p>
                         </div>
                     </div>
                 );
@@ -44,11 +47,11 @@ export default function Sidebar() {
         <div className={styles.container}>
             <div className={styles.sidebar}>
                 <nav className={styles['sidebar-nav']}>
-                    <div
-                        className={styles['sidebar-nav-item']}
-                        onClick={() => handleClick(SidebarItem.Tour)}
-                    >
-                        <FaMapMarkedAlt />
+                    <div className={styles['sidebar-nav-item']}>
+                        <FaMapMarkedAlt 
+                            onClick={() => handleClick(SidebarItem.Tour)}
+                            size={24}
+                        />
                     </div>
                 </nav>
             </div>
