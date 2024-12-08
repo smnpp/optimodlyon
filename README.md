@@ -64,7 +64,7 @@ Ouvrez http://localhost:3000 avec votre navigateur pour voir le résultat.
 1. Rendez-vous dans le dossier backend :
 
     ```bash
-    cd backend
+    cd backend/optimodlyon
     ```
 
 2. Compilez le projet avec Maven :
@@ -78,7 +78,7 @@ Ouvrez http://localhost:3000 avec votre navigateur pour voir le résultat.
 Les contributions sont les bienvenues ! Comment contribuer ?
 
 1.  Forkez ce dépôt.
-2.  Setup git flow : <<<<<<< HEAD
+2.  Setup git flow :
 
         ```bash
         git flow init -d
