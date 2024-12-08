@@ -42,6 +42,14 @@ public class TourRequest {
     public void setWarehouse(Warehouse warehouse) {
         this.warehouse = warehouse;
     }
+    
+    public void putDeliveryRequest(DeliveryRequest deliveryRequest) {
+        this.requests.put(deliveryRequest.getId(), deliveryRequest);
+    }
+    
+    public void removeDeliveryRequest(DeliveryRequest deliveryRequest) {
+        this.requests.remove(deliveryRequest.getId());
+    }
 
     @Override
     public String toString() {
