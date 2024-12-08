@@ -28,6 +28,13 @@ public class main {
                 + "<livraison adresseEnlevement=\"208769120\" adresseLivraison=\"25336179\" dureeEnlevement=\"420\" dureeLivraison=\"480\"/>\n"
                 + "</demandeDeLivraisons>";
 
+        String englishDeliveryRequestFileName = "requestsEnglish.xml";
+        String englishDeliveryRequestileContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+                + "<demandeDeLivraisons>\n"
+                + "<entrepot adresse=\"2835339774\" heureDepart=\"8:0:0\"/>\n"
+                + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"208769457\" dureeEnlevement=\"420\" dureeLivraison=\"600\"/>\n"
+                + "<livraison adresseEnlevement=\"208769120\" adresseLivraison=\"25336179\" dureeEnlevement=\"420\" dureeLivraison=\"480\"/>\n"
+                + "</demandeDeLivraisons>";
 
         try {
             // Instanciation du service
@@ -48,6 +55,15 @@ public class main {
             // Vérification et affichage
             if (tourRequest != null) {
                 System.out.println("Demandes de livraison chargése avec succès : \n\n" + tourRequest);
+            } else {
+                System.out.println("Impossible de charger les demandes de livraison.");
+            }
+
+            TourRequest englishTourRequest = service.loadRequestFile(englishDeliveryRequestileContent, englishDeliveryRequestFileName);
+
+            // Vérification et affichage
+            if (englishTourRequest != null) {
+                System.out.println("Demandes de livraison chargése avec succès : \n\n" + englishTourRequest);
             } else {
                 System.out.println("Impossible de charger les demandes de livraison.");
             }
