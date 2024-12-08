@@ -39,11 +39,20 @@ public class XmlDemandeParser implements FileParser<TourRequest> {
             Document document = builder.parse(file);
             document.getDocumentElement().normalize();
 
-            NodeList entrepots = document.getElementsByTagName("entrepot");
+            boolean isFrench = document.getDocumentElement().getTagName().equals("demandeDeLivraisons");
+            boolean isEnglish = document.getDocumentElement().getTagName().equals("planningRequest");
 
-            for (int i = 0; i < entrepots.getLength(); i++) {
-                Element entrepot = (Element) entrepots.item(i);
-                Long address = Long.parseLong(entrepot.getAttribute("adresse"));
+            if (!isFrench && !isEnglish) {
+                throw new IllegalArgumentException("Unrecognized XML file: Unexpected root element.");
+            }
+
+            NodeList depots = isFrench ? document.getElementsByTagName("entrepot")
+                                        : document.getElementsByTagName("depot");
+
+
+            for (int i = 0; i < depots.getLength(); i++) {
+                Element entrepot = (Element) depots.item(i);
+                Long address = isFrench ? Long.parseLong(entrepot.getAttribute("adresse")) : Long.parseLong(entrepot.getAttribute("address"));
 
                  DateTimeFormatter formatter = new DateTimeFormatterBuilder()
                 .appendValue(ChronoField.HOUR_OF_DAY)
@@ -55,20 +64,20 @@ public class XmlDemandeParser implements FileParser<TourRequest> {
                 .optionalEnd()
                 .toFormatter();
 
-                LocalTime localTime = LocalTime.parse(entrepot.getAttribute("heureDepart"), formatter);
+                LocalTime localTime = isFrench ? LocalTime.parse(entrepot.getAttribute("heureDepart"), formatter) : LocalTime.parse(entrepot.getAttribute("departureTime"), formatter);
                 warehouse = new Warehouse(address, localTime);
 
             }
 
-            NodeList livraisons = document.getElementsByTagName("livraison");
+            NodeList livraisons = isFrench ? document.getElementsByTagName("livraison") : document.getElementsByTagName("request");
 
             for (int i = 0; i < livraisons.getLength(); i++) {
                 Element livraison = (Element) livraisons.item(i);
-                Long pickupPoint = Long.parseLong(livraison.getAttribute("adresseEnlevement"));
-                Long deliveryPoint = Long.parseLong(livraison.getAttribute("adresseLivraison"));
+                Long pickupPoint = isFrench ? Long.parseLong(livraison.getAttribute("adresseEnlevement")) : Long.parseLong(livraison.getAttribute("pickupAddress"));
+                Long deliveryPoint = isFrench ? Long.parseLong(livraison.getAttribute("adresseLivraison")) : Long.parseLong(livraison.getAttribute("deliveryAddress"));
 
-                Duration pickupDuration = Duration.ofSeconds(Long.parseLong(livraison.getAttribute("dureeEnlevement")));
-                Duration deliveryDuration = Duration.ofSeconds(Long.parseLong(livraison.getAttribute("dureeLivraison")));
+                Duration pickupDuration = isFrench ? Duration.ofSeconds(Long.parseLong(livraison.getAttribute("dureeEnlevement"))) : Duration.ofSeconds(Long.parseLong(livraison.getAttribute("pickupDuration")));
+                Duration deliveryDuration = isFrench ? Duration.ofSeconds(Long.parseLong(livraison.getAttribute("dureeLivraison"))): Duration.ofSeconds(Long.parseLong(livraison.getAttribute("deliveryDuration")));
 
                 DeliveryRequest deliveryRequest = new DeliveryRequest(pickupPoint, deliveryPoint, pickupDuration, deliveryDuration);
                 requests.put(deliveryRequest.getId(), deliveryRequest);
