@@ -50,7 +50,6 @@ public class TourRequest {
     public void removeDeliveryRequest(DeliveryRequest deliveryRequest) {
         this.requests.remove(deliveryRequest.getId());
     }
-    
 
     @Override
     public String toString() {

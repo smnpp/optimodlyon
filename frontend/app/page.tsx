@@ -3,11 +3,39 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import React from 'react';
-import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import { AdvancedMarker, APIProvider, Map, Pin } from '@vis.gl/react-google-maps';
 import FileDialog from "./components/home/file-dialog";
 import OptimodApiService from "./services/service";
+import Intersection from "./types/intersection";
+
+
+const PoiMarkers = (props: {pois: Intersection[]}) => {
+  return (
+    <>
+      {props.pois.map( (poi: Intersection) => (
+        <AdvancedMarker
+          key={poi.key}
+          position={poi.location}>
+        <Pin background={'#FFFFFF'} glyphColor={'#000'} borderColor={'#000'} />
+        </AdvancedMarker>
+      ))}
+    </>
+  );
+};
+
 
 export default function Home() {
+  const [markers, setMarkers] = React.useState<Intersection[]>([]);
+  const apiService = new OptimodApiService();
+
+  const handleLoadMap = async (file: File) => {
+    try {
+      const markers = await apiService.loadMap(file);
+      setMarkers(markers);
+    } catch (error) {
+      console.error('Error loading map:', error);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -23,10 +51,7 @@ export default function Home() {
 
         <FileDialog
           logo="/archive.svg"
-          validateFile={(file) => {
-            new OptimodApiService().testApi();
-            new OptimodApiService().loadMap(file);
-          }}
+          validateFile={handleLoadMap}
         />
       </header>
 
@@ -34,12 +59,15 @@ export default function Home() {
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
           <Map
               style={{width: '800px', height: '500px'}}
-              defaultCenter={{lat: 46.54992, lng: 2.44}}
-              defaultZoom={3}
+              defaultCenter={{lat: 45.75, lng: 4.85}}
+              defaultZoom={12}
               gestureHandling={'greedy'}
               disableDefaultUI={true}
               colorScheme='DARK'
-            />
+              mapId='map'
+          >
+            <PoiMarkers pois={markers} />
+          </Map>
         </APIProvider>
       </main>
       <footer className={styles.footer}>
