@@ -19,3 +19,15 @@
   width: 20px; /* Adjust size as needed */
   height: 20px; /* Adjust size as needed */
 }
+ 
+.red {
+  background: linear-gradient(to right, #FF4B2B, #FF416C);
+}
+
+.green {
+  background: linear-gradient(to right, #40DB5C, #03C7FD, #40DB5C);
+}
+
+.purple {
+  background-color: linear-gradient(to right, #6740db, #fd034a, #db40b4);
+}

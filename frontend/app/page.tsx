@@ -7,7 +7,7 @@ import { AdvancedMarker, APIProvider, Map, Pin } from '@vis.gl/react-google-maps
 import FileDialog from "./components/home/file-dialog";
 import OptimodApiService from "./services/service";
 import Intersection from "./types/intersection";
-
+import Sidebar from './components/home/sidebar';
 
 const PoiMarkers = (props: {pois: Intersection[]}) => {
   return (
@@ -54,6 +54,8 @@ export default function Home() {
           validateFile={handleLoadMap}
         />
       </header>
+      
+      <Sidebar/>
 
       <main className={styles.main}>
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
