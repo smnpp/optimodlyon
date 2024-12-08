@@ -21,31 +21,20 @@ const FileDialog: React.FC<FileDialogProps> = ({ logo, validateFile }) => {
     }
   };
 
-  return (
-    <>
-      <Button
-        onClick={handleClick}
-        text="Upload Map"
-        logo={logo} // Ensure this path is correct
-        children={
-          <input
-            ref={ref}
-            type="file"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
-          />
-        }
-    };
-
     return (
         <>
             <Button
                 onClick={handleClick}
                 text="Upload Map"
                 color={ButtonColor.red}
-                logo={logo} // Ensure this path is correct
+                logo={logo} 
                 children={
-                    <input ref={ref} type="file" style={{ display: 'none' }} />
+                  <input
+                  ref={ref}
+                  type="file"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                  />
                 }
             />
         </>
