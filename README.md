@@ -25,7 +25,7 @@ parties :
     -   React 19
 
 -   **Backend** :
-    -   Java 17
+    -   Java 11
     -   Maven pour gérer les dépendances.
 
 ### **Lancement du Frontend**
@@ -72,13 +72,6 @@ Ouvrez http://localhost:3000 avec votre navigateur pour voir le résultat.
     ```bash
     mvn clean install
     ```
-
-3. Lancez l'application :
-    ```bash
-    java -jar target/backend-1.0.0.jar
-    ```
-
-L'API est disponible par défaut à : http://localhost:8080
 
 ## **Contribution**
 
