@@ -10,14 +10,21 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
-import metier.DeliveryRequest;
+import java.util.List;
+import javafx.util.Pair;
+import metier.Coords;
 import metier.Intersection;
 import metier.Map;
+import metier.Tour;
 import metier.TourRequest;
+import metier.DeliveryRequest;
+import util.tsp.ComputeTourUtilTools;
 import util.FileParser;
 import util.FileParserFactory;
 import util.FileType;
+import util.tsp.PathResult;
 
 /**
  *
@@ -75,6 +82,42 @@ public class Service {
         TourRequest tourRequest = parser.parse(file);
 
         return tourRequest;
+    }  
+    
+    
+    public static Tour computeTour(List<Long> orderedPoints, Map map) {
+        // Liste complète des intersections du tour
+        List<Intersection> fullPath = new ArrayList<>();
+        ComputeTourUtilTools djikstraUtilTools = new ComputeTourUtilTools();
+        Duration totalDuration = Duration.ZERO;
+        Long previousPoint = null;
+
+        for (Long currentPoint : orderedPoints) {
+            if (previousPoint != null) {
+                // Calculer à la demande le chemin entre deux points
+                HashMap<Long, PathResult> shortestPaths = djikstraUtilTools.computeShortestPathsFromSourceWithPaths(previousPoint, map);
+                List<Long> segmentPath = shortestPaths.get(currentPoint).getPath();
+
+                // Ajouter les intersections de ce segment sans duplications
+                for (int i = (fullPath.isEmpty() ? 0 : 1); i < segmentPath.size(); i++) {
+                    fullPath.add(map.getIntersections().get(segmentPath.get(i)));
+                }
+
+                // Calculer la durée pour ce segment
+                double segmentDistance = djikstraUtilTools.calculateSegmentDistance(segmentPath, map);
+                totalDuration = totalDuration.plus(djikstraUtilTools.calculateTravelTime(segmentDistance));
+            } else {
+                // Ajouter le premier point de départ
+                fullPath.add(map.getIntersections().get(currentPoint));
+            }
+
+            previousPoint = currentPoint;
+        }
+
+        Tour tour = new Tour();
+        tour.setDuration(totalDuration);
+        tour.setPointslist(fullPath);
+        return tour;
     }
     
     public DeliveryRequest createDeliveryRequest(Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
@@ -116,3 +159,4 @@ public class Service {
         return tourRequest;
     }
 }
+
