@@ -77,27 +77,27 @@ Ouvrez http://localhost:3000 avec votre navigateur pour voir le résultat.
 
 Les contributions sont les bienvenues ! Comment contribuer ?
 
-1. Forkez ce dépôt.
-2. Setup git flow :
+1.  Forkez ce dépôt.
+2.  Setup git flow : <<<<<<< HEAD
 
-    ```bash
-    git flow init -d
-    ```
+        ```bash
+        git flow init -d
+        ```
 
-3. Démarrer une fonctionnalité Pour commencer à travailler sur une nouvelle
-   fonctionnalité :
+3.  Démarrer une fonctionnalité Pour commencer à travailler sur une nouvelle
+    fonctionnalité :
 
     ```bash
     git flow feature start nom_de_la_fonctionnalité
     ```
 
-4. Poussez vos modifications vers votre dépôt forké :
+4.  Poussez vos modifications vers votre dépôt forké :
 
     ```bash
     git push origin feature/nom-fonctionnalite
     ```
 
-5. Ouvrez une Pull Request depuis GitHub.
+5.  Ouvrez une Pull Request depuis GitHub.
 
 Plus de détails dans le fichier [CONTRIBUTING](CONTRIBUTING.md).
 
