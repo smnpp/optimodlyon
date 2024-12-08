@@ -19,6 +19,7 @@ import metier.Intersection;
 import metier.Map;
 import metier.Tour;
 import metier.TourRequest;
+import metier.DeliveryRequest;
 import util.tsp.ComputeTourUtilTools;
 import util.FileParser;
 import util.FileParserFactory;
@@ -30,7 +31,7 @@ import util.tsp.PathResult;
  * @author jnoukam
  */
 public class Service {
-            
+
     public Map loadMap(String fileContent, String fileName) throws IOException {
 
         // Déterminer le type de fichier
@@ -119,7 +120,43 @@ public class Service {
         return tour;
     }
     
+    public DeliveryRequest createDeliveryRequest(Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
+        Duration pickupDurationCast = Duration.ofSeconds(pickupDuration);
+        Duration deliveryDurationCast = Duration.ofSeconds(deliveryDuration);
+        DeliveryRequest deliveryRequest = new DeliveryRequest(pickupPoint, deliveryPoint, pickupDurationCast, deliveryDurationCast);
+        
+        return deliveryRequest;
+    }
     
+    public TourRequest addDeliveryRequest(TourRequest tourRequest, Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
+        DeliveryRequest deliveryRequest = createDeliveryRequest(pickupPoint, deliveryPoint, pickupDuration, deliveryDuration);
+        tourRequest.putDeliveryRequest(deliveryRequest);
+        
+        return tourRequest;
+    }
     
+    public TourRequest removeDeliveryRequest(TourRequest tourRequest, DeliveryRequest deliveryRequest) throws IOException {
+        tourRequest.removeDeliveryRequest(deliveryRequest);
+        
+        return tourRequest;
+    }
+    
+    public TourRequest changePickupPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long pickupPoint) throws IOException {
+        java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
+        requests.get(deliveryRequest.getId()).setPickupPoint(pickupPoint);
+        
+        /// TODO : RECOMPUTE BEST TOUR !!!
+        
+        return tourRequest;
+    }
+    
+    public TourRequest changeDeliveryPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long deliveryPoint) throws IOException {
+        java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
+        requests.get(deliveryRequest.getId()).setPickupPoint(deliveryPoint);
+        
+        /// TODO : RECOMPUTE BEST TOUR !!!
+        
+        return tourRequest;
+    }
 }
 

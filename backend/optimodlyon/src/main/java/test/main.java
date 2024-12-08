@@ -18,7 +18,6 @@ import util.tsp.ComputeTourUtilTools;
 public class main {
 
     public static void main(String[] args) {
-
         
         String fileMapContent = ""
 	+ "<reseau>\n"
@@ -122,6 +121,7 @@ public class main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
     }
 }

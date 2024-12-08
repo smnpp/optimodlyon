@@ -3,34 +3,79 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import React from 'react';
-import { APIProvider, Map } from '@vis.gl/react-google-maps';
+import { AdvancedMarker, APIProvider, Map, Pin } from '@vis.gl/react-google-maps';
+import FileDialog from "./components/home/file-dialog";
+import OptimodApiService from "./services/service";
+import Intersection from "./types/intersection";
+import Sidebar from './components/home/sidebar';
+
+const PoiMarkers = (props: {pois: Intersection[]}) => {
+  return (
+    <>
+      {props.pois.map( (poi: Intersection) => (
+        <AdvancedMarker
+          key={poi.key}
+          position={poi.location}>
+        <Pin background={'#FFFFFF'} glyphColor={'#000'} borderColor={'#000'} />
+        </AdvancedMarker>
+      ))}
+    </>
+  );
+};
+
 
 export default function Home() {
+  const [markers, setMarkers] = React.useState<Intersection[]>([]);
+  const apiService = new OptimodApiService();
+
+  const handleLoadMap = async (file: File) => {
+    try {
+      const markers = await apiService.loadMap(file);
+      setMarkers(markers);
+    } catch (error) {
+      console.error('Error loading map:', error);
+    }
+  };
+
   return (
     <div className={styles.page}>
-      <Image
-        className={styles.logo}
-        src="/next.svg"
-        alt="Next.js logo"
-        width={180}
-        height={38}
-        priority
-      />
+      <header className={styles.header}>
+        <Image
+          className={styles.logo}
+          src="/logo.svg"
+          alt="OptimodLyon logo"
+          width={500}
+          height={500}
+          priority
+        />
+
+        <FileDialog
+          logo="/archive.svg"
+          validateFile={handleLoadMap}
+        />
+      </header>
+      
+      <Sidebar/>
+
       <main className={styles.main}>
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
           <Map
               style={{width: '800px', height: '500px'}}
-              defaultCenter={{lat: 46.54992, lng: 2.44}}
-              defaultZoom={3}
+              defaultCenter={{lat: 45.75, lng: 4.85}}
+              defaultZoom={12}
               gestureHandling={'greedy'}
               disableDefaultUI={true}
               colorScheme='DARK'
-            />
+              mapId='map'
+          >
+            <PoiMarkers pois={markers} />
+          </Map>
         </APIProvider>
       </main>
       <footer className={styles.footer}>
         <p>© 2024 All rights reserved.</p>
       </footer>
     </div>
+    
   );
 }
