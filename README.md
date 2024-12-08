@@ -86,15 +86,24 @@ Les contributions sont les bienvenues ! Comment contribuer ?
 
 1. Forkez ce dépôt.
 2. Setup git flow :
+
     ```bash
     git flow init -d
     ```
+
 3. Démarrer une fonctionnalité Pour commencer à travailler sur une nouvelle
-   fonctionnalité : `bash git flow feature start nom_de_la_fonctionnalité `
+   fonctionnalité :
+
+    ```bash
+    git flow feature start nom_de_la_fonctionnalité
+    ```
+
 4. Poussez vos modifications vers votre dépôt forké :
+
     ```bash
     git push origin feature/nom-fonctionnalite
     ```
+
 5. Ouvrez une Pull Request depuis GitHub.
 
 Plus de détails dans le fichier [CONTRIBUTING](CONTRIBUTING.md).
