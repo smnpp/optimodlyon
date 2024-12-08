@@ -2,7 +2,6 @@ package test;
 
 import java.util.HashMap;
 import java.util.List;
-import javafx.util.Pair;
 import metier.DeliveryRequest;
 import metier.Intersection;
 import metier.Map;

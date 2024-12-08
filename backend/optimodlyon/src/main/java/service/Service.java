@@ -13,8 +13,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import javafx.util.Pair;
-import metier.Coords;
 import metier.Intersection;
 import metier.Map;
 import metier.Tour;

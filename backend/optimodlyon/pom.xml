@@ -17,6 +17,12 @@
         <version>5.10.0</version>
         <scope>test</scope>
     </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>15.0.1</version>
+            <classifier>mac</classifier>
+        </dependency>
     </dependencies>
 
     <build>
