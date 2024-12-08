@@ -4,6 +4,7 @@
  */
 package util;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -13,13 +14,13 @@ import java.nio.file.Paths;
  */
 public class TextFileParser implements FileParser<String> {
 
-    @Override
-    public String parse(String filePath) {
-        try {
-            return new String(Files.readAllBytes(Paths.get(filePath))).trim();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+	@Override
+	public String parse(File file) {
+		try {
+			throw new UnsupportedOperationException("Unsupported Operation");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

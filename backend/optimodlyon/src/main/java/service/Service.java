@@ -5,24 +5,43 @@
  */
 package service;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import javafx.util.Pair;
+import metier.Coords;
 import metier.Intersection;
 import metier.Map;
+import metier.Tour;
+import metier.TourRequest;
+import util.tsp.ComputeTourUtilTools;
 import util.FileParser;
 import util.FileParserFactory;
 import util.FileType;
+import util.tsp.PathResult;
 
 /**
  *
  * @author jnoukam
  */
 public class Service {
-    
-    public Map loadMap(String fileName) {
+            
+    public Map loadMap(String fileContent, String fileName) throws IOException {
 
         // Déterminer le type de fichier
-        FileType fileType = FileParserFactory.determineFileType(fileName);
+        File file = File.createTempFile("temp", ".xml");
+        file.deleteOnExit();
 
+        try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(fileContent);
+        }
+
+        FileType fileType = FileParserFactory.determineFileType(file);
         // Vérifier si le type de fichier est bien XmlMap
         if (fileType != FileType.XMLMAP) {
             throw new IllegalArgumentException("Invalid file type for loading a map: " + fileType);
@@ -32,7 +51,7 @@ public class Service {
         FileParser<HashMap<Long, Intersection>> parser = (FileParser<HashMap<Long, Intersection>>) FileParserFactory.getParser(fileType);
 
         // Parse le fichier et récupère la HashMap d'intersections
-        HashMap<Long, Intersection> intersectionMap = parser.parse(fileName);
+        HashMap<Long, Intersection> intersectionMap = parser.parse(file);
 
         // Construire l'objet Map à partir de la HashMap d'intersections
         Map map = new Map(intersectionMap);
@@ -40,5 +59,67 @@ public class Service {
         return map;
     }
 
+    public TourRequest loadRequestFile(String fileContent, String fileName) throws IOException {
 
+        // Déterminer le type de fichier
+        File file = File.createTempFile("temp", ".xml");
+        file.deleteOnExit();
+
+        try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(fileContent);
+        }
+
+        FileType fileType = FileParserFactory.determineFileType(file);
+        // Vérifier si le type de fichier est bien XmlMap
+        if (fileType != FileType.XMLDEMANDE) {
+            throw new IllegalArgumentException("Invalid file type for loading delivery request: " + fileType);
+        }
+      
+        // Récupérer le parser approprié via la factory
+        FileParser<TourRequest> parser = (FileParser<TourRequest>) FileParserFactory.getParser(fileType);
+
+        TourRequest tourRequest = parser.parse(file);
+
+        return tourRequest;
+    }  
+    
+    
+    public static Tour computeTour(List<Long> orderedPoints, Map map) {
+        // Liste complète des intersections du tour
+        List<Intersection> fullPath = new ArrayList<>();
+        ComputeTourUtilTools djikstraUtilTools = new ComputeTourUtilTools();
+        Duration totalDuration = Duration.ZERO;
+        Long previousPoint = null;
+
+        for (Long currentPoint : orderedPoints) {
+            if (previousPoint != null) {
+                // Calculer à la demande le chemin entre deux points
+                HashMap<Long, PathResult> shortestPaths = djikstraUtilTools.computeShortestPathsFromSourceWithPaths(previousPoint, map);
+                List<Long> segmentPath = shortestPaths.get(currentPoint).getPath();
+
+                // Ajouter les intersections de ce segment sans duplications
+                for (int i = (fullPath.isEmpty() ? 0 : 1); i < segmentPath.size(); i++) {
+                    fullPath.add(map.getIntersections().get(segmentPath.get(i)));
+                }
+
+                // Calculer la durée pour ce segment
+                double segmentDistance = djikstraUtilTools.calculateSegmentDistance(segmentPath, map);
+                totalDuration = totalDuration.plus(djikstraUtilTools.calculateTravelTime(segmentDistance));
+            } else {
+                // Ajouter le premier point de départ
+                fullPath.add(map.getIntersections().get(currentPoint));
+            }
+
+            previousPoint = currentPoint;
+        }
+
+        Tour tour = new Tour();
+        tour.setDuration(totalDuration);
+        tour.setPointslist(fullPath);
+        return tour;
+    }
+    
+    
+    
 }
+

@@ -35,12 +35,12 @@ public class Map {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Map:\n");
-        for (Intersection intersection : intersections.values()) {
-        sb.append(intersection).append("\n");
+            StringBuilder sb = new StringBuilder("Map:\n");
+            for (Intersection intersection : intersections.values()) {
+            sb.append(intersection).append("\n");
+        }
+        return sb.toString();
     }
-    return sb.toString();
-}
 
 }
 

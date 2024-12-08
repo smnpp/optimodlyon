@@ -33,9 +33,13 @@ public class Intersection {
     public void setLocation(Coords location) {
         this.location = location;
     }
-
+    
     public HashMap<Long, Adjacent> getAdjacents() {
         return adjacents;
+    }
+
+    public void setAdjacents(HashMap<Long, Adjacent> adjacents) {
+        this.adjacents = adjacents;
     }
 
     public void addAdjacent(Long id, Adjacent adj) {
