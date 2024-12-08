@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './sidebar.module.css'; // Import du CSS sous forme de module
-import * as FaIcons from 'react-icons/fa';
+import { FaMapMarkedAlt } from 'react-icons/fa';
+import { VscClose } from 'react-icons/vsc';
 
 enum SidebarItem {
     Tour = 'Tour',
@@ -17,9 +18,20 @@ export default function Sidebar() {
         switch (activeItem) {
             case SidebarItem.Tour:
                 return (
-                    <div className={styles['item-bar-content']}>
-                        <p>Nombre de points de passage :</p>
-                        <p>durée:</p>
+                    <div className={activeItem ? styles['item-bar'] : ''}>
+                        <div className={styles['item-bar-header']}>
+                            <VscClose
+                                onClick={() => setActiveItem('')}
+                                role="button"
+                                aria-label="Close item bar"
+                            />
+                        </div>
+                        <div className={styles['item-bar-content']}>
+                            <p>Nombre de points de passage :</p>
+                            <p>durée:</p>
+                            <p>Point de départ :</p>
+                            <p>Point d'arrivée :</p>
+                        </div>
                     </div>
                 );
 
@@ -36,13 +48,11 @@ export default function Sidebar() {
                         className={styles['sidebar-nav-item']}
                         onClick={() => handleClick(SidebarItem.Tour)}
                     >
-                        <FaIcons.FaMapMarkedAlt />
+                        <FaMapMarkedAlt />
                     </div>
                 </nav>
             </div>
-            <div className={activeItem ? styles['item-bar'] : ''}>
-                {renderContent()}
-            </div>
+            <div>{renderContent()}</div>
         </div>
     );
 }
