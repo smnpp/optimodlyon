@@ -2,57 +2,60 @@ import React, { useState } from 'react';
 import styles from './sidebar.module.css'; // Import du CSS sous forme de module
 import { FaMapMarkedAlt } from 'react-icons/fa';
 import { VscClose } from 'react-icons/vsc';
+import { IconType } from 'react-icons';
 
-enum SidebarItem {
-    Tour = 'Tour',
-}
+type SidebarProps = {
+    items: { id: string; logo: IconType; content: React.ReactNode }[];
+};
 
-export default function Sidebar() {
-    const [activeItem, setActiveItem] = useState('');
+export default function Sidebar({ items }: SidebarProps) {
+    const [activeItem, setActiveItem] = useState<string | null>(null);
     const handleClick = (item: string) => {
         setActiveItem(item);
     };
 
     const renderContent = () => {
-        switch (activeItem) {
-            case SidebarItem.Tour:
-                return (
-                    <div className={activeItem ? styles['item-bar'] : ''}>
-                        <div className={styles['item-bar-header']}>
-                            <div className={styles['sidebar-nav-item']}>
-                                <VscClose
-                                    onClick={() => setActiveItem('')}
-                                    role="button"
-                                    aria-label="Close item bar"
-                                    size={24}
-                                />
-                            </div>
+        const activeContent = items.find((item) => item.id === activeItem);
+        if (!activeContent) return null;
 
-                        </div>
-                        <div className={styles['item-bar-content']}>
-                            <p>Waypoints:</p>
-                            <p>Starting point:</p>
-                            <p>End point:</p>
-                            <p>Duration:</p>
-                        </div>
+        return (
+            <div className={activeItem ? styles['item-bar'] : ''}>
+                <div className={styles['item-bar-header']}>
+                    <div className={styles['sidebar-nav-item']}>
+                        <VscClose
+                            onClick={() => setActiveItem(null)}
+                            role="button"
+                            aria-label="Close item bar"
+                            size={24}
+                        />
                     </div>
-                );
-
-            default:
-                return null;
-        }
+                </div>
+                <div className={styles['item-bar-content']}>
+                    {activeContent.content}
+                </div>
+            </div>
+        );
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.sidebar}>
                 <nav className={styles['sidebar-nav']}>
-                    <div className={styles['sidebar-nav-item']}>
-                        <FaMapMarkedAlt 
-                            onClick={() => handleClick(SidebarItem.Tour)}
-                            size={24}
-                        />
-                    </div>
+                    {items.map((item) => (
+                        <div
+                            key={item.id}
+                            className={styles['sidebar-nav-item']}
+                            onClick={() => handleClick(item.id)}
+                            style={{
+                                color:
+                                    activeItem == item.id
+                                        ? 'grey'
+                                        : 'lightgrey',
+                            }}
+                        >
+                            <item.logo size={24} />
+                        </div>
+                    ))}
                 </nav>
             </div>
             <div>{renderContent()}</div>
