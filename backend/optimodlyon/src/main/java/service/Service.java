@@ -83,40 +83,37 @@ public class Service {
     }  
     
     
-    public static Tour computeTour(List<Long> orderedPoints, Map map) {
-        // Liste complète des intersections du tour
-        List<Intersection> fullPath = new ArrayList<>();
-        ComputeTourUtilTools djikstraUtilTools = new ComputeTourUtilTools();
+   public static Tour computeTour(TourRequest tourRequest, Map map) {
+
+        ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();
+
+        // Ordonnancer les requêtes
+        List<Long> orderedPoints = computeTourUtil.scheduleOptimizedDeliveryRequests(tourRequest, map);
+
+        // Durée totale initiale en secondes
         Duration totalDuration = Duration.ZERO;
-        Long previousPoint = null;
 
-        for (Long currentPoint : orderedPoints) {
-            if (previousPoint != null) {
-                // Calculer à la demande le chemin entre deux points
-                HashMap<Long, PathResult> shortestPaths = djikstraUtilTools.computeShortestPathsFromSourceWithPaths(previousPoint, map);
-                List<Long> segmentPath = shortestPaths.get(currentPoint).getPath();
-
-                // Ajouter les intersections de ce segment sans duplications
-                for (int i = (fullPath.isEmpty() ? 0 : 1); i < segmentPath.size(); i++) {
-                    fullPath.add(map.getIntersections().get(segmentPath.get(i)));
-                }
-
-                // Calculer la durée pour ce segment
-                double segmentDistance = djikstraUtilTools.calculateSegmentDistance(segmentPath, map);
-                totalDuration = totalDuration.plus(djikstraUtilTools.calculateTravelTime(segmentDistance));
-            } else {
-                // Ajouter le premier point de départ
-                fullPath.add(map.getIntersections().get(currentPoint));
-            }
-
-            previousPoint = currentPoint;
+        // Calculer la durée des arrêts (pickup et delivery) en secondes
+        for (DeliveryRequest request : tourRequest.getRequests().values()) {
+            totalDuration = totalDuration.plus(request.getPickupDuration());
+            totalDuration = totalDuration.plus(request.getDeliveryDuration());
         }
 
-        Tour tour = new Tour();
-        tour.setDuration(totalDuration);
-        tour.setPointslist(fullPath);
+        // Construire la tournée
+        Tour tour = ComputeTourUtilTools.constructTourWithSpecificShortestPaths(orderedPoints, map);
+
+        // Ajouter la durée de la tournée (en secondes)
+        totalDuration = totalDuration.plus(tour.getDuration());
+
+        // Convertir la durée totale en minutes pour l'objet Tour
+        Duration totalDurationInMinutes = Duration.ofMinutes(totalDuration.getSeconds() / 60);
+
+        // Mettre à jour la durée totale dans l'objet Tour
+        tour.setDuration(totalDurationInMinutes);
+
         return tour;
     }
+
     
     public DeliveryRequest createDeliveryRequest(Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
         Duration pickupDurationCast = Duration.ofSeconds(pickupDuration);
