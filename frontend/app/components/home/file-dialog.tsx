@@ -4,10 +4,15 @@ import { IconType } from 'react-icons';
 
 interface FileDialogProps {
     logo?: IconType;
+    text?: string;
     validateFile: (file: File) => void;
 }
 
-const FileDialog: React.FC<FileDialogProps> = ({ logo, validateFile }) => {
+const FileDialog: React.FC<FileDialogProps> = ({
+    logo,
+    text,
+    validateFile,
+}) => {
     const ref = useRef<HTMLInputElement>(null);
 
     const handleClick = (e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -26,7 +31,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ logo, validateFile }) => {
         <>
             <Button
                 onClick={handleClick}
-                text="Upload Map"
+                text={text || ''}
                 color={ButtonColor.red}
                 logo={logo}
                 children={

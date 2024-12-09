@@ -54,6 +54,7 @@ export default function Home() {
                     <h5>Map</h5>
                     <FileDialog
                         logo={FaFileUpload}
+                        text="Load map"
                         validateFile={handleLoadMap}
                     />
                 </section>
@@ -65,6 +66,11 @@ export default function Home() {
             content: (
                 <section>
                     <h5>Tour</h5>
+                    <FileDialog
+                        logo={FaFileUpload}
+                        text="Load request"
+                        validateFile={handleLoadMap}
+                    />
                 </section>
             ),
         },
