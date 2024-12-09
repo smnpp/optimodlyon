@@ -173,3 +173,11 @@ a.secondary {
         filter: invert();
     }
 }
+
+.page,
+.main,
+.ctas,
+.footer,
+.header {
+    text-align: center;
+}
