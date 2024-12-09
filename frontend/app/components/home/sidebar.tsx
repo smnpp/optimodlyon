@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styles from './sidebar.module.css'; // Import du CSS sous forme de module
-import { FaMapMarkedAlt } from 'react-icons/fa';
 import { VscClose } from 'react-icons/vsc';
 import { IconType } from 'react-icons';
 

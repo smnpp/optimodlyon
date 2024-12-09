@@ -13,7 +13,7 @@ import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
 import Sidebar from './components/home/sidebar';
-import { FaMapMarkedAlt } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaFileUpload } from 'react-icons/fa';
 import { GrDirections } from 'react-icons/gr';
 
 const PoiMarkers = (props: { pois: Intersection[] }) => {
@@ -53,7 +53,7 @@ export default function Home() {
                 <section>
                     <h5>Map</h5>
                     <FileDialog
-                        logo="/archive.svg"
+                        logo={FaFileUpload}
                         validateFile={handleLoadMap}
                     />
                 </section>
