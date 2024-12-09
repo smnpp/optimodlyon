@@ -50,7 +50,7 @@ export default function Home() {
             id: 'Map',
             logo: FaMapMarkedAlt,
             content: (
-                <section>
+                <section className={styles.section}>
                     <h5>Map</h5>
                     <FileDialog
                         logo={FaFileUpload}
@@ -64,7 +64,7 @@ export default function Home() {
             id: 'Tour',
             logo: GrDirections,
             content: (
-                <section>
+                <section className={styles.section}>
                     <h5>Tour</h5>
                     <FileDialog
                         logo={FaFileUpload}
