@@ -38,7 +38,6 @@ public class main {
         try {
             // Instanciation du service
             Service service = new Service();
-            ComputeTourUtilTools ComputeTourUtil = new ComputeTourUtilTools();
 
             // Chargement de la carte
             Map map = service.loadMap(fileMapContent, fileMapName);
@@ -59,18 +58,9 @@ public class main {
             } else {
                 System.out.println("Impossible de charger la liste des requêtes.");
             }
-
-            // Construire la matrice des plus courts chemins si point de vue des segments
-            // HashMap<Pair<Long, Long>, List<Long>> shortestPaths = ComputeTourUtil.computeAllShortestPathsWithPaths(map);
-            
-            
-            // Ordonnancer les requêtes
-            List<Long> orderedPoints = ComputeTourUtil.scheduleOptimizedDeliveryRequests(tourRequest, map);
-            
-            System.out.println("\nOrdered deliveryRequest points : " + orderedPoints);
             
             // Construire le tour complet
-            Tour tour = service.computeTour(orderedPoints, map);
+            Tour tour = service.computeTour(tourRequest, map);
             
             //Ne pas tester pour l'instant
             //Tour tour = service.constructTourWithGeographicZones(orderedPoints, map);

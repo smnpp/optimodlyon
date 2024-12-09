@@ -17,20 +17,17 @@ import metier.DeliveryRequest;
 import metier.Intersection;
 import metier.Map;
 import metier.TourRequest;
-
-/**
- *Classe d'outils permettant de calculer le tour pour un DeliveryRequest
- * @author jnoukam
- */
+import metier.Coords;
+import metier.Tour;
 public class ComputeTourUtilTools {
     
     // Vitesse constante des livreurs en kilomètres par heure
     public static final double COURIER_SPEED_KM_PER_HOUR = 15.0;
     // Coefficient de la sous map de calcul
-    public final double RADIUS_COEF = 3.0;
+    public static final double RADIUS_COEF = 3.0;
     
     // Fonction pour calculer la distance geographique entre deux intersections à partir des cooredonnées
-    public double calculateDistance(Intersection i1, Intersection i2) {
+    public static double calculateDistance(Intersection i1, Intersection i2) {
         // Exemple simplifié : distance Euclidienne
         double dx = i1.getLocation().getLatitude() - i2.getLocation().getLatitude();
         double dy = i1.getLocation().getLongitude() - i2.getLocation().getLongitude();
@@ -48,7 +45,7 @@ public class ComputeTourUtilTools {
     }  
     
     // Fonction pour calculer la distance entre deux intersections en sommant les longueurs de chaque segment
-    public double calculateSegmentDistance(List<Long> segmentPath, Map map) {
+    public static double calculateSegmentDistance(List<Long> segmentPath, Map map) {
         double totalDistance = 0.0;
         for (int i = 0; i < segmentPath.size() - 1; i++) {
             Long fromId = segmentPath.get(i);
@@ -69,13 +66,13 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction pour calculer la durée pour parcourir une distance
-    public Duration calculateTravelTime(double distance) {
+    public static Duration calculateTravelTime(double distance) {
         double timeInSeconds = distance / (COURIER_SPEED_KM_PER_HOUR / 3.6); // Utilise la vitesse globale
-        return Duration.ofMinutes((long) (timeInSeconds / 60)); // Convertit en minutes
+        return Duration.ofSeconds((long) (timeInSeconds)); // Convertit en secondes
     }
     
     // Fonction pour trouver le point le plus proche d'un point de vue géographique respectant les contraintes
-    public Long findClosestPoint(Long currentPoint, List<Long> candidates, Map map, HashMap<Long, Boolean> visited, HashMap<String, DeliveryRequest> requests) {
+    public static Long findClosestPoint(Long currentPoint, List<Long> candidates, Map map, HashMap<Long, Boolean> visited, HashMap<String, DeliveryRequest> requests) {
         double minDistance = Double.MAX_VALUE;
         Long closestPoint = null;
 
@@ -101,7 +98,7 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction pour trouver le point le plus proche d'un point de vue des segments respectant les contraintes
-    public Long findClosestPoint(Long currentPoint, List<Long> candidates, Map map, HashMap<Long, Boolean> visited, HashMap<String, DeliveryRequest> requests, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
+    public static Long findClosestPoint(Long currentPoint, List<Long> candidates, Map map, HashMap<Long, Boolean> visited, HashMap<String, DeliveryRequest> requests, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
         double minDistance = Double.MAX_VALUE;
         Long closestPoint = null;
 
@@ -123,7 +120,7 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction principale pour ordonnancer les requêtes d'un point de vue géographique 
-    public List<Long> scheduleOptimizedDeliveryRequests(TourRequest tourRequest, Map map) {
+    public static List<Long> scheduleOptimizedDeliveryRequests(TourRequest tourRequest, Map map) {
         // Liste pour l'ordre final des points à visiter
         List<Long> orderedPoints = new ArrayList<>();
 
@@ -161,7 +158,7 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction principale pour ordonnancer les requêtes d'un point de vue des segments
-    public List<Long> scheduleOptimizedDeliveryRequests(TourRequest tourRequest, Map map, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
+    public static List<Long> scheduleOptimizedDeliveryRequests(TourRequest tourRequest, Map map, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
         // Liste pour l'ordre final des points à visiter
         List<Long> orderedPoints = new ArrayList<>();
 
@@ -199,7 +196,7 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction pour réduire la map à une zone circulaire spécifique d'un point de vue géographique
-    public Map filterMapByZone(Map originalMap, Intersection center, double radius) {
+    public static Map filterMapByZone(Map originalMap, Intersection center, double radius) {
         HashMap<Long, Intersection> filteredIntersections = new HashMap<>();
 
         for (Intersection intersection : originalMap.getIntersections().values()) {
@@ -225,7 +222,7 @@ public class ComputeTourUtilTools {
     }
     
     // Dijkstra modifié pour inclure les chemins complets
-    public HashMap<Long, util.tsp.PathResult> computeShortestPathsFromSourceWithPaths(Long sourceId, Map map) {
+    public static HashMap<Long, PathResult> computeShortestPathsFromSourceWithPaths(Long sourceId, Map map) {
         PriorityQueue<util.tsp.UtilPair> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(pair -> pair.distance));
         HashMap<Long, Double> distances = new HashMap<>();
         HashMap<Long, List<Long>> paths = new HashMap<>();
@@ -271,7 +268,7 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction permettant de calculer tous les plus court chemins en utilisant l'algo de Dijkstra précédent
-    public HashMap<Pair<Long, Long>, List<Long>> computeAllShortestPathsWithPaths(Map map) {
+    public static HashMap<Pair<Long, Long>, List<Long>> computeAllShortestPathsWithPaths(Map map) {
         HashMap<Pair<Long, Long>, List<Long>> allPaths = new HashMap<>();
 
         for (Long sourceId : map.getIntersections().keySet()) {
@@ -287,6 +284,159 @@ public class ComputeTourUtilTools {
         }
 
         return allPaths;
+    }
+    
+    
+    public static Tour constructTourWithGeographicZones(List<Long> orderedPoints, Map map) {
+       
+        List<Intersection> fullPath = new ArrayList<>();
+        Duration totalDuration = Duration.ZERO;
+        Long previousPoint = null;
+
+        for (Long currentPoint : orderedPoints) {
+            try {
+                if (previousPoint != null) {
+                    // Récupérer les intersections pour les points successifs
+                    Intersection prevIntersection = map.getIntersections().get(previousPoint);
+                    Intersection currIntersection = map.getIntersections().get(currentPoint);
+
+                    if (prevIntersection == null || currIntersection == null) {
+                        throw new IllegalArgumentException("Intersection manquante : " +
+                                "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
+                    }
+
+                    // Calculer le centre de la zone
+                    double midLat = (prevIntersection.getLocation().getLatitude() + currIntersection.getLocation().getLatitude()) / 2.0;
+                    double midLon = (prevIntersection.getLocation().getLongitude() + currIntersection.getLocation().getLongitude()) / 2.0;
+                    Intersection center = new Intersection(-1L, new Coords(midLat, midLon));
+
+                    // Calculer le rayon de la zone
+                    double radius = RADIUS_COEF * calculateDistance(prevIntersection, currIntersection);
+
+                    // Filtrer la carte pour créer une zone restreinte
+                    Map filteredMap = filterMapByZone(map, center, radius);
+                    if (filteredMap.getIntersections().isEmpty()) {
+                        throw new IllegalArgumentException("La zone filtrée est vide : " +
+                                "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
+                    }
+
+                    // Calculer le plus court chemin dans la zone
+                    HashMap<Long, PathResult> shortestPaths = computeShortestPathsFromSourceWithPaths(previousPoint, filteredMap);
+                    System.out.println("Chemins disponibles : " + shortestPaths.keySet());
+                    if (!shortestPaths.containsKey(currentPoint)) {
+                        throw new IllegalArgumentException("Aucun chemin trouvé pour : " +
+                                "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
+                    }
+
+
+                    List<Long> segmentPath = shortestPaths.get(currentPoint).getPath();
+                    System.out.println("Chemin pour " + currentPoint + ": " + segmentPath);
+                    if (segmentPath == null || segmentPath.isEmpty()) {
+                        throw new IllegalArgumentException("Segment vide pour : " +
+                                "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
+                    }
+
+
+                    // Ajouter les points au chemin
+                    for (int i = (fullPath.isEmpty() ? 0 : 1); i < segmentPath.size(); i++) {
+                        fullPath.add(map.getIntersections().get(segmentPath.get(i)));
+                    }
+
+                    // Calculer la durée pour ce segment
+                    double segmentDistance = calculateSegmentDistance(segmentPath, filteredMap);
+                    totalDuration = totalDuration.plus(calculateTravelTime(segmentDistance));
+                } else {
+                    // Ajouter le premier point de départ
+                    fullPath.add(map.getIntersections().get(currentPoint));
+                }
+
+                previousPoint = currentPoint;
+
+            } catch (Exception e) {
+                System.err.println("Erreur lors du traitement du segment : previousPoint = " + previousPoint +
+                        ", currentPoint = " + currentPoint);
+                e.printStackTrace();
+                throw e; // Propager l'erreur après log
+            }
+        }
+
+        // Création de l'objet Tour
+        Tour tour = new Tour();
+        tour.setDuration(totalDuration);
+        tour.setPointslist(fullPath);
+        return tour;
+    }
+
+   
+    public static Tour constructTourWithSpecificShortestPaths(List<Long> orderedPoints, Map map) {
+        // Liste complète des intersections du tour
+        List<Intersection> fullPath = new ArrayList<>();
+        Duration totalDuration = Duration.ZERO;
+        Long previousPoint = null;
+
+        for (Long currentPoint : orderedPoints) {
+            if (previousPoint != null) {
+                // Calculer à la demande le chemin entre deux points
+                HashMap<Long, PathResult> shortestPaths = computeShortestPathsFromSourceWithPaths(previousPoint, map);
+                List<Long> segmentPath = shortestPaths.get(currentPoint).getPath();
+
+                // Ajouter les intersections de ce segment sans duplications
+                for (int i = (fullPath.isEmpty() ? 0 : 1); i < segmentPath.size(); i++) {
+                    fullPath.add(map.getIntersections().get(segmentPath.get(i)));
+                }
+
+                // Calculer la durée pour ce segment
+                double segmentDistance = calculateSegmentDistance(segmentPath, map);
+                totalDuration = totalDuration.plus(calculateTravelTime(segmentDistance));
+            } else {
+                // Ajouter le premier point de départ
+                fullPath.add(map.getIntersections().get(currentPoint));
+            }
+
+            previousPoint = currentPoint;
+        }
+
+        Tour tour = new Tour();
+        tour.setDuration(totalDuration);
+        tour.setPointslist(fullPath);
+        return tour;
+    }
+    
+    
+    public static Tour constructTourWithAllShortestPaths(List<Long> orderedPoints, Map map, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
+        // Liste complète des intersections du tour
+        List<Intersection> fullPath = new ArrayList<>();
+        
+
+        // Calcul de la durée totale
+        Duration totalDuration = Duration.ZERO;
+        Long previousPoint = null;
+
+        for (Long currentPoint : orderedPoints) {
+            if (previousPoint != null) {
+                // Récupérer le chemin complet entre deux points
+                List<Long> segmentPath = shortestPaths.get(new Pair<>(previousPoint, currentPoint));
+                            
+                // Ajouter les intersections de ce chemin, sauf le premier point s'il est déjà dans fullPath
+                for (int i = (fullPath.isEmpty() ? 0 : 1); i < segmentPath.size(); i++) {
+                    fullPath.add(map.getIntersections().get(segmentPath.get(i)));
+                }
+
+                // Calculer la durée pour ce segment
+                double segmentDistance = calculateSegmentDistance(segmentPath, map);
+                totalDuration = totalDuration.plus(calculateTravelTime(segmentDistance));
+            } else {
+                // Ajouter le premier point de départ
+                fullPath.add(map.getIntersections().get(currentPoint));
+            }
+
+            previousPoint = currentPoint;
+        }
+
+        Tour tour = new Tour();
+        tour.setDuration(totalDuration);
+        tour.setPointslist(fullPath);
+        return tour;
     }
     
 }
