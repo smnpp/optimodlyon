@@ -42,7 +42,7 @@ public class TourSerialisation extends Serialisation {
 					
 					JsonObject location = new JsonObject();
 					location.addProperty("latitude", intersection.getLocation().getLatitude());
-					location.addProperty("longitude", intersection.getLocation().getLatitude());
+					location.addProperty("longitude", intersection.getLocation().getLongitude());
 					intersectionJson.add("location", location);
 					
 					intersectionJsonArray.add(intersectionJson);
