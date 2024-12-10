@@ -3,45 +3,59 @@
 import Image from 'next/image';
 import styles from './page.module.css';
 import React from 'react';
-import {
-    AdvancedMarker,
-    APIProvider,
-    Map,
-    Pin,
-} from '@vis.gl/react-google-maps';
+import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
 import Sidebar from './components/home/sidebar';
 import { FaMapMarkedAlt, FaFileUpload } from 'react-icons/fa';
 import { GrDirections } from 'react-icons/gr';
-
-const PoiMarkers = (props: { pois: Intersection[] }) => {
-    return (
-        <>
-            {props.pois.map((poi: Intersection) => (
-                <AdvancedMarker key={poi.key} position={poi.location}>
-                    <Pin
-                        background={'#FFFFFF'}
-                        glyphColor={'#000'}
-                        borderColor={'#000'}
-                    />
-                </AdvancedMarker>
-            ))}
-        </>
-    );
-};
+import { Button } from './components/home/button';
+import { MdCalculate } from 'react-icons/md';
+import {
+    DeliveryMarker,
+    MapMarker,
+    PickupMarker,
+    WarehouseMarker,
+} from './components/home/marker';
 
 export default function Home() {
-    const [markers, setMarkers] = React.useState<Intersection[]>([]);
+    const [map, setMap] = React.useState<Intersection[]>([]);
+    const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
+    const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
+    const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
+        [],
+    );
     const apiService = new OptimodApiService();
 
     const handleLoadMap = async (file: File) => {
         try {
             const markers = await apiService.loadMap(file);
-            setMarkers(markers);
+            // setMarkers(markers);
         } catch (error) {
             console.error('Error loading map:', error);
+        }
+    };
+
+    const handleLoadRequest = async (file: File) => {
+        try {
+            const tourRequest = await apiService.loadRequest(file);
+            const warehouse = tourRequest.warehouse;
+            const requests = tourRequest.request;
+
+            setWarehouse(warehouse);
+            setPickupPoints([...requests.map((req) => req.pickupPoint)]);
+            setDeliveryPoints([...requests.map((req) => req.deliveryPoint)]);
+        } catch (error) {
+            console.error('Error loading tour request:', error);
+        }
+    };
+
+    const handleComputeTour = async () => {
+        try {
+            const tour = await apiService.computeTour();
+        } catch (error) {
+            console.error('Error computing tour:', error);
         }
     };
 
@@ -57,22 +71,23 @@ export default function Home() {
                         text="Load map"
                         validateFile={handleLoadMap}
                     />
+                    <FileDialog
+                        logo={FaFileUpload}
+                        text="Load request"
+                        validateFile={handleLoadRequest}
+                    />
+                    <Button
+                        logo={MdCalculate}
+                        onClick={handleComputeTour}
+                        text="Compute tour"
+                    />
                 </section>
             ),
         },
         {
             id: 'Tour',
             logo: GrDirections,
-            content: (
-                <section className={styles.section}>
-                    <h5>Tour</h5>
-                    <FileDialog
-                        logo={FaFileUpload}
-                        text="Load request"
-                        validateFile={handleLoadMap}
-                    />
-                </section>
-            ),
+            content: <section className={styles.section}></section>,
         },
     ];
 
@@ -104,7 +119,14 @@ export default function Home() {
                         colorScheme="DARK"
                         mapId="map"
                     >
-                        <PoiMarkers pois={markers} />
+                        {warehouse && <WarehouseMarker warehouse={warehouse} />}
+                        {pickupPoints && (
+                            <PickupMarker pickupPoints={pickupPoints} />
+                        )}
+                        {deliveryPoints && (
+                            <DeliveryMarker deliveryPoints={deliveryPoints} />
+                        )}
+                        <MapMarker pois={map} />
                     </Map>
                 </APIProvider>
             </main>
