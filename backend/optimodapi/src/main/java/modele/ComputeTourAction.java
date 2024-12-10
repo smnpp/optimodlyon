@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import metier.Map;
+import metier.Tour;
 import metier.TourRequest;
 import metier.Warehouse;
 import service.Service;
@@ -38,15 +39,17 @@ public class ComputeTourAction extends Action {
 		Gson gson = new Gson();
 		JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
 		
-		String fileContent = jsonRequest.get("file-content").getAsString();
+		String mapFile = jsonRequest.get("map-file").getAsString();
+		String requestFile = jsonRequest.get("request-file").getAsString();
 		
 		try {
-			Map map = service.loadMap(fileContent);
+			Map map = service.loadMap(mapFile);
+			TourRequest tourRequest = service.loadRequestFile(requestFile);
 			
-//		Warehouse warehouse = new Warehouse();
-//		TourRequest tourRequest = new TourRequest(requests, warehouse);
-//		Map map = new Map();
-//		service.computeTour(tourRequest, map);
+			Tour tour = service.computeTour(tourRequest, map);
+			
+			request.setAttribute("success", true);
+			request.setAttribute("tour", tour);
 		} catch (IOException ex) {
 			Logger.getLogger(ComputeTourAction.class.getName()).log(Level.SEVERE, null, ex);
 		}
