@@ -16,10 +16,17 @@ import {
     PickupMarker,
     WarehouseMarker,
 } from './components/home/marker';
-import { GoogleMap, GoogleMapApiLoader } from 'react-google-map-wrapper';
+import {
+    GoogleMap,
+    GoogleMapApiLoader,
+    Polyline,
+} from 'react-google-map-wrapper';
 
 export default function Home() {
     // const [map, setMap] = React.useState<Intersection[]>([]);
+    const [tourCoordinates, setTourCoordinates] = React.useState<
+        google.maps.LatLngLiteral[]
+    >([]);
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
     const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
     const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
@@ -30,7 +37,6 @@ export default function Home() {
     const handleLoadMap = async (file: File) => {
         try {
             const markers = await apiService.loadMap(file);
-            // setMarkers(markers);
         } catch (error) {
             console.error('Error loading map:', error);
         }
@@ -53,6 +59,13 @@ export default function Home() {
     const handleComputeTour = async () => {
         try {
             const tour = await apiService.computeTour();
+            const coordinates = tour.intersections.map(
+                (intersection: Intersection) => ({
+                    lat: intersection.location.lat,
+                    lng: intersection.location.lng,
+                }),
+            );
+            setTourCoordinates(coordinates);
         } catch (error) {
             console.error('Error computing tour:', error);
         }
@@ -119,6 +132,13 @@ export default function Home() {
                             mapId: 'map-id',
                         }}
                     >
+                        <Polyline
+                            path={tourCoordinates}
+                            strokeColor="#FF0000"
+                            strokeOpacity={10.0}
+                            strokeWeight={2.0}
+                            geodesic
+                        />
                         {warehouse && <WarehouseMarker warehouse={warehouse} />}
                         {pickupPoints && (
                             <PickupMarker pickupPoints={pickupPoints} />

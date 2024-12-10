@@ -152,7 +152,7 @@ class OptimodApiService {
         }
     }
 
-    async computeTour(): Promise<void> {
+    async computeTour(): Promise<Tour> {
         const mapFile = localStorage.getItem('map-file');
         const requestFile = localStorage.getItem('request-file');
 
@@ -183,7 +183,7 @@ class OptimodApiService {
             }
             const data = await response.json();
 
-            const Tour = {
+            const tour: Tour = {
                 id: data.tour.id,
                 duration: data.tour.duration,
                 intersections: data.tour.intersections.map(
@@ -207,7 +207,7 @@ class OptimodApiService {
                 ),
             };
 
-            console.log('Tour:', Tour);
+            return tour;
         } catch (error) {
             console.error('Fetch error:', error);
             throw error;
