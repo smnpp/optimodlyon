@@ -34,7 +34,6 @@ const FileDialog: React.FC<FileDialogProps> = ({
                 text={text || ''}
                 color={ButtonColor.primary}
                 logo={logo}
-                minWidth="140px"
                 children={
                     <input
                         ref={ref}

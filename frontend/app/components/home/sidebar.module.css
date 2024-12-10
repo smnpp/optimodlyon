@@ -47,7 +47,6 @@
     flex-direction: column;
     padding: 16px;
     gap: 20px;
-    border-right: 2px solid #ffffff;
 }
 
 .item-bar-header {
@@ -69,4 +68,24 @@
     .container {
         filter: invert();
     }
+}
+
+.toggleline {
+    width: 4px;
+    height: 100vh;
+    cursor: grab;
+}
+
+.toggleline:hover,
+.toggleline:active {
+    background: rgb(27, 121, 228);
+    filter: none;
+}
+
+.toggleline:hover {
+    cursor: grab;
+}
+
+.toggleline:active {
+    cursor: grabbing;
 }
