@@ -1,5 +1,11 @@
 import Intersection from '@/app/types/intersection';
-import { AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import {
+    AdvancedMarker,
+    InfoWindow,
+    Pin,
+    useAdvancedMarkerRef,
+} from '@vis.gl/react-google-maps';
+import { useCallback, useState } from 'react';
 
 export const MapMarker = (props: { pois: Intersection[] }) => {
     return (
@@ -18,15 +24,41 @@ export const MapMarker = (props: { pois: Intersection[] }) => {
 };
 
 export const WarehouseMarker = (props: { warehouse: Intersection }) => {
+    const [markerRef, marker] = useAdvancedMarkerRef();
+    const [infoWindowShown, setInfoWindowShown] = useState(false);
+
+    const handleMarkerClick = useCallback(
+        () => setInfoWindowShown((isShown) => !isShown),
+        [],
+    );
+
+    const handleClose = useCallback(() => setInfoWindowShown(false), []);
+
     return (
         <>
-            <AdvancedMarker position={props.warehouse.location}>
+            <AdvancedMarker
+                ref={markerRef}
+                position={props.warehouse.location}
+                onClick={handleMarkerClick}
+            >
                 <Pin
                     background={'#FF0000'}
                     glyphColor={'#000'}
                     borderColor={'#000'}
                 />
             </AdvancedMarker>
+
+            {infoWindowShown && (
+                <InfoWindow anchor={marker} onClose={handleClose}>
+                    <div style={{ color: 'black' }}>
+                        <h3>Warehouse</h3>
+                        <p>
+                            Location:{' '}
+                            {`${props.warehouse.location.lat}, ${props.warehouse.location.lng}`}
+                        </p>
+                    </div>
+                </InfoWindow>
+            )}
         </>
     );
 };
