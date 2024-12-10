@@ -30,7 +30,7 @@ import util.tsp.PathResult;
  */
 public class Service {
 
-    public Map loadMap(String fileContent, String fileName) throws IOException {
+    public Map loadMap(String fileContent) throws IOException {
 
         // Déterminer le type de fichier
         File file = File.createTempFile("temp", ".xml");
@@ -58,7 +58,7 @@ public class Service {
         return map;
     }
 
-    public TourRequest loadRequestFile(String fileContent, String fileName) throws IOException {
+    public TourRequest loadRequestFile(String fileContent) throws IOException {
 
         // Déterminer le type de fichier
         File file = File.createTempFile("temp", ".xml");

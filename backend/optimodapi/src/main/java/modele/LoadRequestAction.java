@@ -35,11 +35,10 @@ public class LoadRequestAction extends Action {
 		Gson gson = new Gson();
 		JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
 		String fileContent = jsonRequest.get("file-content").getAsString();
-		String fileName = jsonRequest.get("file-name").getAsString();
 		
-		if(fileContent != null && fileName != null) {
+		if(fileContent != null) {
 			try {
-				TourRequest tourRequest = service.loadRequestFile(fileContent, fileName);
+				TourRequest tourRequest = service.loadRequestFile(fileContent);
 				
 				request.setAttribute("success", true);
 				request.setAttribute("tour-request", tourRequest);

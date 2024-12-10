@@ -26,10 +26,9 @@ class ServiceTest {
 	+ "<noeud id=\"2129259178\" latitude=\"45.750404\" longitude=\"4.8744674\"/>"
 	+ "<troncon destination=\"25175791\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"2129259178\"/>\n" 
 	+ "</reseau>";
-        String fileName = "map.xml";
 
         try {
-            Map map = service.loadMap(fileContent, fileName);
+            Map map = service.loadMap(fileContent);
             assertNotNull(map, "The map must not be null.");
             assertTrue(map.getIntersections().containsKey(25175791L), "Intersection 25175791 must exist.");
             assertTrue(map.getIntersections().containsKey(2129259178L), "Intersection 2129259178 must exist");
@@ -46,10 +45,9 @@ class ServiceTest {
                 + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"208769457\" dureeEnlevement=\"420\" dureeLivraison=\"600\"/>\n"
                 + "<livraison adresseEnlevement=\"208769120\" adresseLivraison=\"25336179\" dureeEnlevement=\"420\" dureeLivraison=\"480\"/>\n"
                 + "</demandeDeLivraisons>";
-        String fileName = "requests.xml";
 
         try {
-            TourRequest tourRequest = service.loadRequestFile(fileContent, fileName);
+            TourRequest tourRequest = service.loadRequestFile(fileContent);
             assertNotNull(tourRequest, "The delivery request must not be null.");
             assertEquals(2, tourRequest.getRequests().size(), "There must be 2 delivery requests.");
         } catch (Exception e) {

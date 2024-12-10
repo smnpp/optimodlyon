@@ -35,11 +35,10 @@ public class ChargerMapAction extends Action {
 		Gson gson = new Gson();
 		JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
 		String fileContent = jsonRequest.get("file-content").getAsString();
-		String fileName = jsonRequest.get("file-name").getAsString();
 		
-		if(fileContent != null && fileName != null) {
+		if(fileContent != null) {
 			try {
-				Map map = service.loadMap(fileContent, fileName);
+				Map map = service.loadMap(fileContent);
 				
 				request.setAttribute("success", true);
 				request.setAttribute("map", map);

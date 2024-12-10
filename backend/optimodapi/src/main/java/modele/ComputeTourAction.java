@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import metier.Map;
 import metier.TourRequest;
 import metier.Warehouse;
 import service.Service;
@@ -39,12 +40,16 @@ public class ComputeTourAction extends Action {
 		
 		String fileContent = jsonRequest.get("file-content").getAsString();
 		
-		
-		
+		try {
+			Map map = service.loadMap(fileContent);
+			
 //		Warehouse warehouse = new Warehouse();
 //		TourRequest tourRequest = new TourRequest(requests, warehouse);
 //		Map map = new Map();
 //		service.computeTour(tourRequest, map);
+		} catch (IOException ex) {
+			Logger.getLogger(ComputeTourAction.class.getName()).log(Level.SEVERE, null, ex);
+		}
 	}
 	
 }
