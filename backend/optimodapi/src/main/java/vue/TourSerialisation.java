@@ -37,14 +37,18 @@ public class TourSerialisation extends Serialisation {
 			List<Intersection> intersections = tour.getPointslist();
 			if (intersections != null) {
 				for (Intersection intersection : intersections) {
-					JsonObject pointJson = new JsonObject();
-					pointJson.addProperty("id", intersection.getId());
-					pointJson.addProperty("latitude", intersection.getLocation().getLatitude());
-					pointJson.addProperty("longitude", intersection.getLocation().getLatitude());
-					intersectionJsonArray.add(pointJson);
+					JsonObject intersectionJson = new JsonObject();
+					intersectionJson.addProperty("id", intersection.getId());
+					
+					JsonObject location = new JsonObject();
+					location.addProperty("latitude", intersection.getLocation().getLatitude());
+					location.addProperty("longitude", intersection.getLocation().getLatitude());
+					intersectionJson.add("location", location);
+					
+					intersectionJsonArray.add(intersectionJson);
 				}
 			}
-			tourJson.add("pointslist", intersectionJsonArray);
+			tourJson.add("intersections", intersectionJsonArray);
 
 			// Convert duration
 			if (tour.getDuration() != null) {
