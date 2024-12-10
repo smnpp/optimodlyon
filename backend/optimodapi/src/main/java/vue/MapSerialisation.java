@@ -35,7 +35,7 @@ public class MapSerialisation extends Serialisation {
 
 			// Create a JsonObject for each intersection
 			JsonObject intersectionObject = new JsonObject();
-			intersectionObject.addProperty("id", id.toString());
+			intersectionObject.addProperty("id", id);
 
 			JsonObject location = new JsonObject();
 			location.addProperty("latitude", intersection.getLocation().getLatitude());

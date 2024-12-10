@@ -72,6 +72,7 @@ public class TourRequestSerialisation extends Serialisation {
 		}
 
 		container.addProperty("success", success);
+		container.addProperty("id", tourRequest.getId());
 		container.add("warehouse", warehouseJson);
 		container.add("delivery-requests", deliveryRequestsArray);
 

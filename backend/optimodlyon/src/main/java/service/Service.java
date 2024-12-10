@@ -83,7 +83,7 @@ public class Service {
     }  
     
     
-   public static Tour computeTour(TourRequest tourRequest, Map map) {
+   public Tour computeTour(TourRequest tourRequest, Map map) {
 
         ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();
 
