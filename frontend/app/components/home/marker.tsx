@@ -1,29 +1,21 @@
+import React, { useState, useCallback } from 'react';
 import Intersection from '@/app/types/intersection';
 import {
     AdvancedMarker,
-    InfoWindow,
     Pin,
+    InfoWindow,
     useAdvancedMarkerRef,
 } from '@vis.gl/react-google-maps';
-import { useCallback, useState } from 'react';
 
-export const MapMarker = (props: { pois: Intersection[] }) => {
-    return (
-        <>
-            {props.pois.map((poi: Intersection) => (
-                <AdvancedMarker key={poi.key} position={poi.location}>
-                    <Pin
-                        background={'#FFFFFF'}
-                        glyphColor={'#000'}
-                        borderColor={'#000'}
-                    />
-                </AdvancedMarker>
-            ))}
-        </>
-    );
-};
-
-export const WarehouseMarker = (props: { warehouse: Intersection }) => {
+const MarkerWithInfoWindow = ({
+    position,
+    content,
+    color,
+}: {
+    position: google.maps.LatLngLiteral;
+    content: React.ReactNode;
+    color?: string;
+}) => {
     const [markerRef, marker] = useAdvancedMarkerRef();
     const [infoWindowShown, setInfoWindowShown] = useState(false);
 
@@ -38,11 +30,11 @@ export const WarehouseMarker = (props: { warehouse: Intersection }) => {
         <>
             <AdvancedMarker
                 ref={markerRef}
-                position={props.warehouse.location}
+                position={position}
                 onClick={handleMarkerClick}
             >
                 <Pin
-                    background={'#FF0000'}
+                    background={color || '#FFF'}
                     glyphColor={'#000'}
                     borderColor={'#000'}
                 />
@@ -50,16 +42,42 @@ export const WarehouseMarker = (props: { warehouse: Intersection }) => {
 
             {infoWindowShown && (
                 <InfoWindow anchor={marker} onClose={handleClose}>
-                    <div style={{ color: 'black' }}>
-                        <h3>Warehouse</h3>
-                        <p>
-                            Location:{' '}
-                            {`${props.warehouse.location.lat}, ${props.warehouse.location.lng}`}
-                        </p>
-                    </div>
+                    <div style={{ color: 'black' }}>{content}</div>
                 </InfoWindow>
             )}
         </>
+    );
+};
+
+export const MapMarker = (props: { pois: Intersection[] }) => {
+    return (
+        <>
+            {props.pois.map((poi: Intersection) => (
+                <MarkerWithInfoWindow
+                    key={poi.key}
+                    position={poi.location}
+                    content={<p>This is an intersection point: {poi.key}</p>}
+                />
+            ))}
+        </>
+    );
+};
+
+export const WarehouseMarker = (props: { warehouse: Intersection }) => {
+    return (
+        <MarkerWithInfoWindow
+            position={props.warehouse.location}
+            color="#FF0000"
+            content={
+                <div style={{ color: 'black' }}>
+                    <h3>Warehouse</h3>
+                    <p>
+                        Location:{' '}
+                        {`${props.warehouse.location.lat}, ${props.warehouse.location.lng}`}
+                    </p>
+                </div>
+            }
+        />
     );
 };
 
@@ -67,13 +85,20 @@ export const DeliveryMarker = (props: { deliveryPoints: Intersection[] }) => {
     return (
         <>
             {props.deliveryPoints.map((poi: Intersection) => (
-                <AdvancedMarker key={poi.key} position={poi.location}>
-                    <Pin
-                        background={'#00FF00'}
-                        glyphColor={'#000'}
-                        borderColor={'#000'}
-                    />
-                </AdvancedMarker>
+                <MarkerWithInfoWindow
+                    key={poi.key}
+                    position={poi.location}
+                    color="#00FF00"
+                    content={
+                        <div style={{ color: 'black' }}>
+                            <h3>Delivery Point</h3>
+                            <p>
+                                Location:{' '}
+                                {`${poi.location.lat}, ${poi.location.lng}`}
+                            </p>
+                        </div>
+                    }
+                />
             ))}
         </>
     );
@@ -83,13 +108,20 @@ export const PickupMarker = (props: { pickupPoints: Intersection[] }) => {
     return (
         <>
             {props.pickupPoints.map((poi: Intersection) => (
-                <AdvancedMarker key={poi.key} position={poi.location}>
-                    <Pin
-                        background={'#0000FF'}
-                        glyphColor={'#000'}
-                        borderColor={'#000'}
-                    />
-                </AdvancedMarker>
+                <MarkerWithInfoWindow
+                    key={poi.key}
+                    position={poi.location}
+                    color="#0000FF"
+                    content={
+                        <div style={{ color: 'black' }}>
+                            <h3>Pickup Point</h3>
+                            <p>
+                                Location:{' '}
+                                {`${poi.location.lat}, ${poi.location.lng}`}
+                            </p>
+                        </div>
+                    }
+                />
             ))}
         </>
     );
