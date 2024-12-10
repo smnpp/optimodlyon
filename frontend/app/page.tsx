@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import styles from './page.module.css';
 import React from 'react';
-import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
@@ -14,13 +13,13 @@ import { Button } from './components/home/button';
 import { MdCalculate } from 'react-icons/md';
 import {
     DeliveryMarker,
-    MapMarker,
     PickupMarker,
     WarehouseMarker,
 } from './components/home/marker';
+import { GoogleMap, GoogleMapApiLoader } from 'react-google-map-wrapper';
 
 export default function Home() {
-    const [map, setMap] = React.useState<Intersection[]>([]);
+    // const [map, setMap] = React.useState<Intersection[]>([]);
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
     const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
     const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
@@ -107,17 +106,18 @@ export default function Home() {
             <Sidebar items={sidebarItems} />
 
             <main className={styles.main}>
-                <APIProvider
+                <GoogleMapApiLoader
                     apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
                 >
-                    <Map
+                    <GoogleMap
                         style={{ width: '800px', height: '500px' }}
-                        defaultCenter={{ lat: 45.75, lng: 4.85 }}
-                        defaultZoom={12}
-                        gestureHandling={'greedy'}
-                        disableDefaultUI={true}
-                        colorScheme="DARK"
-                        mapId="map"
+                        center={{ lat: 45.75, lng: 4.85 }}
+                        zoom={12}
+                        containerProps={{ id: 'google-map' }}
+                        mapOptions={{
+                            backgroundColor: 'dark',
+                            mapId: 'map-id',
+                        }}
                     >
                         {warehouse && <WarehouseMarker warehouse={warehouse} />}
                         {pickupPoints && (
@@ -126,9 +126,8 @@ export default function Home() {
                         {deliveryPoints && (
                             <DeliveryMarker deliveryPoints={deliveryPoints} />
                         )}
-                        <MapMarker pois={map} />
-                    </Map>
-                </APIProvider>
+                    </GoogleMap>
+                </GoogleMapApiLoader>
             </main>
             <footer className={styles.footer}>
                 <p>© 2024 All rights reserved.</p>

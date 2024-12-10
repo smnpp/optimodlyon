@@ -13,14 +13,13 @@ class OptimodApiService {
     }
 
     async loadMap(map: File): Promise<Intersection[]> {
-        const fileName = map.name;
         const fileContent = await this.readFileContent(map);
 
         const body = {
-            'file-name': fileName,
             'file-content': fileContent,
         };
-        console.log('body:', body);
+
+        localStorage.setItem('map-file', fileContent);
 
         try {
             const response = await fetch(
@@ -67,13 +66,13 @@ class OptimodApiService {
     }
 
     async loadRequest(request: File): Promise<TourRequest> {
-        const fileName = request.name;
         const fileContent = await this.readFileContent(request);
 
         const body = {
-            'file-name': fileName,
             'file-content': fileContent,
         };
+
+        localStorage.setItem('request-file', fileContent);
 
         try {
             const response = await fetch(
@@ -144,6 +143,8 @@ class OptimodApiService {
                 warehouse: warehouse,
             };
 
+            localStorage.setItem('request', JSON.stringify(tourRequest));
+
             return tourRequest;
         } catch (error) {
             console.error('Fetch error:', error);
@@ -151,7 +152,21 @@ class OptimodApiService {
         }
     }
 
-    async computeTour(): Promise<Tour> {
+    async computeTour(): Promise<void> {
+        const mapFile = localStorage.getItem('map-file');
+        const requestFile = localStorage.getItem('request-file');
+
+        if (!mapFile || !requestFile) {
+            console.error(
+                'Map and request files must be loaded before computing tour',
+            );
+            throw new Error('Map and request files must be loaded');
+        }
+        const body = {
+            'map-file': mapFile,
+            'request-file': requestFile,
+        };
+
         try {
             const response = await fetch(
                 `${this.baseUrl}${'/ActionServlet?action=compute-tour'}`,
@@ -160,6 +175,7 @@ class OptimodApiService {
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify(body),
                 },
             );
             if (!response.ok) {
@@ -167,12 +183,31 @@ class OptimodApiService {
             }
             const data = await response.json();
 
-            console.log('data:', data);
-            const tour: Tour = {
-                key: data.key,
+            const Tour = {
+                id: data.tour.id,
+                duration: data.tour.duration,
+                intersections: data.tour.intersections.map(
+                    (item: {
+                        id: string;
+                        location: { latitude: number; longitude: number };
+                    }) => {
+                        const latitude = item.location.latitude;
+                        const longitude = item.location.longitude;
+
+                        const location: google.maps.LatLngLiteral = {
+                            lat: latitude,
+                            lng: longitude,
+                        };
+
+                        return {
+                            key: item.id,
+                            location: location,
+                        };
+                    },
+                ),
             };
 
-            return tour;
+            console.log('Tour:', Tour);
         } catch (error) {
             console.error('Fetch error:', error);
             throw error;

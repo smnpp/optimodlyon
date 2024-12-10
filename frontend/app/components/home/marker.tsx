@@ -2,10 +2,15 @@ import React, { useState, useCallback } from 'react';
 import Intersection from '@/app/types/intersection';
 import {
     AdvancedMarker,
-    Pin,
     InfoWindow,
-    useAdvancedMarkerRef,
-} from '@vis.gl/react-google-maps';
+    PinElement,
+} from 'react-google-map-wrapper';
+// import {
+//     AdvancedMarker,
+//     Pin,
+//     InfoWindow,
+//     useAdvancedMarkerRef,
+// } from '@vis.gl/react-google-maps';
 
 const MarkerWithInfoWindow = ({
     position,
@@ -16,35 +21,27 @@ const MarkerWithInfoWindow = ({
     content: React.ReactNode;
     color?: string;
 }) => {
-    const [markerRef, marker] = useAdvancedMarkerRef();
-    const [infoWindowShown, setInfoWindowShown] = useState(false);
-
-    const handleMarkerClick = useCallback(
-        () => setInfoWindowShown((isShown) => !isShown),
-        [],
-    );
-
-    const handleClose = useCallback(() => setInfoWindowShown(false), []);
+    const [isOpen, setOpen] = useState(false);
 
     return (
         <>
-            <AdvancedMarker
-                ref={markerRef}
-                position={position}
-                onClick={handleMarkerClick}
+            <InfoWindow
+                content={<div>{content}</div>}
+                onCloseClick={() => setOpen(false)}
+                open={isOpen}
             >
-                <Pin
-                    background={color || '#FFF'}
-                    glyphColor={'#000'}
-                    borderColor={'#000'}
-                />
-            </AdvancedMarker>
-
-            {infoWindowShown && (
-                <InfoWindow anchor={marker} onClose={handleClose}>
-                    <div style={{ color: 'black' }}>{content}</div>
-                </InfoWindow>
-            )}
+                <AdvancedMarker
+                    lat={position.lat}
+                    lng={position.lng}
+                    onClick={() => setOpen(true)}
+                >
+                    <PinElement
+                        background={color || '#FFF'}
+                        glyphColor={'#000'}
+                        borderColor={'#000'}
+                    />
+                </AdvancedMarker>
+            </InfoWindow>
         </>
     );
 };

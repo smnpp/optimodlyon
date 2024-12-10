@@ -11,7 +11,7 @@ export default function Sidebar({ items }: SidebarProps) {
     const [activeItem, setActiveItem] = useState<string | null>(null);
     const [sidebarWidth, setSidebarWidth] = useState<number>(200);
     const [isDragging, setIsDragging] = useState<boolean>(false);
-    const MIN_WIDTH = 100;
+    const MIN_WIDTH = 165;
 
     const handleClick = (item: string) => {
         setActiveItem(item);
