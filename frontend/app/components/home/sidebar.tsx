@@ -83,8 +83,8 @@ export default function Sidebar({ items }: SidebarProps) {
                             style={{
                                 color:
                                     activeItem == item.id
-                                        ? 'grey'
-                                        : 'lightgrey',
+                                        ? 'lightgrey'
+                                        : 'grey',
                             }}
                         >
                             <item.logo size={24} />
