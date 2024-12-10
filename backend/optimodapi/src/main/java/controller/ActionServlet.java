@@ -15,8 +15,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import metier.Map;
 import modele.ChargerMapAction;
+import modele.LoadRequestAction;
 import service.Service;
 import vue.MapSerialisation;
+import vue.TourRequestSerialisation;
 
 
 /**
@@ -48,6 +50,11 @@ public class ActionServlet extends HttpServlet {
 				case "load-map" : {
 					new ChargerMapAction(service).execute(request);
 					new MapSerialisation().appliquer(request, response);
+					break;
+				}
+				case "load-request" : {
+					new LoadRequestAction(service).execute(request);
+					new TourRequestSerialisation().appliquer(request, response);
 					break;
 				}
 				case "test" : {
