@@ -9,8 +9,12 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 import javafx.util.Pair;
 import metier.Adjacent;
 import metier.DeliveryRequest;
@@ -19,12 +23,13 @@ import metier.Map;
 import metier.TourRequest;
 import metier.Coords;
 import metier.Tour;
+
 public class ComputeTourUtilTools {
     
     // Vitesse constante des livreurs en kilomètres par heure
     public static final double COURIER_SPEED_KM_PER_HOUR = 15.0;
     // Coefficient de la sous map de calcul
-    public static final double RADIUS_COEF = 3.0;
+    public static final double RADIUS_COEF = 20.0;
     
     // Fonction pour calculer la distance geographique entre deux intersections à partir des cooredonnées
     public static double calculateDistance(Intersection i1, Intersection i2) {
@@ -76,21 +81,14 @@ public class ComputeTourUtilTools {
         double minDistance = Double.MAX_VALUE;
         Long closestPoint = null;
 
-        // Calculer les chemins dynamiquement depuis currentPoint
-        HashMap<Long, PathResult> shortestPaths = computeShortestPathsFromSourceWithPaths(currentPoint, map);
-
         for (Long candidate : candidates) {
             // Vérification des contraintes (pickup avant delivery)
             if (isValidPoint(candidate, visited, requests)) {
-                //PathResult pathResult = shortestPaths.get(candidate);
-                //if (pathResult != null) {
-                    //double distance = pathResult.getDistance(); // Distance depuis currentPoint jusqu'à candidate
-                    double distance = calculateDistance(map.getIntersections().get(currentPoint), map.getIntersections().get(candidate));
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestPoint = candidate;
-                    }
-                //}
+                double distance = calculateDistance(map.getIntersections().get(currentPoint), map.getIntersections().get(candidate));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = candidate;
+                }
             }
         }
 
@@ -106,9 +104,9 @@ public class ComputeTourUtilTools {
             // Vérification des contraintes (pickup avant delivery)
             if (isValidPoint(candidate, visited, requests)) {
                 
-                //List<Long> segmentPath = shortestPaths.get(new Pair<>(currentPoint, candidate));
-                //double distance = calculateSegmentDistance(segmentPath, map);
-                double distance = calculateDistance(map.getIntersections().get(currentPoint), map.getIntersections().get(candidate));
+                List<Long> segmentPath = shortestPaths.get(new Pair<>(currentPoint, candidate));
+                double distance = calculateSegmentDistance(segmentPath, map);
+                //double distance = calculateDistance(map.getIntersections().get(currentPoint), map.getIntersections().get(candidate));
                 if (distance < minDistance) {
                     minDistance = distance;
                     closestPoint = candidate;
@@ -198,29 +196,60 @@ public class ComputeTourUtilTools {
     // Fonction pour réduire la map à une zone circulaire spécifique d'un point de vue géographique
     public static Map filterMapByZone(Map originalMap, Intersection center, double radius) {
         HashMap<Long, Intersection> filteredIntersections = new HashMap<>();
+        HashSet<Long> toAdd = new HashSet<>(); // Ensemble temporaire pour les ajouts
 
+        // Étape 1 : Ajouter les intersections dans le rayon
         for (Intersection intersection : originalMap.getIntersections().values()) {
             double distance = calculateDistance(center, intersection);
             if (distance <= radius) {
-                // Ajouter l'intersection dans la nouvelle map
                 filteredIntersections.put(intersection.getId(), intersection);
             }
         }
 
-        // Construire les segments adjacents pour les intersections filtrées
+        // Étape 2 : Inclure les adjacents des intersections filtrées
         for (Intersection intersection : filteredIntersections.values()) {
             HashMap<Long, Adjacent> filteredAdjacents = new HashMap<>();
             for (Adjacent adjacent : intersection.getAdjacents().values()) {
-                if (filteredIntersections.containsKey(adjacent.getDestination().getId())) {
-                    filteredAdjacents.put(adjacent.getDestination().getId(), adjacent);
+                Long neighborId = adjacent.getDestination().getId();
+
+                if (filteredIntersections.containsKey(neighborId)) {
+                    // Si l'adjacent est déjà dans filteredMap, on le conserve
+                    filteredAdjacents.put(neighborId, adjacent);
+                } else {
+                    // Étape 3 : Vérifier si l'adjacent externe a d'autres connexions internes
+                    Intersection externalIntersection = originalMap.getIntersections().get(neighborId);
+                    if (externalIntersection != null) {
+                        int internalConnections = 0;
+                        HashMap<Long, Adjacent> internalAdjacents = new HashMap<>();
+                        for (Adjacent externalAdjacent : externalIntersection.getAdjacents().values()) {
+                            if (filteredIntersections.containsKey(externalAdjacent.getDestination().getId()) &&
+                                !externalAdjacent.getDestination().getId().equals(intersection.getId())) {
+                                internalAdjacents.put(externalAdjacent.getDestination().getId(), externalAdjacent);
+                                internalConnections++;
+                            }
+
+                            if (internalConnections > 0) {
+                                // Ajouter l'externalIntersection à l'ensemble temporaire
+                                externalIntersection.setAdjacents(internalAdjacents);
+                                toAdd.add(neighborId);
+                                filteredAdjacents.put(neighborId, adjacent);
+                                break; // Une seule connexion interne supplémentaire suffit
+                            }
+                        }
+                    }
                 }
             }
             intersection.setAdjacents(filteredAdjacents);
         }
 
+        // Ajouter les intersections collectées à la map filtrée
+        for (Long id : toAdd) {
+            filteredIntersections.put(id, originalMap.getIntersections().get(id));
+        }
+
         return new Map(filteredIntersections);
     }
-    
+
     // Dijkstra modifié pour inclure les chemins complets
     public static HashMap<Long, PathResult> computeShortestPathsFromSourceWithPaths(Long sourceId, Map map) {
         PriorityQueue<util.tsp.UtilPair> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(pair -> pair.distance));
@@ -256,6 +285,7 @@ public class ComputeTourUtilTools {
 
                     priorityQueue.add(new util.tsp.UtilPair(neighborId, newDistance));
                 }
+
             }
         }
 
@@ -315,14 +345,56 @@ public class ComputeTourUtilTools {
 
                     // Filtrer la carte pour créer une zone restreinte
                     Map filteredMap = filterMapByZone(map, center, radius);
+                    
+                    System.out.println("\n\nRayon utilisé pour le filtrage : " + radius);
+
+                    
                     if (filteredMap.getIntersections().isEmpty()) {
                         throw new IllegalArgumentException("La zone filtrée est vide : " +
                                 "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
                     }
+                    
+                    System.out.println("Vérification du sous-graphe pour previousPoint et currentPoint :");
+                    System.out.println("PreviousPoint (" + previousPoint + ") présent : " + filteredMap.getIntersections().containsKey(previousPoint));
+                    System.out.println("CurrentPoint (" + currentPoint + ") présent : " + filteredMap.getIntersections().containsKey(currentPoint));
+
+                    System.out.println("Adjacents de previousPoint (" + previousPoint + ") :");
+                    for (Adjacent adjacent : filteredMap.getIntersections().get(previousPoint).getAdjacents().values()) {
+                        System.out.println("-> Vers " + adjacent.getDestination().getId() + " (Longueur : " + adjacent.getLength() + ")");
+                    }
+
+                    System.out.println("Adjacents de currentPoint (" + currentPoint + ") :");
+                    for (Adjacent adjacent : filteredMap.getIntersections().get(currentPoint).getAdjacents().values()) {
+                        System.out.println("-> Vers " + adjacent.getDestination().getId() + " (Longueur : " + adjacent.getLength() + ")");
+                    }
+
+                    Set<Long> visited = new HashSet<>();
+                    Queue<Long> queue = new LinkedList<>();
+                    queue.add(previousPoint);
+
+                    while (!queue.isEmpty()) {
+                        Long current = queue.poll();
+                        if (!visited.contains(current)) {
+                            visited.add(current);
+                            for (Adjacent adjacent : filteredMap.getIntersections().get(current).getAdjacents().values()) {
+                                if (!visited.contains(adjacent.getDestination().getId())) {
+                                    queue.add(adjacent.getDestination().getId());
+                                }
+                            }
+                        }
+                    }
+
+                    System.out.println("Nombre de noeuds atteignables depuis previousPoint : " + visited.size());
+                    if (!visited.contains(currentPoint)) {
+                        System.err.println("currentPoint n'est pas atteignable depuis previousPoint dans le sous-graphe.");
+                    }
+
+                    
+                    
 
                     // Calculer le plus court chemin dans la zone
                     HashMap<Long, PathResult> shortestPaths = computeShortestPathsFromSourceWithPaths(previousPoint, filteredMap);
-                    System.out.println("Chemins disponibles : " + shortestPaths.keySet());
+                    //System.out.println("Chemins disponibles : " + shortestPaths.keySet());
                     if (!shortestPaths.containsKey(currentPoint)) {
                         throw new IllegalArgumentException("Aucun chemin trouvé pour : " +
                                 "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
@@ -332,8 +404,10 @@ public class ComputeTourUtilTools {
                     List<Long> segmentPath = shortestPaths.get(currentPoint).getPath();
                     System.out.println("Chemin pour " + currentPoint + ": " + segmentPath);
                     if (segmentPath == null || segmentPath.isEmpty()) {
-                        throw new IllegalArgumentException("Segment vide pour : " +
-                                "previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
+                        System.err.println("Chemin vide pour previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
+                        System.err.println("Sous-graphe généré contient previousPoint : " + filteredMap.getIntersections().containsKey(previousPoint));
+                        System.err.println("Sous-graphe généré contient currentPoint : " + filteredMap.getIntersections().containsKey(currentPoint));
+                        throw new IllegalArgumentException("Segment vide pour : previousPoint = " + previousPoint + ", currentPoint = " + currentPoint);
                     }
 
 
@@ -353,7 +427,7 @@ public class ComputeTourUtilTools {
                 previousPoint = currentPoint;
 
             } catch (Exception e) {
-                System.err.println("Erreur lors du traitement du segment : previousPoint = " + previousPoint +
+                System.err.println("\nErreur lors du traitement du segment : previousPoint = " + previousPoint +
                         ", currentPoint = " + currentPoint);
                 e.printStackTrace();
                 throw e; // Propager l'erreur après log
@@ -366,8 +440,7 @@ public class ComputeTourUtilTools {
         tour.setPointslist(fullPath);
         return tour;
     }
-
-   
+  
     public static Tour constructTourWithSpecificShortestPaths(List<Long> orderedPoints, Map map) {
         // Liste complète des intersections du tour
         List<Intersection> fullPath = new ArrayList<>();
@@ -401,8 +474,7 @@ public class ComputeTourUtilTools {
         tour.setPointslist(fullPath);
         return tour;
     }
-    
-    
+     
     public static Tour constructTourWithAllShortestPaths(List<Long> orderedPoints, Map map, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
         // Liste complète des intersections du tour
         List<Intersection> fullPath = new ArrayList<>();
