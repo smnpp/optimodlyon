@@ -19,10 +19,10 @@ import service.Service;
  * @author Hazim Asri
  */
 public class ChargerMapAction extends Action {
-	
-	public ChargerMapAction(Service service) {
-		super(service);
-	}
+
+    public ChargerMapAction(Service service) {
+        super(service);
+    }
 
 	@Override
 	public void execute(HttpServletRequest request) {
@@ -50,4 +50,7 @@ public class ChargerMapAction extends Action {
 		}
 	}
 	
+
+
+
 }

@@ -6,9 +6,15 @@ import React from 'react';
 import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
+import Tour from './types/tour';
 import Sidebar from './components/home/sidebar';
-import { FaMapMarkedAlt, FaFileUpload } from 'react-icons/fa';
+import {
+    FaMapMarkedAlt,
+    FaFileUpload,
+    FaArrowCircleDown,
+} from 'react-icons/fa';
 import { GrDirections } from 'react-icons/gr';
+
 import { Button } from './components/home/button';
 import { MdCalculate } from 'react-icons/md';
 import {
@@ -37,6 +43,53 @@ export default function Home() {
     const handleLoadMap = async (file: File) => {
         try {
             const markers = await apiService.loadMap(file);
+        } catch (error) {
+            console.error('Error loading map:', error);
+        }
+    };
+    const handleSaveTour = async () => {
+        try {
+            const tours: Tour[] = [
+                {
+                    id: 1,
+                    duration: 90, // Durée en minutes
+                    intersections: [
+                        {
+                            key: '7',
+                            location: { lat: 40.7128, lng: -74.006 }, // Coordonnées pour New York
+                        },
+                        {
+                            key: '6',
+                            location: { lat: 40.713, lng: -74.007 }, // Coordonnées proches
+                        },
+                    ],
+                },
+                {
+                    id: 2,
+                    duration: 120, // Durée en minutes
+                    intersections: [
+                        {
+                            key: '3',
+                            location: { lat: 41.0, lng: -75.0 }, // Coordonnées pour une autre localisation
+                        },
+                        {
+                            key: '4',
+                            location: { lat: 41.1, lng: -75.1 }, // Coordonnées proches
+                        },
+                    ],
+                },
+                {
+                    id: 3,
+                    duration: 60, // Durée en minutes
+                    intersections: [
+                        {
+                            key: '5',
+                            location: { lat: 42.0, lng: -76.0 }, // Autres coordonnées
+                        },
+                    ],
+                },
+            ];
+            await apiService.saveTours(tours);
         } catch (error) {
             console.error('Error loading map:', error);
         }
@@ -100,6 +153,20 @@ export default function Home() {
             id: 'Tour',
             logo: GrDirections,
             content: <section className={styles.section}></section>,
+        },
+        {
+            id: 'Save',
+            logo: FaArrowCircleDown,
+            content: (
+                <section>
+                    <h5>Save</h5>
+                    <Button
+                        onClick={handleSaveTour}
+                        text="Save tour"
+                        logo={FaArrowCircleDown}
+                    />
+                </section>
+            ),
         },
     ];
 
