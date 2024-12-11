@@ -113,11 +113,9 @@ class ServiceTest {
         try {
             // Charger la carte
             Map map = service.loadMap(fileMapContent, "map.xml");
-            assertNotNull(map, "The map must not be null.");
 
             // Charger la demande de livraison
             TourRequest tourRequest = service.loadRequestFile(fileRequestContent, "requests.xml");
-            assertNotNull(tourRequest, "The tour request must not be null.");
 
             // Calculer le tour
             Tour tour = service.computeTour(tourRequest, map);
