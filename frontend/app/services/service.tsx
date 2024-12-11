@@ -1,6 +1,7 @@
 import DeliveryRequest from '../types/delivery-request';
 import Intersection from '../types/intersection';
 import Tour from '../types/tour';
+
 import TourRequest from '../types/tour-request';
 
 class OptimodApiService {
@@ -77,6 +78,7 @@ class OptimodApiService {
         try {
             const response = await fetch(
                 `${this.baseUrl}${'/ActionServlet?action=load-request'}`,
+
                 {
                     method: 'POST',
                     headers: {
@@ -85,6 +87,7 @@ class OptimodApiService {
                     body: JSON.stringify(body),
                 },
             );
+
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
@@ -210,6 +213,72 @@ class OptimodApiService {
             return tour;
         } catch (error) {
             console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+
+    async saveTours(tours: Tour[]): Promise<void> {
+        if (!Array.isArray(tours)) {
+            throw new Error(
+                'Invalid input: Tours must be an array of Tour objects.',
+            );
+        }
+
+        const body = {
+            tours: tours.map((tour) => {
+                if (
+                    typeof tour.id !== 'number' ||
+                    typeof tour.duration !== 'number' ||
+                    !Array.isArray(tour.intersections)
+                ) {
+                    throw new Error(
+                        'Invalid input: Each Tour must have a valid id, duration, and intersections.',
+                    );
+                }
+
+                return {
+                    id: tour.id,
+                    duration: tour.duration,
+                    intersections: tour.intersections.map((intersection) => {
+                        if (
+                            !intersection ||
+                            !intersection.key ||
+                            !intersection.location
+                        ) {
+                            throw new Error(
+                                'Invalid input: Each intersection must have a key and a location.',
+                            );
+                        }
+                        return {
+                            key: intersection.key,
+                            location: intersection.location, // Inclut également la propriété `location`
+                        };
+                    }),
+                };
+            }),
+        };
+
+        console.log('Request body:', body);
+
+        try {
+            const response = await fetch(
+                `${this.baseUrl}${'/ActionServlet?action=save-tour'}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                },
+            );
+            if (!response.ok) {
+                const errorDetails = await response.text();
+                throw new Error(
+                    `Failed to save tours. Status: ${response.status}, Message: ${response.statusText}, Details: ${errorDetails}`,
+                );
+            }
+        } catch (error) {
+            console.error('Error saving tours:', (error as Error).message);
             throw error;
         }
     }

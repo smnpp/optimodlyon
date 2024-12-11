@@ -14,38 +14,42 @@ import java.util.UUID;
  * @author jnoukam
  */
 public class Tour {
-    
-	private final String id;;
-	private List<Intersection> pointslist;
-	private Duration duration;
 
-	public Tour() {
-	this.id = UUID.randomUUID().toString();
-	}
+    private String id;
+    private List<Intersection> pointslist;
+    private Duration duration;
 
-	public String getId() {
-		return id;
-	}
+    public Tour() {
+        this.id = UUID.randomUUID().toString();
+    }
 
-	public List<Intersection> getPointslist() {
-		return pointslist;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public Duration getDuration() {
-		return duration;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setPointslist(List<Intersection> pointslist) {
-		this.pointslist = pointslist;
-	}
+    public List<Intersection> getPointslist() {
+        return pointslist;
+    }
 
-	public void setDuration(Duration duration) {
-		this.duration = duration;
-	}
+    public Duration getDuration() {
+        return duration;
+    }
 
-	@Override
-	public String toString() {
-		return "Tour{" + "id=" + id + ", pointslist=" + pointslist + ", duration=" + duration + '}';
-	}
-    
- }
+    public void setPointslist(List<Intersection> pointslist) {
+        this.pointslist = pointslist;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    @Override
+    public String toString() {
+        return "Tour{" + "id=" + id + ", pointslist=" + pointslist + ", duration=" + duration + '}';
+    }
+
+}

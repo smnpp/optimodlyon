@@ -25,11 +25,11 @@ class ServiceTest {
     @Test
     void testLoadMap() {
         String fileContent = ""
-	+ "<reseau>\n"
-	+ "<noeud id=\"25175791\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n" 
-	+ "<noeud id=\"2129259178\" latitude=\"45.750404\" longitude=\"4.8744674\"/>"
-	+ "<troncon destination=\"25175791\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"2129259178\"/>\n" 
-	+ "</reseau>";
+                + "<reseau>\n"
+                + "<noeud id=\"25175791\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n"
+                + "<noeud id=\"2129259178\" latitude=\"45.750404\" longitude=\"4.8744674\"/>"
+                + "<troncon destination=\"25175791\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"2129259178\"/>\n"
+                + "</reseau>";
 
         try {
             Map map = service.loadMap(fileContent);
@@ -59,7 +59,7 @@ class ServiceTest {
             fail("Loading delivery request failed: " + e.getMessage());
         }
     }
-    
+
     @Test
     void testCreateDeliveryRequest() {
         Long pickupPoint = 123L;
@@ -76,37 +76,37 @@ class ServiceTest {
             fail("Creation of delivery request failed: " + e.getMessage());
         }
     }
-    
-   @Test
+
+    @Test
     void testComputeTourWithMoreNodesAndConditions() {
 
         String fileMapContent = ""
-            + "<reseau>\n"
-            + "<noeud id=\"2835339774\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n" // Entrepôt
-            + "<noeud id=\"1679901320\" latitude=\"45.750404\" longitude=\"4.8744674\"/>\n" // Pickup 1
-            + "<noeud id=\"208769457\" latitude=\"45.7585\" longitude=\"4.8356\"/>\n"     // Delivery 1
-            + "<noeud id=\"223344556\" latitude=\"45.7590\" longitude=\"4.8500\"/>\n"     // Pickup 2
-            + "<noeud id=\"556677889\" latitude=\"45.7600\" longitude=\"4.8400\"/>\n"     // Delivery 2
-            + "<noeud id=\"123456789\" latitude=\"45.7560\" longitude=\"4.8600\"/>\n"     // point intermédiaire 
-            + "<noeud id=\"987654321\" latitude=\"45.7520\" longitude=\"4.8700\"/>\n"     // point intermédiaire 
-            + "<noeud id=\"999999999\" latitude=\"45.8000\" longitude=\"4.9000\"/>\n"     
-            + "<troncon destination=\"1679901320\" longueur=\"51.028988\" nomRue=\"Rue A\" origine=\"2835339774\"/>\n" // Entrepôt -> Pickup 1
-            + "<troncon destination=\"208769457\" longueur=\"75.0\" nomRue=\"Rue B\" origine=\"1679901320\"/>\n"        // Pickup 1 -> Delivery 1
-            + "<troncon destination=\"223344556\" longueur=\"30.0\" nomRue=\"Rue C\" origine=\"208769457\"/>\n"         // Delivery 1 -> Pickup 2
-            + "<troncon destination=\"556677889\" longueur=\"40.0\" nomRue=\"Rue D\" origine=\"223344556\"/>\n"         // Pickup 2 -> Delivery 2
-            + "<troncon destination=\"2835339774\" longueur=\"100.0\" nomRue=\"Rue E\" origine=\"556677889\"/>\n"       // Delivery 2 -> Entrepôt
-            + "<troncon destination=\"123456789\" longueur=\"30.0\" nomRue=\"Rue F\" origine=\"2835339774\"/>\n"        // Entrepôt -> Intermédiaire 1
-            + "<troncon destination=\"987654321\" longueur=\"40.0\" nomRue=\"Rue G\" origine=\"123456789\"/>\n"         // Intermédiaire 1 -> Intermédiaire 2
-            + "<troncon destination=\"1679901320\" longueur=\"60.0\" nomRue=\"Rue H\" origine=\"987654321\"/>\n"        // Intermédiaire 2 -> Pickup 1
-            + "</reseau>";
+                + "<reseau>\n"
+                + "<noeud id=\"2835339774\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n" // Entrepôt
+                + "<noeud id=\"1679901320\" latitude=\"45.750404\" longitude=\"4.8744674\"/>\n" // Pickup 1
+                + "<noeud id=\"208769457\" latitude=\"45.7585\" longitude=\"4.8356\"/>\n" // Delivery 1
+                + "<noeud id=\"223344556\" latitude=\"45.7590\" longitude=\"4.8500\"/>\n" // Pickup 2
+                + "<noeud id=\"556677889\" latitude=\"45.7600\" longitude=\"4.8400\"/>\n" // Delivery 2
+                + "<noeud id=\"123456789\" latitude=\"45.7560\" longitude=\"4.8600\"/>\n" // point intermédiaire
+                + "<noeud id=\"987654321\" latitude=\"45.7520\" longitude=\"4.8700\"/>\n" // point intermédiaire
+                + "<noeud id=\"999999999\" latitude=\"45.8000\" longitude=\"4.9000\"/>\n"
+                + "<troncon destination=\"1679901320\" longueur=\"51.028988\" nomRue=\"Rue A\" origine=\"2835339774\"/>\n" // Entrepôt -> Pickup 1
+                + "<troncon destination=\"208769457\" longueur=\"75.0\" nomRue=\"Rue B\" origine=\"1679901320\"/>\n" // Pickup 1 -> Delivery 1
+                + "<troncon destination=\"223344556\" longueur=\"30.0\" nomRue=\"Rue C\" origine=\"208769457\"/>\n" // Delivery 1 -> Pickup 2
+                + "<troncon destination=\"556677889\" longueur=\"40.0\" nomRue=\"Rue D\" origine=\"223344556\"/>\n" // Pickup 2 -> Delivery 2
+                + "<troncon destination=\"2835339774\" longueur=\"100.0\" nomRue=\"Rue E\" origine=\"556677889\"/>\n" // Delivery 2 -> Entrepôt
+                + "<troncon destination=\"123456789\" longueur=\"30.0\" nomRue=\"Rue F\" origine=\"2835339774\"/>\n" // Entrepôt -> Intermédiaire 1
+                + "<troncon destination=\"987654321\" longueur=\"40.0\" nomRue=\"Rue G\" origine=\"123456789\"/>\n" // Intermédiaire 1 -> Intermédiaire 2
+                + "<troncon destination=\"1679901320\" longueur=\"60.0\" nomRue=\"Rue H\" origine=\"987654321\"/>\n" // Intermédiaire 2 -> Pickup 1
+                + "</reseau>";
 
         // Contenu XML des requêtes avec au moins 2 requêtes
         String fileRequestContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-            + "<demandeDeLivraisons>\n"
-            + "<entrepot adresse=\"2835339774\" heureDepart=\"8:0:0\"/>\n"
-            + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"208769457\" dureeEnlevement=\"300\" dureeLivraison=\"400\"/>\n"
-            + "<livraison adresseEnlevement=\"223344556\" adresseLivraison=\"556677889\" dureeEnlevement=\"300\" dureeLivraison=\"400\"/>\n"
-            + "</demandeDeLivraisons>";
+                + "<demandeDeLivraisons>\n"
+                + "<entrepot adresse=\"2835339774\" heureDepart=\"8:0:0\"/>\n"
+                + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"208769457\" dureeEnlevement=\"300\" dureeLivraison=\"400\"/>\n"
+                + "<livraison adresseEnlevement=\"223344556\" adresseLivraison=\"556677889\" dureeEnlevement=\"300\" dureeLivraison=\"400\"/>\n"
+                + "</demandeDeLivraisons>";
 
         try {
             // Charger la carte
@@ -128,8 +128,8 @@ class ServiceTest {
 
             // Vérifications sur les points du tour
             int requestPointsCount = tourRequest.getRequests().size() * 2 + 2; // Chaque requête a pickup + delivery + depot
-            assertTrue(tourPoints.size() >= requestPointsCount, 
-                "The number of points in the tour must be greater than or equal to the number of points in the tour request.");
+            assertTrue(tourPoints.size() >= requestPointsCount,
+                    "The number of points in the tour must be greater than or equal to the number of points in the tour request.");
 
             for (DeliveryRequest request : tourRequest.getRequests().values()) {
                 Long pickupPoint = request.getPickupPoint();
@@ -147,24 +147,18 @@ class ServiceTest {
                 }
 
                 // Vérifier que le pickup apparaît avant le delivery
-                assertTrue(pickupIndex >= 0 && deliveryIndex >= 0, 
-                    "Both pickup and delivery points must be present in the tour.");
-                assertTrue(pickupIndex < deliveryIndex, 
-                    "Pickup point " + pickupPoint + " must come before delivery point " + deliveryPoint + " in the tour.");
+                assertTrue(pickupIndex >= 0 && deliveryIndex >= 0,
+                        "Both pickup and delivery points must be present in the tour.");
+                assertTrue(pickupIndex < deliveryIndex,
+                        "Pickup point " + pickupPoint + " must come before delivery point " + deliveryPoint + " in the tour.");
             }
-             // Vérification de la durée totale
-                assertFalse(tour.getDuration().isZero(), "The total duration of the tour must not be null.");
-                assertFalse(tour.getDuration().isNegative(), "The total duration must be positive.");
+            // Vérification de la durée totale
+            assertFalse(tour.getDuration().isZero(), "The total duration of the tour must not be null.");
+            assertFalse(tour.getDuration().isNegative(), "The total duration must be positive.");
 
         } catch (Exception e) {
             fail("Compute tour failed: " + e.getMessage());
         }
     }
 
-
-   
-      
-
-      
-    
 }

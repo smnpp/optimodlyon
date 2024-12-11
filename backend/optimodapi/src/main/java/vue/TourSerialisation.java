@@ -4,6 +4,7 @@
  */
 package vue;
 
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -67,4 +68,6 @@ public class TourSerialisation extends Serialisation {
 		out.close();
 	}
 	
+
+
 }
