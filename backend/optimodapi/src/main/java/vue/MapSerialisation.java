@@ -4,7 +4,6 @@
  */
 package vue;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class MapSerialisation extends Serialisation {
 
 			// Create a JsonObject for each intersection
 			JsonObject intersectionObject = new JsonObject();
-			intersectionObject.addProperty("id", id.toString());
+			intersectionObject.addProperty("id", id);
 
 			JsonObject location = new JsonObject();
 			location.addProperty("latitude", intersection.getLocation().getLatitude());

@@ -7,6 +7,7 @@ package metier;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
@@ -14,40 +15,37 @@ import java.util.List;
  */
 public class Tour {
     
-    private Long id;
-    private List<Intersection> pointslist;
-    private Duration duration;
+	private final String id;;
+	private List<Intersection> pointslist;
+	private Duration duration;
 
-    public Tour() {
-    }
+	public Tour() {
+	this.id = UUID.randomUUID().toString();
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public List<Intersection> getPointslist() {
-        return pointslist;
-    }
+	public List<Intersection> getPointslist() {
+		return pointslist;
+	}
 
-    public Duration getDuration() {
-        return duration;
-    }
+	public Duration getDuration() {
+		return duration;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setPointslist(List<Intersection> pointslist) {
+		this.pointslist = pointslist;
+	}
 
-    public void setPointslist(List<Intersection> pointslist) {
-        this.pointslist = pointslist;
-    }
+	public void setDuration(Duration duration) {
+		this.duration = duration;
+	}
 
-    public void setDuration(Duration duration) {
-        this.duration = duration;
-    }
-
-    @Override
-    public String toString() {
-        return "Tour{" + "id=" + id + ", pointslist=" + pointslist + ", duration=" + duration + '}';
-    }
+	@Override
+	public String toString() {
+		return "Tour{" + "id=" + id + ", pointslist=" + pointslist + ", duration=" + duration + '}';
+	}
     
  }

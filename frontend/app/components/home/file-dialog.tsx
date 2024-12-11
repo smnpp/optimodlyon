@@ -32,7 +32,7 @@ const FileDialog: React.FC<FileDialogProps> = ({
             <Button
                 onClick={handleClick}
                 text={text || ''}
-                color={ButtonColor.red}
+                color={ButtonColor.primary}
                 logo={logo}
                 children={
                     <input

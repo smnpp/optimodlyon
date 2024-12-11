@@ -12,25 +12,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import metier.Map;
+import metier.TourRequest;
 import service.Service;
 
 /**
  *
- * @author Hazim Asri
+ * @author wockehs
  */
-public class ChargerMapAction extends Action {
-	
-	public ChargerMapAction(Service service) {
+public class LoadRequestAction extends Action {
+
+	public LoadRequestAction(Service service) {
 		super(service);
 	}
-
 	@Override
 	public void execute(HttpServletRequest request) {
 		BufferedReader reader = null;
 		try {
 			reader = request.getReader();
 		} catch (IOException ex) {
-			Logger.getLogger(ChargerMapAction.class.getName()).log(Level.SEVERE, null, ex);
+			Logger.getLogger(LoadRequestAction.class.getName()).log(Level.SEVERE, null, ex);
 		}
 		Gson gson = new Gson();
 		JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
@@ -38,12 +38,12 @@ public class ChargerMapAction extends Action {
 		
 		if(fileContent != null) {
 			try {
-				Map map = service.loadMap(fileContent);
+				TourRequest tourRequest = service.loadRequestFile(fileContent);
 				
 				request.setAttribute("success", true);
-				request.setAttribute("map", map);
+				request.setAttribute("tour-request", tourRequest);
 			} catch (IOException ex) {
-				Logger.getLogger(ChargerMapAction.class.getName()).log(Level.SEVERE, null, ex);
+				Logger.getLogger(LoadRequestAction.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		} else {
 			request.setAttribute("success", false);

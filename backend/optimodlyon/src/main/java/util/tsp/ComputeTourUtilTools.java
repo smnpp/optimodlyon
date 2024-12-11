@@ -127,7 +127,7 @@ public class ComputeTourUtilTools {
         // Récupération des requêtes de livraison et initialisation
         HashMap<String, DeliveryRequest> requests = (HashMap<String, DeliveryRequest>) tourRequest.getRequests();
         HashMap<Long, Boolean> visited = new HashMap<>();
-        Long warehouseId = tourRequest.getWarehouse().getAdresse();
+        Long warehouseId = tourRequest.getWarehouse().getId();
 
         // Initialisation des points à visiter (pickup et delivery)
         List<Long> allPoints = new ArrayList<>();
@@ -165,7 +165,7 @@ public class ComputeTourUtilTools {
         // Récupération des requêtes de livraison et initialisation
         HashMap<String, DeliveryRequest> requests = (HashMap<String, DeliveryRequest>) tourRequest.getRequests();
         HashMap<Long, Boolean> visited = new HashMap<>();
-        Long warehouseId = tourRequest.getWarehouse().getAdresse();
+        Long warehouseId = tourRequest.getWarehouse().getId();
 
         // Initialisation des points à visiter (pickup et delivery)
         List<Long> allPoints = new ArrayList<>();

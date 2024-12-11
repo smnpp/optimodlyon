@@ -181,3 +181,9 @@ a.secondary {
 .header {
     text-align: center;
 }
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
