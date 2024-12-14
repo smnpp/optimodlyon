@@ -47,48 +47,14 @@ export default function Home() {
             console.error('Error loading map:', error);
         }
     };
-    const handleSaveTour = async () => {
+    const handleSaveTours = async () => {
         try {
-            const tours: Tour[] = [
-                {
-                    id: 1,
-                    duration: 90, // Durée en minutes
-                    intersections: [
-                        {
-                            key: '7',
-                            location: { lat: 40.7128, lng: -74.006 }, // Coordonnées pour New York
-                        },
-                        {
-                            key: '6',
-                            location: { lat: 40.713, lng: -74.007 }, // Coordonnées proches
-                        },
-                    ],
-                },
-                {
-                    id: 2,
-                    duration: 120, // Durée en minutes
-                    intersections: [
-                        {
-                            key: '3',
-                            location: { lat: 41.0, lng: -75.0 }, // Coordonnées pour une autre localisation
-                        },
-                        {
-                            key: '4',
-                            location: { lat: 41.1, lng: -75.1 }, // Coordonnées proches
-                        },
-                    ],
-                },
-                {
-                    id: 3,
-                    duration: 60, // Durée en minutes
-                    intersections: [
-                        {
-                            key: '5',
-                            location: { lat: 42.0, lng: -76.0 }, // Autres coordonnées
-                        },
-                    ],
-                },
-            ];
+            const Jsontours = localStorage.getItem('tours');
+            if (!Jsontours) {
+                throw new Error('No tour to save');
+            }
+            const tours = JSON.parse(Jsontours) as Tour[];
+
             await apiService.saveTours(tours);
         } catch (error) {
             console.error('Error loading map:', error);
@@ -119,6 +85,16 @@ export default function Home() {
                 }),
             );
             setTourCoordinates(coordinates);
+
+            let tours: Tour[] = [];
+            const jsonTours = localStorage.getItem('tours');
+            if (jsonTours) {
+                tours = JSON.parse(jsonTours) as Tour[];
+            }
+
+            tours.push(tour);
+
+            localStorage.setItem('tours', JSON.stringify(tours));
         } catch (error) {
             console.error('Error computing tour:', error);
         }
@@ -161,7 +137,7 @@ export default function Home() {
                 <section>
                     <h5>Save</h5>
                     <Button
-                        onClick={handleSaveTour}
+                        onClick={handleSaveTours}
                         text="Save tour"
                         logo={FaArrowCircleDown}
                     />
