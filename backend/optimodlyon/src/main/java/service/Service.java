@@ -30,13 +30,13 @@ import util.tsp.PathResult;
  */
 public class Service {
 
-    public Map loadMap(String fileContent, String fileName) throws IOException {
+     public Map loadMap(String fileContent) throws IOException {
 
         // Déterminer le type de fichier
         File file = File.createTempFile("temp", ".xml");
         file.deleteOnExit();
 
-        try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(fileContent);
         }
 
@@ -58,13 +58,13 @@ public class Service {
         return map;
     }
 
-    public TourRequest loadRequestFile(String fileContent, String fileName) throws IOException {
+    public TourRequest loadRequestFile(String fileContent) throws IOException {
 
         // Déterminer le type de fichier
         File file = File.createTempFile("temp", ".xml");
         file.deleteOnExit();
 
-        try ( BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(fileContent);
         }
 
@@ -73,17 +73,18 @@ public class Service {
         if (fileType != FileType.XMLDEMANDE) {
             throw new IllegalArgumentException("Invalid file type for loading delivery request: " + fileType);
         }
-      
+
         // Récupérer le parser approprié via la factory
         FileParser<TourRequest> parser = (FileParser<TourRequest>) FileParserFactory.getParser(fileType);
 
         TourRequest tourRequest = parser.parse(file);
 
         return tourRequest;
-    }  
+    }
+  
     
     
-    public static Tour computeTour(TourRequest tourRequest, Map map) {
+    public Tour computeTour(TourRequest tourRequest, Map map) {
         // Vérification que tous les points sont dans la Map
         for (DeliveryRequest request : tourRequest.getRequests().values()) {
             Long pickupPointId = request.getPickupPoint();
