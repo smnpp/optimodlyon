@@ -18,6 +18,7 @@ import metier.Map;
 import metier.Tour;
 import metier.TourRequest;
 import metier.DeliveryRequest;
+import metier.Courier;
 import util.tsp.ComputeTourUtilTools;
 import util.FileParser;
 import util.FileParserFactory;
@@ -205,7 +206,7 @@ public class Service {
             for (Tour tour : tours) {
                 Element paraTour = doc.createElement("tour");
                 paraTour.setAttribute("id", tour.getId());
-                paraTour.setAttribute("duration", String.valueOf(tour.getDuration().toSeconds()));
+                paraTour.setAttribute("duration", String.valueOf(tour.getDuration().getSeconds()));
                 root.appendChild(paraTour);
 
                 // Parcourir les intersections
@@ -259,4 +260,47 @@ public class Service {
 
         return resultat;
     }
+
+   // Fonction pour calculer et attribuer les tours aux livreurs
+    public HashMap<Long, Courier> computeAndAssignTour(TourRequest tourRequest, Map map, int numCouriers) {
+
+        ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();
+
+        // 1. Trier les requêtes par proximité au warehouse
+        List<DeliveryRequest> sortedRequests = computeTourUtil.sortRequestsByProximityToWarehouse(map, tourRequest);
+
+        // 2. Créer les livreurs
+        HashMap<Long, Courier> couriers = new HashMap<>();
+        for (long i = 0; i < numCouriers; i++) {
+            Courier courier = new Courier();
+            // Initialiser le TourRequest avec l'entrepôt
+            TourRequest requests = new TourRequest(null, tourRequest.getWarehouse());
+            courier.setTourRequest(requests);
+            courier.setId(i + 1); // Les IDs commencent à 1
+            courier.setIsAvailable(true);
+            couriers.put(i + 1, courier);
+        }
+
+        // 3. Distribuer les requêtes entre les livreurs
+        int courierIndex = 0;
+        for (DeliveryRequest request : sortedRequests) {
+            // Assigner la requête au livreur correspondant
+            Courier courier = couriers.get((long) (courierIndex + 1)); // Les IDs des courriers commencent à 1
+            courier.addRequestToCourier(request);
+
+            // Passer au livreur suivant
+            courierIndex = (courierIndex + 1) % numCouriers; // Répartition circulaire
+        }
+
+        // 4. Calculer l'itinéraire pour chaque livreur
+        for (Courier courier : couriers.values()) {
+            // Calculer le tour du livreur avec ses requêtes
+            Tour courierTour = computeTour(courier.getTourRequest(), map);
+            courier.setDeliveryPlan(courierTour);
+        }
+
+        // 5. Retourner la map avec les livreurs
+        return couriers;
+    }
+
 }

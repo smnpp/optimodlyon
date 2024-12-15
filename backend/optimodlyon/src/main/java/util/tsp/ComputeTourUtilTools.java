@@ -20,6 +20,7 @@ import metier.Adjacent;
 import metier.DeliveryRequest;
 import metier.Intersection;
 import metier.Map;
+import metier.Warehouse;
 import metier.TourRequest;
 import metier.Coords;
 import metier.Tour;
@@ -74,6 +75,36 @@ public class ComputeTourUtilTools {
     public static Duration calculateTravelTime(double distance) {
         double timeInSeconds = distance / (COURIER_SPEED_KM_PER_HOUR / 3.6); // Utilise la vitesse globale
         return Duration.ofSeconds((long) (timeInSeconds)); // Convertit en secondes
+    }
+
+    public List<DeliveryRequest> sortRequestsByProximityToWarehouse(Map map, TourRequest tourRequest) {
+        // Récupérer l'entrepôt du TourRequest
+        Warehouse warehouse = tourRequest.getWarehouse();  // Warehouse devrait être correctement importé
+
+        // Convertir les requêtes de livraison dans une liste (si elles sont dans une Map)
+        List<DeliveryRequest> requests = new ArrayList<>(tourRequest.getRequests().values());  // Si tourRequest.getRequests() renvoie un Map, on le convertit en List
+
+        // Trier les requêtes en fonction de la distance entre leur pickup et l'entrepôt
+        requests.sort((request1, request2) -> {
+            Long pickupPointId1 = request1.getPickupPoint();
+            Long pickupPointId2 = request2.getPickupPoint();
+
+            Intersection pickupIntersection1 = map.getIntersections().get(pickupPointId1);
+            Intersection pickupIntersection2 = map.getIntersections().get(pickupPointId2);
+
+            if (pickupIntersection1 == null || pickupIntersection2 == null) {
+                throw new IllegalArgumentException("Intersection with id not found in map.");
+            }
+
+            // Calculer la distance de chaque pickup à l'entrepôt
+            double distance1 = calculateDistance(pickupIntersection1, map.getIntersections().get(warehouse.getId()));
+            double distance2 = calculateDistance(pickupIntersection2, map.getIntersections().get(warehouse.getId()));
+
+            // Comparer les distances
+            return Double.compare(distance1, distance2);
+        });
+
+        return requests;
     }
     
     // Fonction pour trouver le point le plus proche d'un point de vue géographique respectant les contraintes
