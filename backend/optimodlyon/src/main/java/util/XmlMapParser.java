@@ -68,8 +68,10 @@ public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
                     continue;
                 }
 
-                Adjacent adjacent = new Adjacent( dest, nomRue, longueur);
-                intersectionMap.get(origineId).addAdjacent(destinationId, adjacent);
+                Adjacent adjacent_to_dest = new Adjacent( dest, nomRue, longueur);
+                Adjacent adjacent_to_origin = new Adjacent( origin, nomRue, longueur);
+                intersectionMap.get(origineId).addAdjacent(destinationId, adjacent_to_dest);
+                intersectionMap.get(destinationId).addAdjacent(origineId, adjacent_to_origin);
 
             }
 

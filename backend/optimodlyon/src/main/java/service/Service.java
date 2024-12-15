@@ -37,7 +37,9 @@ import java.io.File;
  */
 public class Service {
 
+
     public Map loadMap(String fileContent) throws IOException {
+
 
         // Déterminer le type de fichier
         File file = File.createTempFile("temp", ".xml");
@@ -87,13 +89,28 @@ public class Service {
         TourRequest tourRequest = parser.parse(file);
 
         return tourRequest;
-    }
 
+    }  
+    
+    
     public Tour computeTour(TourRequest tourRequest, Map map) {
+        // Vérification que tous les points sont dans la Map
+        for (DeliveryRequest request : tourRequest.getRequests().values()) {
+            Long pickupPointId = request.getPickupPoint();
+            Long deliveryPointId = request.getDeliveryPoint();
+
+            // Vérifier si les points de pickup et de delivery existent dans la Map
+            if (!map.getIntersections().containsKey(pickupPointId)) {
+                throw new IllegalArgumentException("Point de pickup manquant dans la map : " + pickupPointId);
+            }
+            if (!map.getIntersections().containsKey(deliveryPointId)) {
+                throw new IllegalArgumentException("Point de delivery manquant dans la map : " + deliveryPointId);
+            }
+        }
 
         ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();
 
-        // Ordonnancer les requêtes
+        // Ordonnancer les requêtes géographiquement
         List<Long> orderedPoints = computeTourUtil.scheduleOptimizedDeliveryRequests(tourRequest, map);
 
         // Durée totale initiale en secondes
@@ -106,6 +123,7 @@ public class Service {
         }
 
         // Construire la tournée
+        //Tour tour = ComputeTourUtilTools.constructTourWithSpecificShortestPaths(orderedPoints, map);
         Tour tour = ComputeTourUtilTools.constructTourWithSpecificShortestPaths(orderedPoints, map);
 
         // Ajouter la durée de la tournée (en secondes)
