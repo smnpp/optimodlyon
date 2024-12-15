@@ -100,7 +100,7 @@ public class Service {
 
         ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();
 
-        // Ordonnancer les requêtes
+        // Ordonnancer les requêtes géographiquement
         List<Long> orderedPoints = computeTourUtil.scheduleOptimizedDeliveryRequests(tourRequest, map);
 
         // Durée totale initiale en secondes
