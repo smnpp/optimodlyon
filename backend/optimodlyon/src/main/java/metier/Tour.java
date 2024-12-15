@@ -7,22 +7,28 @@ package metier;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
  * @author jnoukam
  */
 public class Tour {
-    
-    private Long id;
+
+    private String id;
     private List<Intersection> pointslist;
     private Duration duration;
 
     public Tour() {
+        this.id = UUID.randomUUID().toString();
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public List<Intersection> getPointslist() {
@@ -31,10 +37,6 @@ public class Tour {
 
     public Duration getDuration() {
         return duration;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setPointslist(List<Intersection> pointslist) {
@@ -49,5 +51,5 @@ public class Tour {
     public String toString() {
         return "Tour{" + "id=" + id + ", pointslist=" + pointslist + ", duration=" + duration + '}';
     }
-    
- }
+
+}

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import util.tsp.ComputeTourUtilTools;
 
 class ServiceTest {
 
@@ -58,7 +59,7 @@ class ServiceTest {
             fail("Loading delivery request failed: " + e.getMessage());
         }
     }
-    
+
     @Test
     void testCreateDeliveryRequest() {
         Long pickupPoint = 123L;
@@ -75,11 +76,10 @@ class ServiceTest {
             fail("Creation of delivery request failed: " + e.getMessage());
         }
     }
-    
-     @Test
+
+    @Test
     void testComputeTourWithMoreNodesAndConditions() {
 
-            
         String fileMapContent = ""
                 + "<reseau>\n"
                 + "<noeud id=\"2835339774\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n" // Entrepôt

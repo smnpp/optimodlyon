@@ -28,6 +28,32 @@ parties :
     -   Java 11
     -   Maven pour gérer les dépendances.
 
+### **Lancement du Backend**
+
+1. Rendez-vous dans le dossier `backend/optimodlyon` :
+
+    ```bash
+    cd backend/optimodlyon
+    ```
+
+2. Compilez le projet avec Maven :
+
+    ```bash
+    mvn clean install
+    ```
+
+3. Rendez-vous dans le dossier `backend/optimodapi` :
+
+    ```bash
+    cd ../optimodapi
+    ```
+
+4. Compilez le projet avec Maven :
+
+    ```bash
+    mvn clean install
+    ```
+
 ### **Lancement du Frontend**
 
 1. Rendez-vous dans le dossier `frontend` :
@@ -59,20 +85,6 @@ parties :
 
 Ouvrez http://localhost:3000 avec votre navigateur pour voir le résultat.
 
-### **Lancement du Backend**
-
-1. Rendez-vous dans le dossier backend :
-
-    ```bash
-    cd backend/optimodlyon
-    ```
-
-2. Compilez le projet avec Maven :
-
-    ```bash
-    mvn clean install
-    ```
-
 ## **Contribution**
 
 Les contributions sont les bienvenues ! Comment contribuer ?
@@ -80,9 +92,9 @@ Les contributions sont les bienvenues ! Comment contribuer ?
 1.  Forkez ce dépôt.
 2.  Setup git flow :
 
-        ```bash
-        git flow init -d
-        ```
+    ```bash
+    git flow init -d
+    ```
 
 3.  Démarrer une fonctionnalité Pour commencer à travailler sur une nouvelle
     fonctionnalité :
