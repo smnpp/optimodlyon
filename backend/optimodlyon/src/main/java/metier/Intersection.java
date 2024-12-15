@@ -33,7 +33,7 @@ public class Intersection {
     public void setLocation(Coords location) {
         this.location = location;
     }
-    
+
     public HashMap<Long, Adjacent> getAdjacents() {
         return adjacents;
     }
@@ -50,8 +50,8 @@ public class Intersection {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Intersection{ id=").append(id)
-          .append(", location = ").append(location)
-          .append(", adjacents = [ ");
+                .append(", location = ").append(location)
+                .append(", adjacents = [ ");
         for (Adjacent adjacent : adjacents.values()) {
             sb.append(adjacent).append(", ");
         }
@@ -62,4 +62,3 @@ public class Intersection {
         return sb.toString();
     }
 }
-

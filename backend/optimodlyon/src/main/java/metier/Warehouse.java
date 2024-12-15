@@ -14,29 +14,15 @@ import java.time.LocalTime;
 public class Warehouse {
     
     private Long id;
-    private Long adresse;
     private LocalTime departureTime;
 
-    public Warehouse(Long adresse, LocalTime departureTime) {
-        this.id = adresse;
-        this.adresse = adresse;
-        this.departureTime = departureTime;
-    }
-
-    public void setId(Long id) {
+    public Warehouse(Long id, LocalTime departureTime) {
         this.id = id;
+        this.departureTime = departureTime;
     }
  
     public Long getId() {
         return id;
-    }
-
-    public Long getAdresse() {
-        return adresse;
-    }
-
-    public void setAdresse(Long adresse) {
-        this.adresse = adresse;
     }
 
     public LocalTime getDepartureTime() {
@@ -49,7 +35,7 @@ public class Warehouse {
     
     @Override
     public String toString() {
-        return "Warehouse{" + "id=" + id + ", adresse=" + adresse + '}';
+        return "Warehouse{" + "id=" + id + '}';
     }
     
 }

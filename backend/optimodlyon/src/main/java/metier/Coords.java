@@ -10,7 +10,7 @@ package metier;
  * @author jnoukam
  */
 public class Coords {
-    
+
     private Double latitude;
     private Double longitude;
 
@@ -18,7 +18,7 @@ public class Coords {
         this.latitude = latitude;
         this.longitude = longitude;
     }
-    
+
     public Double getLatitude() {
         return latitude;
     }
@@ -39,5 +39,5 @@ public class Coords {
     public String toString() {
         return "Coords{ " + "latitude = " + latitude + ", longitude = " + longitude + '}';
     }
-    
+
 }
