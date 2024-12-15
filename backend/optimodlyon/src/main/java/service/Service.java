@@ -159,12 +159,36 @@ public class Service {
         return tourRequest;
     }
 
-    public TourRequest changePickupPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long pickupPoint) throws IOException {
+    public static Long findClosestIntersection(double latitude, double longitude, Map map) {
+        double minDistance = Double.MAX_VALUE;
+        Long closestIntersection = null;
+
+        for (Long intersectionId : map.getIntersections().keySet()) {
+            Intersection intersection = map.getIntersections().get(intersectionId);
+
+            double distance = calculateDistance(latitude, longitude, intersection.getLocation().getLatitude(), intersection.getLocation().getLongitude());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestIntersection = intersectionId;
+            }
+        }
+
+        return closestIntersection;
+    }
+
+    private static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        double deltaLat = lat1 - lat2;
+        double deltaLon = lon1 - lon2;
+        return Math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon);
+    }
+
+    public Tour changePickupPoint(TourRequest tourRequest, Map map, DeliveryRequest deliveryRequest, Long pickupPoint) throws IOException {
         java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
         requests.get(deliveryRequest.getId()).setPickupPoint(pickupPoint);
 
-        /// TODO : RECOMPUTE BEST TOUR !!!
-        return tourRequest;
+        Tour newComputedTour = computeTour(tourRequest, map);
+        return newComputedTour;
     }
 
     public TourRequest changeDeliveryPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long deliveryPoint) throws IOException {
