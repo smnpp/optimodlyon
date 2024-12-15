@@ -1,0 +1,166 @@
+\documentclass[a4paper]{article}
+
+%====================== PACKAGES ======================
+
+\usepackage[french]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{setspace}
+\usepackage{abstract}
+\usepackage[T1]{fontenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{subfig}
+\usepackage{svg}
+
+%====================== INFORMATION ET REGLES ======================
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+%======================== DEBUT DU DOCUMENT ========================
+
+\begin{document}
+
+%régler l'espacement entre les lignes
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+%page de garde
+\input{./pagegarde.tex}
+
+~
+%ne pas numéroter cette page
+\thispagestyle{empty}
+
+\tableofcontents
+\thispagestyle{empty}
+\setcounter{page}{0}
+%ne pas numéroter le sommaire
+
+%espacement entre les lignes d'un tableau
+\renewcommand{\arraystretch}{1.5}
+
+~
+\thispagestyle{empty}
+\setcounter{page}{0}
+
+%====================== INTRODUCTION ======================
+
+\section{Introduction} \label{ch1}
+Ce document constitue le livrable final du PLD Agile. Ce projet s’inscrit dans une démarche de développement orienté objet tout en appliquant la méthodologie agile Scrum. \\
+\newline
+\indent Ce rapport est structuré en deux grandes parties : la description détaillée de la troisième et dernière livraison, et une rétrospective sur le projet dans son ensemble. Nous y aborderons les fonctionnalités implémentées, la planification des tâches, les réussites, ainsi que les difficultés rencontrées tout au long du dernier sprint.
+
+%====================== TROISIEME LIVRAISON ======================
+
+\section{Troisième livraison}
+
+\subsection{Introduction de la dernière livraison}
+Ce document constitue le livrable de la troisième et dernière itération de notre projet. Lors de cette phase, nous nous sommes principalement concentrés sur l'amélioration et l'ajout de fonctionnalités précédemment développées et la préparation à la clôture du projet.\\
+\newline
+\indent Lors des deux premières itérations, nous avons identifié certaines erreurs. Grâce aux conclusions tirées de ces phases, nous avons ajusté notre méthode de travail pour éviter leur répétition.\\
+\newline
+\indent Durant cette itération, la conception et l'architecture corrigées lors de la deuxième itération n'ont pas été modifiées. Cependant, nous avons amélioré des modules critiques, tels que :
+\begin{itemize}
+    \item La sauvegarde des tournées dans des fichiers
+    \item Le calcul des tournées optimales
+    \item La rédaction d'une documentation utilisateur et technique complète.
+\end{itemize}
+
+\subsection{Développement des fonctionnalités}
+Voici les fonctionnalités développées au cours de cette phase :
+\begin{itemize}
+    \item \textbf{Modification d'un demande de livraison :} Possibilité de modifier les points de collecte et de livraisons
+    \item \textbf{Configuration de plusieurs coursiers} 
+    \item \textbf{Sauvegarde dynamique d’un tour} 
+    \item \textbf{Amélioration de l’UI :} flèche, numéro d’identification des livraison et durée d’un tour
+    \item \textbf{Intersections bidirectionnelles}
+    \item \textbf{Documentation technique}
+\end{itemize}
+
+\subsection{Planning des tâches}
+Suite à la deuxième itération, nous avons conclus que les rôles n'avaient pas été correctement définis avant l'itération. Voici alors les rôles des membres de l'équipe qui leur ont été attribué en fonction des tâches qu'ils ont effectués lors des deux premières itérations :
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{0.6\textwidth}{|c|X|}
+    \hline
+    \textbf{Membre} & \textbf{Rôle} \\ \hline
+    Ana  & tests \& intégration \\ \hline
+    Hazim & Scrum Master \& développeur fullstack \\ \hline
+    Jassir & développeur fullstack \\ \hline
+    Junior &  développeur backend et tsp \\ \hline
+    Nihal  & tests \& documentation \\ \hline
+    Simon & Chef de projet \& développeur backend \\ \hline
+    \end{tabularx}
+    \caption{Planning des tâches de la troisième livraison}
+    \end{table}
+
+Voici donc ci-dessous le tableau qui détaille les tâches réalisées, leur durée estimée, la difficultés et le membre assigné :
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|X|c|c|c|}
+\hline
+\textbf{Description de la tâche} & \textbf{Durée} & \textbf{Coût} & \textbf{Assigné} \\ \hline
+Résout le bug lorsqu'on charge un mauvais type de fichier &  & 1 & Junior \\ \hline
+Calcul de tour multiples pour n coursiers & 1 heure & 1 & Junior \\ \hline
+Chargement d'une carte avec les intersections bidirectionnelles & 30 minutes & 1 & Junior \\ \hline
+Bannière de succès ou d'erreur &  & 1 & Hazim \\ \hline
+Documentation du CI/CD &  & 1 & Ana \\ \hline
+Documentation des tests de front &  & 1 & Nihal \\ \hline
+Documentation du technique du code &  & 1 & Nihal \\ \hline
+Release first version &  & 1 & Hazim \\ \hline
+Documentation de la dernière itération &  & 1 & Simon \\ \hline
+Numérotation des marqueurs sur la carte &  & 1 & Ana \\ \hline
+Implémentation au front de la modification d'une demande de livraison &  & 2 & Simon \\ \hline
+Restore d'un tour depuis un fichier &  & 2 & Jassir \\ \hline
+Affiche la durée d'un tour &  & 2 & Hazim \\ \hline
+Drag and drop les marqueurs de carte & 2 heures & 3 & Hazim \\ \hline
+Ajout de flêches pour indiquer le sens de déplacement &  & 3 & Hazim \\ \hline
+\end{tabularx}
+\caption{Planning des tâches de la troisième livraison}
+\end{table}
+
+\subsection{Conclusion}
+Cette dernière livraison nous a permis de stabiliser les fonctionnalités clés de l'application et d'assurer sa conformité avec les besoins spécifiés. La rédaction d'une documentation technique complète constitue également une étape essentielle pour faciliter la prise en main future de l'application.
+
+%====================== RETROSPECTIVE ======================
+
+\section{Rétrospective du projet}
+
+\subsection{Réussites du projet}
+Voici les points forts identifiés au cours du projet :
+\begin{itemize}
+    \item Une utilisation efficace des outils de gestion de version (GitHub) et de collaboration (issues, pull requests) ;
+    \item Une dynamique de travail en équipe qui a favorisé l'entraide et l'apprentissage mutuel ;
+    \item Une architecture bien pensée et adaptée à un développement modulaire et extensible ;
+    \item Une bonne adoption de la méthodologie Scrum, avec des itérations itératives et incrémentales.
+\end{itemize}
+
+\subsection{Difficultés rencontrées}
+Malgré les réussites, nous avons rencontré certaines difficultés :
+\begin{itemize}
+    \item Retards dans la livraison des fonctionnalités initialement prévues en raison de sous-estimations des efforts requis ;
+    \item Difficultés techniques sur l'intégration frontend-backend (API REST) dans les premières itérations ;
+    \item Manque de communication lors de certains changements importants dans la structure des classes.
+\end{itemize}
+
+\subsection{Point de vue personnel}
+En tant que chef de projet, cette expérience m'a permis de développer des compétences en gestion de projet agile, en communication et en leadership. J'ai appris à coordonner une équipe, à adapter les plannings en fonction des imprévus, et à maintenir une documentation claire et précise tout au long du projet.
+
+\subsection{Conclusions et suggestions}
+Pour de futurs projets similaires, voici quelques recommandations :
+\begin{itemize}
+    \item Mieux planifier les estimations de temps avec des outils comme Planning Poker ;
+    \item Renforcer les compétences techniques de l'équipe par des ateliers ou formations préalables ;
+    \item Maintenir une communication constante et documenter tout changement structurel dans le projet ;
+    \item S'assurer d'une répartition équitable et pertinente des tâches en fonction des compétences des membres.
+\end{itemize}
+
+\end{document}
