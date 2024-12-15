@@ -1,7 +1,7 @@
 import Intersection from '../types/intersection';
 
 type Tour = {
-    id: number;
+    id: string;
     duration: number;
     intersections: Intersection[];
 };

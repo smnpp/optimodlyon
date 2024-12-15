@@ -186,8 +186,8 @@ public class Service {
             // Parcourir les tours
             for (Tour tour : tours) {
                 Element paraTour = doc.createElement("tour");
-                paraTour.setAttribute("id", tour.getId().toString());
-                paraTour.setAttribute("duration", tour.getDuration().toString());
+                paraTour.setAttribute("id", tour.getId());
+                paraTour.setAttribute("duration", String.valueOf(tour.getDuration().toSeconds()));
                 root.appendChild(paraTour);
 
                 // Parcourir les intersections
