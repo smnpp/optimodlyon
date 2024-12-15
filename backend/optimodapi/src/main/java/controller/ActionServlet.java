@@ -13,6 +13,7 @@ import metier.Map;
 import modele.ChargerMapAction;
 import modele.ComputeTourAction;
 import modele.LoadRequestAction;
+import modele.ModifyPickupPointAction;
 import service.Service;
 import vue.MapSerialisation;
 import vue.TourRequestSerialisation;
@@ -65,6 +66,11 @@ public class ActionServlet extends HttpServlet {
                 case "save-tour": {
                     new SaveTourAction(service).execute(request);
                     new SuccessSerialisation().appliquer(request, response);
+                    break;
+                }
+                case "modify-pickup-point": {
+                    new ModifyPickupPointAction(service).execute(request);
+                    new TourRequestSerialisation().appliquer(request, response);
                     break;
                 }
                 case "test": {
