@@ -25,14 +25,12 @@ public class main {
 	+ "<troncon destination=\"1679901320\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"2835339774\"/>\n" 
         + "<troncon destination=\"2835339774\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"1679901320\"/>\n" 
 	+ "</reseau>";
-        String fileMapName = "map.xml";
         
         String fileDemandeContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
                 + "<demandeDeLivraisons>\n"
                 + "<entrepot adresse=\"2835339774\" heureDepart=\"8:0:0\"/>\n"
                 + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"2835339774\" dureeEnlevement=\"420\" dureeLivraison=\"600\"/>\n"
                 + "</demandeDeLivraisons>";
-        String fileDemandeName = "requests.xml";
 
         
         try {
@@ -40,7 +38,7 @@ public class main {
             Service service = new Service();
 
             // Chargement de la carte
-            Map map = service.loadMap(fileMapContent, fileMapName);
+            Map map = service.loadMap(fileMapContent);
             
             // Vérification et affichage
             if (map != null) {
@@ -50,7 +48,7 @@ public class main {
             }
 
             // Chargement de Tour request
-            TourRequest tourRequest = service.loadRequestFile(fileDemandeContent, fileDemandeName);
+            TourRequest tourRequest = service.loadRequestFile(fileDemandeContent);
             
             // Vérification et affichage
             if (tourRequest != null) {
