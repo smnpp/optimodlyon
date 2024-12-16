@@ -12,9 +12,13 @@ import service.Service;
  *
  * @author Hazim Asri
  */
+
 public abstract class Action {
 	Service service;
-
+        /**
+         * 
+         * @param service 
+         */
 	public Action(Service service) {
 		this.service = service;
 	}
