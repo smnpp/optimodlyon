@@ -7,6 +7,7 @@ package metier;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.HashMap;
 
 /**
  *
@@ -44,6 +45,9 @@ public class TourRequest {
     }
     
     public void putDeliveryRequest(DeliveryRequest deliveryRequest) {
+        if (this.requests == null) {
+            this.requests = new HashMap<>(); // Initialisation si null
+        }
         this.requests.put(deliveryRequest.getId(), deliveryRequest);
     }
     

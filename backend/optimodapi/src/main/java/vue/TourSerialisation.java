@@ -53,7 +53,7 @@ public class TourSerialisation extends Serialisation {
 
 			// Convert duration
 			if (tour.getDuration() != null) {
-				tourJson.addProperty("duration", tour.getDuration().toSeconds());
+				tourJson.addProperty("duration", tour.getDuration().getSeconds());
 			}
 		}
 
