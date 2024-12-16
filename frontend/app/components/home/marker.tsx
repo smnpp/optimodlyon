@@ -5,12 +5,6 @@ import {
     InfoWindow,
     PinElement,
 } from 'react-google-map-wrapper';
-// import {
-//     AdvancedMarker,
-//     Pin,
-//     InfoWindow,
-//     useAdvancedMarkerRef,
-// } from '@vis.gl/react-google-maps';
 
 const MarkerWithInfoWindow = ({
     position,
