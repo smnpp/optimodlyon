@@ -227,7 +227,7 @@ class OptimodApiService {
         const body = {
             tours: tours.map((tour) => {
                 if (
-                    typeof tour.id !== 'number' ||
+                    typeof tour.id !== 'string' ||
                     typeof tour.duration !== 'number' ||
                     !Array.isArray(tour.intersections)
                 ) {

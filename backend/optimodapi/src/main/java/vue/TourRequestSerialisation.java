@@ -49,11 +49,11 @@ public class TourRequestSerialisation extends Serialisation {
 			json.addProperty("delivery-point", deliveryRequest.getDeliveryPoint());
 
 			if (deliveryRequest.getPickupDuration() != null) {
-				json.addProperty("pickup-duration", deliveryRequest.getPickupDuration().toSeconds());
+				json.addProperty("pickup-duration", deliveryRequest.getPickupDuration().getSeconds());
 			}
 
 			if (deliveryRequest.getDeliveryDuration() != null) {
-				json.addProperty("delivery-duration", deliveryRequest.getDeliveryDuration().toSeconds());
+				json.addProperty("delivery-duration", deliveryRequest.getDeliveryDuration().getSeconds());
 			}
 
 			if (deliveryRequest.getPickupTime() != null) {
@@ -65,7 +65,7 @@ public class TourRequestSerialisation extends Serialisation {
 			}
 
 			if (deliveryRequest.getDuration() != null) {
-				json.addProperty("duration", deliveryRequest.getDuration().toSeconds());
+				json.addProperty("duration", deliveryRequest.getDuration().getSeconds());
 			}
 
 			deliveryRequestsArray.add(json);
