@@ -1,45 +1,34 @@
 package test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import metier.DeliveryRequest;
 import metier.Intersection;
-import metier.Map;
 import metier.Tour;
 import metier.TourRequest;
 import metier.Warehouse;
+import metier.Courier;
+// Utilisation explicite de metier.Map
+import metier.Map;
 import service.Service;
-import util.tsp.ComputeTourUtilTools;
 
-/**
- * Main class for testing the map parsing.
- */
 public class main {
 
     public static void main(String[] args) {
-        
-        String fileMapContent = ""
-	+ "<reseau>\n"
-	+ "<noeud id=\"2835339774\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n" 
-	+ "<noeud id=\"1679901320\" latitude=\"45.750404\" longitude=\"4.8744674\"/>"
-	+ "<troncon destination=\"1679901320\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"2835339774\"/>\n" 
-        + "<troncon destination=\"2835339774\" longueur=\"51.028988\" nomRue=\"Impasse Lafontaine\" origine=\"1679901320\"/>\n" 
-	+ "</reseau>";
-        
-        String fileDemandeContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-                + "<demandeDeLivraisons>\n"
-                + "<entrepot adresse=\"2835339774\" heureDepart=\"8:0:0\"/>\n"
-                + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"2835339774\" dureeEnlevement=\"420\" dureeLivraison=\"600\"/>\n"
-                + "</demandeDeLivraisons>";
+        String fileMapPath = "H:\\fichiersXMLPickupDelivery\\grandPlan.xml"; // Remplace par le chemin du fichier de carte
+        String fileRequestPath = "H:\\fichiersXMLPickupDelivery\\demandeGrand9.xml"; // Remplace par le chemin du fichier des demandes
 
-        
         try {
             // Instanciation du service
             Service service = new Service();
 
             // Chargement de la carte
-            Map map = service.loadMap(fileMapContent);
-            
+            String fileMapContent = new String(Files.readAllBytes(Paths.get(fileMapPath)));
+            metier.Map map = service.loadMap(fileMapContent);  // Appel de loadMap
+
             // Vérification et affichage
             if (map != null) {
                 System.out.println("Carte chargée avec succès. \n\n");
@@ -47,68 +36,47 @@ public class main {
                 System.out.println("Impossible de charger la carte.");
             }
 
-            // Chargement de Tour request
-            TourRequest tourRequest = service.loadRequestFile(fileDemandeContent);
-            
+            // Chargement des demandes de livraison
+            String fileRequestContent = new String(Files.readAllBytes(Paths.get(fileRequestPath)));
+            TourRequest tourRequest = service.loadRequestFile(fileRequestContent);  // Appel de loadRequestFile
+
             // Vérification et affichage
             if (tourRequest != null) {
                 System.out.println("Liste des requêtes chargée avec succès. \n Requetes : \n" + tourRequest);
             } else {
                 System.out.println("Impossible de charger la liste des requêtes.");
             }
-            
-            // Construire le tour complet
-            Tour tour = service.computeTour(tourRequest, map);
-            
-            //Ne pas tester pour l'instant
-            //Tour tour = service.constructTourWithGeographicZones(orderedPoints, map);
-            
-            // Afficher les informations du tour
-            System.out.println("=== Informations du Tour ===");
-            System.out.println("Tour ID : " + tour.getId());
-            System.out.println("Durée totale : " + tour.getDuration().toMinutes() + " minutes");
-            System.out.println("Itinéraire complet :");
 
-            // Affichage des intersections avec détails des pickup/delivery
-            HashMap<String, DeliveryRequest> requests = (HashMap<String, DeliveryRequest>) tourRequest.getRequests();
-            Warehouse wareHouse = tourRequest.getWarehouse();
-            for (Intersection point : tour.getPointslist()) {
-                boolean isPickup = false;
-                boolean isDelivery = false;
-                String requestInfo = "";
-                
-                for (DeliveryRequest request : requests.values()) {
-                    if (request.getPickupPoint().equals(point.getId())) {
-                        isPickup = true;
-                        requestInfo = " (Pickup for DeliveryRequest " + request.getId() + ")";
-                        break;
-                    } else if (request.getDeliveryPoint().equals(point.getId())) {
-                        isDelivery = true;
-                        requestInfo = " (Delivery for DeliveryRequest " + request.getId() + ")";
-                        break;
-                    }
-                }
+            // Nombre de livreurs à tester
+            int numCouriers = 4; // Ajuste en fonction du nombre de livreurs
 
-                String type =(isPickup && wareHouse.getId().equals(point.getId()))? " Warehouse & Pickup" : 
-                             (isPickup ? "Pickup" : 
-                             ((isDelivery && wareHouse.getId().equals(point.getId()))? " Warehouse & Delivery" :
-                             (isDelivery ? "Delivery" : 
-                             (wareHouse.getId().equals(point.getId()) ? "Warehouse" : "Intermediate"))));
+            // Appeler la méthode computeAndAssignTour pour attribuer les requêtes aux livreurs
+            HashMap<Long, Courier> couriers = service.computeAndAssignTour(tourRequest, map, numCouriers);
 
-                System.out.println("Intersection ID : " + point.getId() + " - " + type + requestInfo);
+            System.out.println("Nombre total de livreurs : " + couriers.size());
+
+            // Afficher les informations pour chaque livreur
+            for (Courier courier : couriers.values()) {
+                System.out.println("\n=== Informations du livreur " + courier.getId() + " ===");
+                System.out.println("Plan de livraison : " + courier.getDeliveryPlan());
+                System.out.println("Liste des requêtes : " + courier.getTourRequest().getRequests().keySet());
+
+                Tour tour = courier.getDeliveryPlan();
+                // Affichage des statistiques finales
+                System.out.println("========= Statistiques ==========");
+                System.out.println("Nombre total d'intersections dans le tour : " + tour.getPointslist().size());
+                System.out.println("=================================\n");
             }
 
-            // Affichage des statistiques finales
-            System.out.println("\n=== Statistiques ===");
-            System.out.println("Nombre total d'intersections dans le tour : " + tour.getPointslist().size());
+            
             System.out.println("Nombre total d'intersections dans la carte : " + map.getIntersections().size());
 
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la lecture des fichiers : " + e.getMessage());
         } catch (IllegalArgumentException e) {
             System.out.println("Erreur : " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 }
