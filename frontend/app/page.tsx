@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import styles from './page.module.css';
-import React from 'react';
+import React, { useState } from 'react';
 import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
@@ -27,6 +27,7 @@ import {
     GoogleMapApiLoader,
     Polyline,
 } from 'react-google-map-wrapper';
+import Banner from './components/home/banner';
 
 export default function Home() {
     // const [map, setMap] = React.useState<Intersection[]>([]);
@@ -35,6 +36,10 @@ export default function Home() {
     >([]);
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
     const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
+    const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+    const [bannerType, setBannerType] = useState<'success' | 'error' | null>(
+        null,
+    );
     const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
         [],
     );
@@ -43,8 +48,12 @@ export default function Home() {
     const handleLoadMap = async (file: File) => {
         try {
             const markers = await apiService.loadMap(file);
+            setBannerMessage('Map loaded successfully!');
+            setBannerType('success');
         } catch (error) {
             console.error('Error loading map:', error);
+            setBannerMessage('Error loading map.');
+            setBannerType('error');
         }
     };
     const handleSaveTours = async () => {
@@ -70,8 +79,12 @@ export default function Home() {
             setWarehouse(warehouse);
             setPickupPoints([...requests.map((req) => req.pickupPoint)]);
             setDeliveryPoints([...requests.map((req) => req.deliveryPoint)]);
+            setBannerMessage('Request loaded successfully!');
+            setBannerType('success');
         } catch (error) {
             console.error('Error loading tour request:', error);
+            setBannerMessage('Error loading tour request.');
+            setBannerType('error');
         }
     };
 
@@ -85,7 +98,6 @@ export default function Home() {
                 }),
             );
             setTourCoordinates(coordinates);
-
             let tours: Tour[] = [];
             const jsonTours = localStorage.getItem('tours');
             if (jsonTours) {
@@ -95,8 +107,12 @@ export default function Home() {
             tours.push(tour);
 
             localStorage.setItem('tours', JSON.stringify(tours));
+            setBannerMessage('Tour computed successfully!');
+            setBannerType('success');
         } catch (error) {
             console.error('Error computing tour:', error);
+            setBannerMessage('Error computing tour.');
+            setBannerType('error');
         }
     };
 
@@ -162,8 +178,16 @@ export default function Home() {
             <Sidebar items={sidebarItems} />
 
             <main className={styles.main}>
+                {bannerMessage && bannerType && (
+                    <Banner
+                        message={bannerMessage}
+                        type={bannerType}
+                        onClose={() => setBannerMessage(null)}
+                    />
+                )}
                 <GoogleMapApiLoader
                     apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}
+                    suspense
                 >
                     <GoogleMap
                         style={{ width: '800px', height: '500px' }}
@@ -171,8 +195,7 @@ export default function Home() {
                         zoom={12}
                         containerProps={{ id: 'google-map' }}
                         mapOptions={{
-                            backgroundColor: 'dark',
-                            mapId: 'map-id',
+                            mapId: '67b4524f1a110aa8',
                         }}
                     >
                         <Polyline
