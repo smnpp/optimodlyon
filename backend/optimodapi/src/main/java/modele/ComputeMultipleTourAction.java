@@ -26,10 +26,17 @@ import service.Service;
  */
 public class ComputeMultipleTourAction extends Action {
     
+    /**
+     * @param service 
+     */
     public ComputeMultipleTourAction(Service service) {
         super(service);
     }
-
+    /**
+     * Processes a JSON request to compute and assign delivery tours for multiple couriers.
+     * @param request 
+     * @throws IllegalArgumentException if any required parameter is missing or invalid.
+     */
     @Override
     public void execute(HttpServletRequest request) {
         // Initialiser les valeurs par défaut
