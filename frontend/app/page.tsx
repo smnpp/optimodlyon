@@ -76,6 +76,11 @@ export default function Home() {
             const warehouse = tourRequest.warehouse;
             const requests = tourRequest.request;
 
+            // Clear existing markers
+            setWarehouse(null);
+            setPickupPoints([]);
+            setDeliveryPoints([]);
+
             setWarehouse(warehouse);
             setPickupPoints([...requests.map((req) => req.pickupPoint)]);
             setDeliveryPoints([...requests.map((req) => req.deliveryPoint)]);
