@@ -164,21 +164,32 @@ Next Steps
 
 \section{Frontend Tests}
 
-The frontend was tested using \textbf{Jest} and \textbf{React Testing Library}. The tests focused on the following aspects:
+During this phase of the project, the frontend was tested manually instead of using automated testing frameworks like Jest or React Testing Library. This decision was made due to the relatively small number of functionalities to validate, which made manual testing more practical and time-efficient.
+
+\subsection{Testing Scope}
+Manual testing was conducted on the following key functionalities:
 \begin{itemize}
-    \item Component rendering and behavior under various conditions.
-    \item Integration with the backend API, ensuring proper data exchange.
-    \item Edge cases such as invalid inputs and network failures.
+    \item \textbf{Map Rendering:} Ensuring the map loads correctly with all delivery points displayed as markers.
+    \item \textbf{Delivery Point Updates:} Verifying the ability to move pins on the map to modify delivery or pickup points.
+    \item \textbf{API Integration:} Ensuring seamless communication with the backend for loading delivery requests and saving updated tours.
+    \item \textbf{Edge Cases:} Checking basic error handling, such as invalid inputs or network connectivity issues.
 \end{itemize}
 
-\subsection{Example Test Case}
-\begin{verbatim}
-test('Displays map with markers for delivery points', async () => {
-    render(<MapComponent />);
-    expect(screen.getByTestId('map')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getAllByTestId('marker').length).toBeGreaterThan(0));
-});
-\end{verbatim}
+\subsection{Limitations of Manual Testing}
+While manual testing was effective for this phase, it has inherent limitations:
+\begin{itemize}
+    \item It is less scalable as the application grows and additional features are introduced.
+    \item Automated regression testing is not possible without proper test cases.
+    \item Ensuring consistency across test runs can be challenging.
+\end{itemize}
+
+\subsection{Future Possible Improvements}
+As the project evolves, transitioning to automated frontend testing is recommended to:
+\begin{itemize}
+    \item Reduce the time spent on repetitive tests.
+    \item Increase the accuracy and reliability of testing, especially for edge cases.
+    \item Enable continuous validation of the frontend during CI/CD pipeline execution.
+\end{itemize}
 
 %====================== CONCLUSION ======================
 
