@@ -43,10 +43,27 @@ public class SaveTourAction extends Action {
             // Utiliser Gson pour convertir le JSON en objet
             Gson gson = new Gson();
             JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
-            JsonArray toursArray = jsonRequest.getAsJsonArray("tours");
 
+            JsonArray toursArray = jsonRequest.getAsJsonArray("tours");
+            JsonArray pickupArray = jsonRequest.getAsJsonArray("pickupPoints");
+            JsonArray deliveryArray = jsonRequest.getAsJsonArray("deliveryPoints");
+            JsonObject jsonWarehouse = jsonRequest.getAsJsonObject("warehouse");
             // Construire manuellement les objets Tour
             List<Tour> tours = new ArrayList<>();
+            List<Intersection> pickupPoints = new ArrayList<>();
+            List<Intersection> deliveryPoints = new ArrayList<>();
+
+            String keyWarehouse = jsonWarehouse.get("key").getAsString();
+            Long idIntersectionWarehouse = Long.parseLong(keyWarehouse);
+            JsonObject locationObjectWarehouse = jsonWarehouse.getAsJsonObject("location");
+            double latWarehouse = locationObjectWarehouse.get("lat").getAsDouble();
+            double lngWarehouse = locationObjectWarehouse.get("lng").getAsDouble();
+
+            // Créer l'objet Location
+            Coords locationWarehouse = new Coords(latWarehouse, lngWarehouse);
+
+            // Créer l'objet Intersection
+            Intersection warehouse = new Intersection(idIntersectionWarehouse, locationWarehouse);
 
             for (JsonElement tourElement : toursArray) {
                 JsonObject tourObject = tourElement.getAsJsonObject();
@@ -85,8 +102,46 @@ public class SaveTourAction extends Action {
 
                 tours.add(tour);
             }
+            for (JsonElement intersectionElement : pickupArray) {
 
-            Boolean success = service.saveToursToFile(tours);
+                JsonObject intersectionObject = intersectionElement.getAsJsonObject();
+
+                String key = intersectionObject.get("key").getAsString();
+                Long idIntersection = Long.parseLong(key);
+                JsonObject locationObject = intersectionObject.getAsJsonObject("location");
+                double lat = locationObject.get("lat").getAsDouble();
+                double lng = locationObject.get("lng").getAsDouble();
+
+                // Créer l'objet Location
+                Coords location = new Coords(lat, lng);
+
+                // Créer l'objet Intersection
+                Intersection intersection = new Intersection(idIntersection, location);
+
+                pickupPoints.add(intersection);
+
+            }
+            for (JsonElement intersectionElement : deliveryArray) {
+
+                JsonObject intersectionObject = intersectionElement.getAsJsonObject();
+
+                String key = intersectionObject.get("key").getAsString();
+                Long idIntersection = Long.parseLong(key);
+                JsonObject locationObject = intersectionObject.getAsJsonObject("location");
+                double lat = locationObject.get("lat").getAsDouble();
+                double lng = locationObject.get("lng").getAsDouble();
+
+                // Créer l'objet Location
+                Coords location = new Coords(lat, lng);
+
+                // Créer l'objet Intersection
+                Intersection intersection = new Intersection(idIntersection, location);
+
+                deliveryPoints.add(intersection);
+
+            }
+
+            Boolean success = service.saveToursToFile(tours, pickupPoints, deliveryPoints, warehouse);
             request.setAttribute("success", success);
 
         } catch (IOException ex) {

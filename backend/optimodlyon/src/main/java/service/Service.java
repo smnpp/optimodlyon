@@ -38,9 +38,7 @@ import java.io.File;
  */
 public class Service {
 
-
     public Map loadMap(String fileContent) throws IOException {
-
 
         // Déterminer le type de fichier
         File file = File.createTempFile("temp", ".xml");
@@ -91,9 +89,8 @@ public class Service {
 
         return tourRequest;
 
-    }  
-    
-    
+    }
+
     public Tour computeTour(TourRequest tourRequest, Map map) {
         // Vérification que tous les points sont dans la Map
         for (DeliveryRequest request : tourRequest.getRequests().values()) {
@@ -186,7 +183,7 @@ public class Service {
         return projectPath.getAbsolutePath(); // Retourne uniquement la racine
     }
 
-    public Boolean saveToursToFile(List<Tour> tours) {
+    public Boolean saveToursToFile(List<Tour> tours, List<Intersection> deliveryPoints, List<Intersection> pickupPoints, Intersection warehouse) {
         Boolean resultat = false;
         try {
             // Initialiser le constructeur de document XML
@@ -227,6 +224,60 @@ public class Service {
                 }
             }
 
+            Element type = doc.createElement("typePoints");
+            root.appendChild(type);
+
+            Element deliveryPointsElement = doc.createElement("deliveryPoints");
+            type.appendChild(deliveryPointsElement);
+            for (Intersection intersection : deliveryPoints) {
+                Element parIntersection = doc.createElement("intersection");
+                parIntersection.setAttribute("id", intersection.getId().toString());
+                deliveryPointsElement.appendChild(parIntersection);
+
+                // Ajouter latitude et longitude
+                Element lat = doc.createElement("latitude");
+                lat.appendChild(doc.createTextNode(intersection.getLocation().getLatitude().toString()));
+
+                Element lon = doc.createElement("longitude");
+                lon.appendChild(doc.createTextNode(intersection.getLocation().getLongitude().toString()));
+
+                parIntersection.appendChild(lat);
+                parIntersection.appendChild(lon);
+            }
+
+            Element pickupPointsElement = doc.createElement("pickupPoints");
+            type.appendChild(pickupPointsElement);
+            for (Intersection intersection : deliveryPoints) {
+                Element parIntersection = doc.createElement("intersection");
+                parIntersection.setAttribute("id", intersection.getId().toString());
+                pickupPointsElement.appendChild(parIntersection);
+
+                // Ajouter latitude et longitude
+                Element lat = doc.createElement("latitude");
+                lat.appendChild(doc.createTextNode(intersection.getLocation().getLatitude().toString()));
+
+                Element lon = doc.createElement("longitude");
+                lon.appendChild(doc.createTextNode(intersection.getLocation().getLongitude().toString()));
+
+                parIntersection.appendChild(lat);
+                parIntersection.appendChild(lon);
+            }
+            Element warehouseElement = doc.createElement("warehousePoint");
+            type.appendChild(warehouseElement);
+            Element parIntersection = doc.createElement("intersection");
+            parIntersection.setAttribute("id", warehouse.getId().toString());
+            warehouseElement.appendChild(parIntersection);
+
+            // Ajouter latitude et longitude
+            Element lat = doc.createElement("latitude");
+            lat.appendChild(doc.createTextNode(warehouse.getLocation().getLatitude().toString()));
+
+            Element lon = doc.createElement("longitude");
+            lon.appendChild(doc.createTextNode(warehouse.getLocation().getLongitude().toString()));
+
+            parIntersection.appendChild(lat);
+            parIntersection.appendChild(lon);
+
             // Transformer le document en fichier XML
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -261,7 +312,7 @@ public class Service {
         return resultat;
     }
 
-   // Fonction pour calculer et attribuer les tours aux livreurs
+    // Fonction pour calculer et attribuer les tours aux livreurs
     public HashMap<Long, Courier> computeAndAssignTour(TourRequest tourRequest, Map map, int numCouriers) {
 
         ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();

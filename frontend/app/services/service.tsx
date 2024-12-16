@@ -223,7 +223,20 @@ class OptimodApiService {
                 'Invalid input: Tours must be an array of Tour objects.',
             );
         }
+        const request = localStorage.getItem('request');
+        if (!request) {
+            throw new Error('No request to save');
+        }
 
+        const parsedRequest: TourRequest = JSON.parse(request);
+        const requests: DeliveryRequest[] = parsedRequest.request;
+        const deliveryPoints = requests.map((req) => req.deliveryPoint);
+        const pickupPoints = requests.map((req) => req.pickupPoint);
+        const warehouse = parsedRequest.warehouse;
+        console.log('Requests:', requests);
+        console.log('Delivery points:', deliveryPoints);
+        console.log('Pickup points:', pickupPoints);
+        console.log('Warehouse:', warehouse);
         const body = {
             tours: tours.map((tour) => {
                 if (
@@ -256,6 +269,9 @@ class OptimodApiService {
                     }),
                 };
             }),
+            pickupPoints: pickupPoints,
+            deliveryPoints: deliveryPoints,
+            warehouse: warehouse,
         };
 
         console.log('Request body:', body);
