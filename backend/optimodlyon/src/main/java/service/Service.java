@@ -33,11 +33,13 @@ import java.time.LocalDate;
 import java.io.File;
 
 /**
+ *
+ * @author jnoukam
  * Service class that provides methods for loading maps, handling delivery requests,
  * computing delivery tours, and saving results in XML format.
  */
 public class Service {
-    
+
      /**
      * Loads a map from an XML string content.
      * 
@@ -109,6 +111,7 @@ public class Service {
         return tourRequest;
 
     }  
+
      /**
      * Computes the optimal delivery tour based on a TourRequest and Map.
      * 

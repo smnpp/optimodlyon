@@ -15,6 +15,7 @@ import service.Service;
 
 public abstract class Action {
 	Service service;
+
         /**
          * 
          * @param service 

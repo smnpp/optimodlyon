@@ -22,13 +22,13 @@ public class TextFileParser implements FileParser<String> {
     * @return null, as the operation is not supported and no parsing is performed.
     * @throws UnsupportedOperationException if this method is called, as the operation is unsupported.
     */
-    @Override
-    public String parse(File file) {
-            try {
-                    throw new UnsupportedOperationException("Unsupported Operation");
-            } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-            }
-    }
+	@Override
+	public String parse(File file) {
+		try {
+			throw new UnsupportedOperationException("Unsupported Operation");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

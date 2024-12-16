@@ -20,12 +20,12 @@ import service.Service;
  */
 public class ChargerMapAction extends Action {
 
-	/**
-         * @param service 
-         */
-	public ChargerMapAction(Service service) {
-		super(service);
-	}
+    /**
+     * @param service
+     */
+    public ChargerMapAction(Service service) {
+        super(service);
+    }
         
         /**
          * Processes a JSON, uploads a file using a service, and marks success 
