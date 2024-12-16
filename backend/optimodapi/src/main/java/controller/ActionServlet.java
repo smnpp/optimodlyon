@@ -14,12 +14,14 @@ import modele.ChargerMapAction;
 import modele.ComputeTourAction;
 import modele.LoadRequestAction;
 import modele.ModifyPickupPointAction;
+import modele.SaveTourAction;
+import modele.ComputeMultipleTourAction;
 import service.Service;
 import vue.MapSerialisation;
 import vue.TourRequestSerialisation;
 import vue.TourSerialisation;
 import vue.SuccessSerialisation;
-import modele.SaveTourAction;
+import vue.MultipleTourSerialisation;
 
 /**
  *
@@ -61,6 +63,11 @@ public class ActionServlet extends HttpServlet {
                 case "compute-tour": {
                     new ComputeTourAction(service).execute(request);
                     new TourSerialisation().appliquer(request, response);
+                    break;
+                }
+                case "compute-n-tour": {
+                    new ComputeMultipleTourAction(service).execute(request);
+                    new MultipleTourSerialisation().appliquer(request, response);
                     break;
                 }
                 case "save-tour": {

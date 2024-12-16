@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@next/env": "^15.0.3",
+        "@types/google-map-react": "^2.1.10",
         "@vis.gl/react-google-maps": "^1.4.2",
         "next": "15.0.3",
         "react": "19.0.0-rc-66855b96-20241106",
