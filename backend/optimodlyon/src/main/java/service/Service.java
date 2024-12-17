@@ -373,7 +373,6 @@ public class Service {
         } catch (Exception e) {
             System.err.println("Erreur inattendue : " + e.getMessage());
         }
-        saveToursToPdf(tours);
 
         return resultat;
     }
