@@ -1,3 +1,4 @@
+import { request } from 'http';
 import DeliveryRequest from '../types/delivery-request';
 import Intersection from '../types/intersection';
 import Tour from '../types/tour';
@@ -157,9 +158,9 @@ class OptimodApiService {
 
     async computeTour(): Promise<Tour> {
         const mapFile = localStorage.getItem('map-file');
-        const requestFile = localStorage.getItem('request-file');
+        const request = localStorage.getItem('request');
 
-        if (!mapFile || !requestFile) {
+        if (!mapFile || !request) {
             console.error(
                 'Map and request files must be loaded before computing tour',
             );
@@ -167,7 +168,7 @@ class OptimodApiService {
         }
         const body = {
             'map-file': mapFile,
-            'request-file': requestFile,
+            request: JSON.parse(request),
         };
 
         try {

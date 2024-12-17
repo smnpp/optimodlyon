@@ -1,13 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import Intersection from '@/app/types/intersection';
 import {
     AdvancedMarker,
     InfoWindow,
-    Marker,
     PinElement,
 } from 'react-google-map-wrapper';
 
-enum MarkerType {
+export enum MarkerType {
     Warehouse = 'Warehouse',
     Pickup = 'Pickup Point',
     Delivery = 'Delivery Point',
@@ -19,41 +18,21 @@ const MarkerWithInfoWindow = ({
     color,
     type,
     onPositionChange,
+    handleDragEnd,
 }: {
     position: google.maps.LatLngLiteral;
     initialContent: React.ReactNode;
     color?: string;
     type: MarkerType;
     onPositionChange?: (position: google.maps.LatLngLiteral) => void;
-}) => {
-    const [isOpen, setOpen] = useState(false);
-    const [markerPosition, setMarkerPosition] = useState(position);
-    const [content, setContent] = useState(initialContent);
-
-    const handleDragEnd = (
+    handleDragEnd?: (
         marker: google.maps.marker.AdvancedMarkerElement,
         event: google.maps.MapMouseEvent,
-    ) => {
-        if (event.latLng) {
-            const newPos = {
-                lat: event.latLng.lat(),
-                lng: event.latLng.lng(),
-            };
-            setMarkerPosition(newPos);
-            setContent(
-                <div style={{ color: 'black' }}>
-                    <h3>{type}</h3>
-                    <p>
-                        Location:{' '}
-                        {`${newPos.lat.toPrecision(8)}, ${newPos.lng.toPrecision(8)}`}
-                    </p>
-                </div>,
-            );
-            if (onPositionChange) {
-                onPositionChange(newPos);
-            }
-        }
-    };
+        setContent: (content: React.ReactNode) => void,
+    ) => void;
+}) => {
+    const [isOpen, setOpen] = useState(false);
+    const [content, setContent] = useState(initialContent);
 
     return (
         <>
@@ -66,7 +45,10 @@ const MarkerWithInfoWindow = ({
                     lat={position.lat}
                     lng={position.lng}
                     onClick={() => setOpen(true)}
-                    onDragEnd={handleDragEnd}
+                    onDragEnd={(marker, event) =>
+                        handleDragEnd &&
+                        handleDragEnd(marker, event, setContent)
+                    }
                     gmpDraggable={true}
                 >
                     <PinElement
@@ -97,7 +79,10 @@ export const MapMarker = (props: { pois: Intersection[] }) => {
     );
 };
 
-export const WarehouseMarker = (props: { warehouse: Intersection }) => {
+export const WarehouseMarker = (props: {
+    warehouse: Intersection;
+    handleDragEnd: any;
+}) => {
     return (
         <MarkerWithInfoWindow
             position={props.warehouse.location}
@@ -112,54 +97,53 @@ export const WarehouseMarker = (props: { warehouse: Intersection }) => {
                     </p>
                 </div>
             }
+            handleDragEnd={props.handleDragEnd}
         />
     );
 };
 
-export const DeliveryMarker = (props: { deliveryPoints: Intersection[] }) => {
+export const DeliveryMarker = (props: {
+    deliveryPoint: Intersection;
+    handleDragEnd: any;
+}) => {
     return (
-        <>
-            {props.deliveryPoints.map((poi: Intersection) => (
-                <MarkerWithInfoWindow
-                    key={poi.key}
-                    position={poi.location}
-                    color="#00FF00"
-                    type={MarkerType.Delivery}
-                    initialContent={
-                        <div style={{ color: 'black' }}>
-                            <h3>Delivery Point</h3>
-                            <p>
-                                Location:{' '}
-                                {`${poi.location.lat}, ${poi.location.lng}`}
-                            </p>
-                        </div>
-                    }
-                />
-            ))}
-        </>
+        <MarkerWithInfoWindow
+            position={props.deliveryPoint.location}
+            color="#00FF00"
+            type={MarkerType.Delivery}
+            initialContent={
+                <div style={{ color: 'black' }}>
+                    <h3>Delivery Point</h3>
+                    <p>
+                        Location:{' '}
+                        {`${props.deliveryPoint.location.lat}, ${props.deliveryPoint.location.lng}`}
+                    </p>
+                </div>
+            }
+            handleDragEnd={props.handleDragEnd}
+        />
     );
 };
 
-export const PickupMarker = (props: { pickupPoints: Intersection[] }) => {
+export const PickupMarker = (props: {
+    pickupPoint: Intersection;
+    handleDragEnd: any;
+}) => {
     return (
-        <>
-            {props.pickupPoints.map((poi: Intersection) => (
-                <MarkerWithInfoWindow
-                    key={poi.key}
-                    position={poi.location}
-                    color="#0000FF"
-                    type={MarkerType.Pickup}
-                    initialContent={
-                        <div style={{ color: 'black' }}>
-                            <h3>Pickup Point</h3>
-                            <p>
-                                Location:{' '}
-                                {`${poi.location.lat}, ${poi.location.lng}`}
-                            </p>
-                        </div>
-                    }
-                />
-            ))}
-        </>
+        <MarkerWithInfoWindow
+            position={props.pickupPoint.location}
+            color="#0000FF"
+            type={MarkerType.Pickup}
+            initialContent={
+                <div style={{ color: 'black' }}>
+                    <h3>Pickup Point</h3>
+                    <p>
+                        Location:{' '}
+                        {`${props.pickupPoint.location.lat}, ${props.pickupPoint.location.lng}`}
+                    </p>
+                </div>
+            }
+            handleDragEnd={props.handleDragEnd}
+        />
     );
 };

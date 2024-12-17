@@ -19,6 +19,7 @@ import { Button } from './components/home/button';
 import { MdCalculate } from 'react-icons/md';
 import {
     DeliveryMarker,
+    MarkerType,
     PickupMarker,
     WarehouseMarker,
 } from './components/home/marker';
@@ -28,6 +29,9 @@ import {
     Polyline,
 } from 'react-google-map-wrapper';
 import Banner from './components/home/banner';
+import { findClosestPoint } from './util';
+import { randomUUID } from 'crypto';
+import TourRequest from './types/tour-request';
 
 export default function Home() {
     // const [map, setMap] = React.useState<Intersection[]>([]);
@@ -35,14 +39,16 @@ export default function Home() {
         google.maps.LatLngLiteral[]
     >([]);
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
-    const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
+    const [pickupPoints, setPickupPoints] = React.useState<
+        Intersection[] | null
+    >([]);
     const [bannerMessage, setBannerMessage] = useState<string | null>(null);
     const [bannerType, setBannerType] = useState<'success' | 'error' | null>(
         null,
     );
-    const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
-        [],
-    );
+    const [deliveryPoints, setDeliveryPoints] = React.useState<
+        Intersection[] | null
+    >([]);
     const apiService = new OptimodApiService();
 
     const handleLoadMap = async (file: File) => {
@@ -78,12 +84,13 @@ export default function Home() {
 
             // Clear existing markers
             setWarehouse(null);
-            setPickupPoints([]);
-            setDeliveryPoints([]);
+            setPickupPoints(null);
+            setDeliveryPoints(null);
 
             setWarehouse(warehouse);
             setPickupPoints([...requests.map((req) => req.pickupPoint)]);
             setDeliveryPoints([...requests.map((req) => req.deliveryPoint)]);
+
             setBannerMessage('Request loaded successfully!');
             setBannerType('success');
         } catch (error) {
@@ -95,7 +102,10 @@ export default function Home() {
 
     const handleComputeTour = async () => {
         try {
+            const mapFile = localStorage.getItem('map-file');
+
             const tour = await apiService.computeTour();
+            console.log(tour);
             const coordinates = tour.intersections.map(
                 (intersection: Intersection) => ({
                     lat: intersection.location.lat,
@@ -118,6 +128,71 @@ export default function Home() {
             console.error('Error computing tour:', error);
             setBannerMessage('Error computing tour.');
             setBannerType('error');
+        }
+    };
+
+    const updateMarkerPosition = (
+        key: string,
+        newPosition: google.maps.LatLngLiteral,
+        type: MarkerType,
+    ) => {
+        if (type === MarkerType.Warehouse) {
+            setWarehouse((prevWarehouse) =>
+                prevWarehouse && prevWarehouse.key === key
+                    ? { ...prevWarehouse, location: newPosition }
+                    : prevWarehouse,
+            );
+        } else if (type === MarkerType.Pickup) {
+            setPickupPoints((prevPoints) =>
+                prevPoints!.map((point) =>
+                    point.key === key
+                        ? { ...point, location: newPosition }
+                        : point,
+                ),
+            );
+        } else if (type === MarkerType.Delivery) {
+            setDeliveryPoints((prevPoints) =>
+                prevPoints!.map((point) =>
+                    point.key === key
+                        ? { ...point, location: newPosition }
+                        : point,
+                ),
+            );
+        }
+    };
+
+    const handleDragEnd = (
+        marker: google.maps.marker.AdvancedMarkerElement,
+        event: google.maps.MapMouseEvent,
+        key: string,
+        type: MarkerType,
+        setContent: (content: React.ReactNode) => void,
+        onPositionChange?: (position: google.maps.LatLngLiteral) => void,
+    ) => {
+        if (event.latLng) {
+            const newPos = {
+                lat: event.latLng.lat(),
+                lng: event.latLng.lng(),
+            };
+            const map = JSON.parse(localStorage.getItem('map') || '[]');
+            const closestPoint = findClosestPoint(newPos, map);
+            if (closestPoint) {
+                marker.position = closestPoint;
+                updateMarkerPosition(key, closestPoint, type);
+                const content = (
+                    <div style={{ color: 'black' }}>
+                        <h3>{type}</h3>
+                        <p>
+                            Location:{' '}
+                            {`${closestPoint.lat.toPrecision(8)}, ${closestPoint.lng.toPrecision(8)}`}
+                        </p>
+                    </div>
+                );
+                setContent(content);
+                if (onPositionChange) {
+                    onPositionChange(closestPoint);
+                }
+            }
         }
     };
 
@@ -210,13 +285,71 @@ export default function Home() {
                             strokeWeight={2.0}
                             geodesic
                         />
-                        {warehouse && <WarehouseMarker warehouse={warehouse} />}
-                        {pickupPoints && (
-                            <PickupMarker pickupPoints={pickupPoints} />
+                        {warehouse && (
+                            <WarehouseMarker
+                                key={crypto.randomUUID()}
+                                warehouse={warehouse}
+                                handleDragEnd={(
+                                    marker: google.maps.marker.AdvancedMarkerElement,
+                                    event: google.maps.MapMouseEvent,
+                                    setContent: (
+                                        content: React.ReactNode,
+                                    ) => void,
+                                ) =>
+                                    handleDragEnd(
+                                        marker,
+                                        event,
+                                        warehouse.key,
+                                        MarkerType.Warehouse,
+                                        setContent,
+                                    )
+                                }
+                            />
                         )}
-                        {deliveryPoints && (
-                            <DeliveryMarker deliveryPoints={deliveryPoints} />
-                        )}
+                        {pickupPoints &&
+                            pickupPoints.map((pickupPoint) => (
+                                <PickupMarker
+                                    key={crypto.randomUUID()}
+                                    pickupPoint={pickupPoint}
+                                    handleDragEnd={(
+                                        marker: google.maps.marker.AdvancedMarkerElement,
+                                        event: google.maps.MapMouseEvent,
+                                        setContent: (
+                                            content: React.ReactNode,
+                                        ) => void,
+                                    ) =>
+                                        handleDragEnd(
+                                            marker,
+                                            event,
+                                            pickupPoint.key,
+                                            MarkerType.Pickup,
+                                            setContent,
+                                        )
+                                    }
+                                />
+                            ))}
+                        {deliveryPoints &&
+                            deliveryPoints.map((deliveryPoint) => (
+                                <DeliveryMarker
+                                    key={crypto.randomUUID()}
+                                    deliveryPoint={deliveryPoint}
+                                    handleDragEnd={(
+                                        marker: google.maps.marker.AdvancedMarkerElement,
+                                        event: google.maps.MapMouseEvent,
+                                        setContent: (
+                                            content: React.ReactNode,
+                                        ) => void,
+                                    ) =>
+                                        handleDragEnd(
+                                            marker,
+                                            event,
+                                            deliveryPoint.key,
+                                            MarkerType.Delivery,
+                                            setContent,
+                                        )
+                                    }
+                                />
+                            ))}
                     </GoogleMap>
                 </GoogleMapApiLoader>
             </main>
