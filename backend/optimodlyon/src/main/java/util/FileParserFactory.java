@@ -48,8 +48,8 @@ public class FileParserFactory {
     *
     * @param file The file whose type is to be determined.
     * @return The corresponding {@link FileType} based on the XML structure:
-    *         - {@link FileType#XMLMAP} if the file contains a <reseau> tag.
-    *         - {@link FileType#XMLDEMANDE} if the file contains a <demandeDeLivraisons> tag.
+    *         - {@link FileType#XMLMAP} if the file contains a &lt;reseau&gt; tag.
+    *         - {@link FileType#XMLDEMANDE} if the file contains a &lt;demandeDeLivraisons&gt; tag.
     * @throws IllegalArgumentException If the XML file format is unsupported or invalid.
     * @throws RuntimeException If an error occurs while reading the file.
     */

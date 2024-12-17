@@ -36,8 +36,8 @@ public class ComputeTourAction extends Action {
 	 *  Processes a JSON request to load a map file and a delivery request file, computes a delivery tour, 
  * and sets the result or failure status on the request.
 	 * @param request 
-	 * @throws JsonSyntaxException If the JSON request is malformed or contains invalid data.
-	 * @throws IllegalArgumentException If required JSON parameters are missing or invalid.
+	 * throws JsonSyntaxException If the JSON request is malformed or contains invalid data.
+	 * throws IllegalArgumentException If required JSON parameters are missing or invalid.
 	 */
 	@Override
 	public void execute(HttpServletRequest request) {

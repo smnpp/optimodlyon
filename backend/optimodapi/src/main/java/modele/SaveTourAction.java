@@ -35,9 +35,9 @@ public class SaveTourAction extends Action {
      * Processes a JSON request to construct and save a list of tours and sets the success status 
      * in the HTTP request.
      *
-     * @param jsonRequest The JSON request containing the necessary data to construct the list of tours.
+     * @param request The JSON request containing the necessary data to construct the list of tours.
      * @param request The HTTP request object where the success status will be set.
-     * @throws SomeException If an error occurs while processing the request or saving the tours.
+     * throws SomeException If an error occurs while processing the request or saving the tours.
      */
     @Override
     public void execute(HttpServletRequest request) {
