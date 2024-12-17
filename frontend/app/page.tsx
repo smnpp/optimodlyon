@@ -45,6 +45,15 @@ export default function Home() {
     const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
         [],
     );   
+    const [matchedRequests, setMatchedRequests] = React.useState<
+        {
+            index: number;
+            courierId: string;
+            pickupPoint: Intersection;
+            deliveryPoint: Intersection;
+        }[]
+    >([]);
+
     const [numCouriers, setNumCouriers] = React.useState(1);
     const apiService = new OptimodApiService();
 
@@ -93,7 +102,7 @@ export default function Home() {
 
     const handleComputeTour = async () => {
         try {
-            const tour = await apiService.computeTour();
+            const { tour, tourRequest } = await apiService.computeTour();
             const coordinates = tour.intersections.map(
                 (intersection: Intersection) => ({
                     lat: intersection.location.lat,
@@ -101,6 +110,25 @@ export default function Home() {
                 }),
             );
             setTourCoordinates(coordinates);
+
+
+            const enrichedRelations: {
+                index: number;
+                courierId: string;
+                pickupPoint: Intersection;
+                deliveryPoint: Intersection;
+            }[] = [];
+
+            let index = 1;
+                tourRequest.request.forEach((deliveryRequest) => {
+                    enrichedRelations.push({
+                        index: index++, // index unique pour chaque couple pickup-delivery
+                        courierId: tourRequest.key, // ID du livreur
+                        pickupPoint: deliveryRequest.pickupPoint, 
+                        deliveryPoint: deliveryRequest.deliveryPoint, 
+                    });
+            });
+
             let tours: Tour[] = [];
             const jsonTours = localStorage.getItem('tours');
             if (jsonTours) {
@@ -110,6 +138,7 @@ export default function Home() {
             tours.push(tour);
 
             localStorage.setItem('tours', JSON.stringify(tours));
+            setMatchedRequests(enrichedRelations);
             setBannerMessage('Tour computed successfully!');
             setBannerType('success');
         } catch (error) {
@@ -121,23 +150,40 @@ export default function Home() {
     
     const handleMultipleComputeTour = async () => {
         try {
-            // Appel à l'API pour récupérer les données des livreurs
             const courierData = await apiService.computeMultipleTours(numCouriers);
 
-            // Préparer un état pour stocker les coordonnées des tournées
             const allCoordinates: Record<string, google.maps.LatLngLiteral[]> = {};
 
-            // Extraire les coordonnées des intersections pour chaque livreur
+            const enrichedRelations: {
+                index: number;
+                courierId: string;
+                pickupPoint: Intersection;
+                deliveryPoint: Intersection;
+            }[] = [];
+
+    
             Object.entries(courierData).forEach(([courierId, courier]: [string, Courier]) => {
                 const coordinates = courier.tour.intersections.map((intersection: Intersection) => ({
                     lat: intersection.location.lat,
                     lng: intersection.location.lng,
                 }));
                 allCoordinates[courierId] = coordinates;
+
+                let index = 1;
+                courier.tourRequest.request.forEach((deliveryRequest) => {
+                    enrichedRelations.push({
+                        index: index++, // index unique pour chaque couple pickup-delivery
+                        courierId: courierId, // ID du livreur
+                        pickupPoint: deliveryRequest.pickupPoint, 
+                        deliveryPoint: deliveryRequest.deliveryPoint, 
+                    });
+                });
             });
 
             // Mettre à jour l'état React pour l'affichage des couriers
             setCouriers(allCoordinates);
+
+            setMatchedRequests(enrichedRelations);
 
             // Sauvegarder les couriers dans le localStorage
             let storedCouriers: Courier[] = [];
@@ -150,10 +196,13 @@ export default function Home() {
             // Ajouter les nouveaux couriers et mettre à jour le localStorage
             storedCouriers.push(...Object.values(courierData));
             localStorage.setItem('couriers', JSON.stringify(storedCouriers));
-
+            setBannerMessage('Multiple tours computed successfully!');
+            setBannerType('success');
             console.log('Multiple tours computed successfully:', courierData);
         } catch (error) {
             console.error('Error computing multiple tours:', error);
+            setBannerMessage('Error computing multiple tours.');
+            setBannerType('error');
         }
     };
 
@@ -285,11 +334,12 @@ export default function Home() {
                         ))}
 
                         {warehouse && <WarehouseMarker warehouse={warehouse} />}
-                        {pickupPoints && (
-                            <PickupMarker pickupPoints={pickupPoints} />
-                        )}
-                        {deliveryPoints && (
-                            <DeliveryMarker deliveryPoints={deliveryPoints} />
+                        {/* Afficher les relations enrichies */}
+                        {matchedRequests && (
+                            <>
+                                <PickupMarker matchedRequests={matchedRequests.map(({ index, courierId, pickupPoint }) => ({ index, courierId, pickupPoint }))} />
+                                <DeliveryMarker matchedRequests={matchedRequests.map(({ index, courierId, deliveryPoint }) => ({ index, courierId, deliveryPoint }))} />
+                            </>
                         )}
                     </GoogleMap>
                 </GoogleMapApiLoader>
