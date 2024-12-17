@@ -61,13 +61,13 @@ public class TourSerialisation extends Serialisation {
 			}
 		}
 
-                TourRequest tourRequest = (TourRequest)request.getAttribute("tourRequest");
-                JsonObject tourRequestJson = serializeTourRequest(tourRequest);
+		TourRequest tourRequest = (TourRequest)request.getAttribute("tourRequest");
+		JsonObject tourRequestJson = serializeTourRequest(tourRequest);
                 
 		// Add success and tour to the container
 		container.addProperty("success", success);
 		container.add("tour", tourJson);
-                container.add("tourRequest", tourRequestJson);
+		container.add("tourRequest", tourRequestJson);
 
 		// Send the JSON response
 		response.setContentType("application/json;charset=UTF-8");
