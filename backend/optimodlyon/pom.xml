@@ -29,6 +29,11 @@
             <version>9.0.0</version>
             <type>pom.sha512</type>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.11</version>
+        </dependency>
     </dependencies>
 
     <build>
