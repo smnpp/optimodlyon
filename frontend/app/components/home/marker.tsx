@@ -72,20 +72,22 @@ export const WarehouseMarker = (props: { warehouse: Intersection }) => {
     );
 };
 
-export const DeliveryMarker = (props: { deliveryPoints: Intersection[] }) => {
+export const PickupMarker = (props: { matchedRequests: { index: number; courierId: string; pickupPoint: Intersection }[] }) => {
     return (
         <>
-            {props.deliveryPoints.map((poi: Intersection) => (
+            {props.matchedRequests.map(({ index, courierId, pickupPoint }) => (
                 <MarkerWithInfoWindow
-                    key={poi.key}
-                    position={poi.location}
-                    color="#00FF00"
+                    key={pickupPoint.key}
+                    position={pickupPoint.location}
+                    color="#0000FF"
                     content={
                         <div style={{ color: 'black' }}>
-                            <h3>Delivery Point</h3>
+                            <h3>Pickup Point</h3>
+                            <p>Index: {index}</p> {/* Affiche l'index commun */}
+                            <p>Courier ID: {courierId}</p> {/* Affiche l'ID du courier */}
                             <p>
                                 Location:{' '}
-                                {`${poi.location.lat}, ${poi.location.lng}`}
+                                {`${pickupPoint.location.lat}, ${pickupPoint.location.lng}`}
                             </p>
                         </div>
                     }
@@ -95,20 +97,22 @@ export const DeliveryMarker = (props: { deliveryPoints: Intersection[] }) => {
     );
 };
 
-export const PickupMarker = (props: { pickupPoints: Intersection[] }) => {
+export const DeliveryMarker = (props: { matchedRequests: { index: number; courierId: string; deliveryPoint: Intersection }[] }) => {
     return (
         <>
-            {props.pickupPoints.map((poi: Intersection) => (
+            {props.matchedRequests.map(({ index, courierId, deliveryPoint }) => (
                 <MarkerWithInfoWindow
-                    key={poi.key}
-                    position={poi.location}
-                    color="#0000FF"
+                    key={deliveryPoint.key}
+                    position={deliveryPoint.location}
+                    color="#00FF00"
                     content={
                         <div style={{ color: 'black' }}>
-                            <h3>Pickup Point</h3>
+                            <h3>Delivery Point</h3>
+                            <p>Index: {index}</p> {/* Affiche l'index commun */}
+                            <p>Courier ID: {courierId}</p> {/* Affiche l'ID du courier */}
                             <p>
                                 Location:{' '}
-                                {`${poi.location.lat}, ${poi.location.lng}`}
+                                {`${deliveryPoint.location.lat}, ${deliveryPoint.location.lng}`}
                             </p>
                         </div>
                     }

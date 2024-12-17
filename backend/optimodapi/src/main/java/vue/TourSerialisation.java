@@ -10,10 +10,14 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import metier.DeliveryRequest;
 import metier.Intersection;
 import metier.Tour;
+import metier.TourRequest;
+import metier.Warehouse;
 
 /**
  *
@@ -57,9 +61,13 @@ public class TourSerialisation extends Serialisation {
 			}
 		}
 
+                TourRequest tourRequest = (TourRequest)request.getAttribute("tourRequest");
+                JsonObject tourRequestJson = serializeTourRequest(tourRequest);
+                
 		// Add success and tour to the container
 		container.addProperty("success", success);
 		container.add("tour", tourJson);
+                container.add("tourRequest", tourRequestJson);
 
 		// Send the JSON response
 		response.setContentType("application/json;charset=UTF-8");
@@ -69,5 +77,58 @@ public class TourSerialisation extends Serialisation {
 	}
 	
 
+    private JsonObject serializeTourRequest(TourRequest tourRequest) {
+        JsonObject tourRequestJson = new JsonObject();
+        if ( tourRequest!= null) {
+            // Ajouter les propriétés de TourRequest, par exemple un id ou des détails supplémentaires
+            JsonObject warehouseJson = new JsonObject();
+            Warehouse warehouse = tourRequest.getWarehouse();
+            if (warehouse != null) {
+                    warehouseJson.addProperty("id", warehouse.getId());
+                    if (warehouse.getDepartureTime() != null) {
+                            warehouseJson.addProperty("departureTime", warehouse.getDepartureTime().toString());
+                    }
+            }
+
+            JsonArray deliveryRequestsArray = new JsonArray();
+            Map<String, DeliveryRequest> requests = (Map<String, DeliveryRequest>) tourRequest.getRequests();
+
+            for (String id : requests.keySet()) {
+                DeliveryRequest deliveryRequest = requests.get(id);
+
+                JsonObject json = new JsonObject();
+                json.addProperty("id", deliveryRequest.getId());
+                json.addProperty("pickup-point", deliveryRequest.getPickupPoint());
+                json.addProperty("delivery-point", deliveryRequest.getDeliveryPoint());
+
+                if (deliveryRequest.getPickupDuration() != null) {
+                        json.addProperty("pickup-duration", deliveryRequest.getPickupDuration().getSeconds());
+                }
+
+                if (deliveryRequest.getDeliveryDuration() != null) {
+                        json.addProperty("delivery-duration", deliveryRequest.getDeliveryDuration().getSeconds());
+                }
+
+                if (deliveryRequest.getPickupTime() != null) {
+                        json.addProperty("pickup-time", deliveryRequest.getPickupTime().toString());
+                }
+
+                if (deliveryRequest.getDeliveryTime() != null) {
+                        json.addProperty("delivery-time", deliveryRequest.getDeliveryTime().toString());
+                }
+
+                if (deliveryRequest.getDuration() != null) {
+                        json.addProperty("duration", deliveryRequest.getDuration().getSeconds());
+                }
+
+                deliveryRequestsArray.add(json);
+            }
+
+            tourRequestJson.addProperty("id", tourRequest.getId());
+            tourRequestJson.add("warehouse", warehouseJson);
+            tourRequestJson.add("deliveryRequests", deliveryRequestsArray);
+        }
+        return tourRequestJson;
+    }
 
 }
