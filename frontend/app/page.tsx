@@ -109,7 +109,7 @@ export default function Home() {
                 request: deliveryRequests!,
                 warehouse: warehouse!,
             };
-            const { tour, tourRequest } = await apiService.computeTour(request);
+            const tour = await apiService.computeTour(request);
             const coordinates = tour.intersections.map(
                 (intersection: Intersection) => ({
                     lat: intersection.location.lat,
@@ -139,17 +139,17 @@ export default function Home() {
 
     const handleMultipleComputeTour = async () => {
         try {
-            const courierData =
-                await apiService.computeMultipleTours(numCouriers);
+            const request: TourRequest = {
+                key: crypto.randomUUID(),
+                request: deliveryRequests!,
+                warehouse: warehouse!,
+            };
+            const courierData = await apiService.computeMultipleTours(
+                numCouriers,
+                request,
+            );
             const allCoordinates: Record<string, google.maps.LatLngLiteral[]> =
                 {};
-
-            const enrichedRelations: {
-                index: number;
-                courierId: string;
-                pickupPoint: Intersection;
-                deliveryPoint: Intersection;
-            }[] = [];
 
             Object.entries(courierData).forEach(
                 ([courierId, courier]: [string, Courier]) => {
@@ -160,16 +160,6 @@ export default function Home() {
                         }),
                     );
                     allCoordinates[courierId] = coordinates;
-
-                    let index = 1;
-                    courier.tourRequest.request.forEach((deliveryRequest) => {
-                        enrichedRelations.push({
-                            index: index++, // index unique pour chaque couple pickup-delivery
-                            courierId: courierId, // ID du livreur
-                            pickupPoint: deliveryRequest.pickupPoint,
-                            deliveryPoint: deliveryRequest.deliveryPoint,
-                        });
-                    });
                 },
             );
 

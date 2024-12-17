@@ -157,9 +157,7 @@ class OptimodApiService {
         }
     }
 
-    async computeTour(
-        request: TourRequest,
-    ): Promise<{ tour: Tour; tourRequest: TourRequest }> {
+    async computeTour(request: TourRequest): Promise<Tour> {
         const mapFile = localStorage.getItem('map-file');
 
         if (!mapFile || !request) {
@@ -268,8 +266,7 @@ class OptimodApiService {
                 ),
             };
 
-            // Retourner les deux objets
-            return { tour, tourRequest };
+            return tour;
         } catch (error) {
             console.error('Fetch error:', error);
             throw error;
@@ -278,11 +275,11 @@ class OptimodApiService {
 
     async computeMultipleTours(
         numCouriers: number,
+        request: TourRequest,
     ): Promise<Record<string, Courier>> {
         const mapFile = localStorage.getItem('map-file');
-        const requestFile = localStorage.getItem('request-file');
 
-        if (!mapFile || !requestFile) {
+        if (!mapFile || !request) {
             console.error(
                 'Map and request files must be loaded before computing multiple tours',
             );
@@ -291,7 +288,7 @@ class OptimodApiService {
 
         const body = {
             'map-file': mapFile,
-            'request-file': requestFile,
+            request: request,
             'num-couriers': numCouriers,
         };
 
