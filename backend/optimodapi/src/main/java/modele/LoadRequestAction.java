@@ -20,10 +20,20 @@ import service.Service;
  * @author wockehs
  */
 public class LoadRequestAction extends Action {
-
+	/**
+	 * 
+	 * @param service 
+	 */
 	public LoadRequestAction(Service service) {
 		super(service);
 	}
+	/**
+	 * Processes a JSON request to load a delivery request file, parses its content, 
+ * and sets the result or failure status on the HTTP request
+	 * @param request 
+	 * throws JsonSyntaxException If the JSON request is malformed or contains invalid data.
+	 * throws IllegalArgumentException If the required JSON parameter is missing or invalid.
+	 */
 	@Override
 	public void execute(HttpServletRequest request) {
 		BufferedReader reader = null;

@@ -24,6 +24,17 @@ import metier.Coords;
 public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
 
     @Override
+    /**
+    * Parses the given XML file to create and populate a map of {@link Intersection} objects. 
+    * The XML file is expected to contain data about intersections (nodes) and adjacent street segments (troncons).
+    * The intersections are identified by their unique IDs, and the adjacent street segments 
+    * define connections between intersections with additional information like street name and length.
+    * 
+    * @param file The XML file containing intersection and street segment data. The file should contain 
+    *             elements with the tags "noeud" for intersections and "troncon" for adjacent street segments.
+    * @return A {@link HashMap} where the key is the intersection ID (Long) and the value is the {@link Intersection} object.
+    * @throws RuntimeException If any error occurs during the XML parsing process, such as invalid format or missing data.
+    */
     public HashMap<Long, Intersection> parse(File file) {
         HashMap<Long, Intersection> intersectionMap = new HashMap<>();
 

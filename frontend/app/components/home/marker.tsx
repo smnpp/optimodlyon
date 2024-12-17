@@ -16,13 +16,11 @@ const MarkerWithInfoWindow = ({
     position,
     initialContent,
     color,
-    type,
     handleDragEnd,
 }: {
     position: google.maps.LatLngLiteral;
     initialContent: React.ReactNode;
     color?: string;
-    type: MarkerType;
     handleDragEnd?: (
         marker: google.maps.marker.AdvancedMarkerElement,
         event: google.maps.MapMouseEvent,
@@ -67,7 +65,6 @@ export const MapMarker = (props: { pois: Intersection[] }) => {
                 <MarkerWithInfoWindow
                     key={poi.key}
                     position={poi.location}
-                    type={MarkerType.Warehouse}
                     initialContent={
                         <p>This is an intersection point: {poi.key}</p>
                     }
@@ -85,7 +82,6 @@ export const WarehouseMarker = (props: {
         <MarkerWithInfoWindow
             position={props.warehouse.location}
             color="#FF0000"
-            type={MarkerType.Warehouse}
             initialContent={
                 <div style={{ color: 'black' }}>
                     <h3>Warehouse</h3>
@@ -101,6 +97,7 @@ export const WarehouseMarker = (props: {
 };
 
 export const DeliveryMarker = (props: {
+    index: number;
     deliveryPoint: Intersection;
     handleDragEnd: any;
 }) => {
@@ -108,10 +105,11 @@ export const DeliveryMarker = (props: {
         <MarkerWithInfoWindow
             position={props.deliveryPoint.location}
             color="#00FF00"
-            type={MarkerType.Delivery}
             initialContent={
                 <div style={{ color: 'black' }}>
                     <h3>Delivery Point</h3>
+                    <p>Index: {props.index}</p> {/* Affiche l'index commun */}
+                    {/* Affiche l'ID du courier */}
                     <p>
                         Location:{' '}
                         {`${props.deliveryPoint.location.lat}, ${props.deliveryPoint.location.lng}`}
@@ -124,6 +122,7 @@ export const DeliveryMarker = (props: {
 };
 
 export const PickupMarker = (props: {
+    index: number;
     pickupPoint: Intersection;
     handleDragEnd: any;
 }) => {
@@ -131,10 +130,10 @@ export const PickupMarker = (props: {
         <MarkerWithInfoWindow
             position={props.pickupPoint.location}
             color="#0000FF"
-            type={MarkerType.Pickup}
             initialContent={
                 <div style={{ color: 'black' }}>
                     <h3>Pickup Point</h3>
+                    <p>Index: {props.index}</p>
                     <p>
                         Location:{' '}
                         {`${props.pickupPoint.location.lat}, ${props.pickupPoint.location.lng}`}

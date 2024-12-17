@@ -2,6 +2,7 @@ import { request } from 'http';
 import DeliveryRequest from '../types/delivery-request';
 import Intersection from '../types/intersection';
 import Tour from '../types/tour';
+import Courier from '../types/courier';
 
 import TourRequest from '../types/tour-request';
 
@@ -156,7 +157,9 @@ class OptimodApiService {
         }
     }
 
-    async computeTour(request: TourRequest): Promise<Tour> {
+    async computeTour(
+        request: TourRequest,
+    ): Promise<{ tour: Tour; tourRequest: TourRequest }> {
         const mapFile = localStorage.getItem('map-file');
 
         if (!mapFile || !request) {
@@ -173,7 +176,7 @@ class OptimodApiService {
 
         try {
             const response = await fetch(
-                `${this.baseUrl}${'/ActionServlet?action=compute-tour'}`,
+                `${this.baseUrl}/ActionServlet?action=compute-tour`,
                 {
                     method: 'POST',
                     headers: {
@@ -182,11 +185,16 @@ class OptimodApiService {
                     body: JSON.stringify(body),
                 },
             );
+
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
+
             const data = await response.json();
 
+            const map = JSON.parse(localStorage.getItem('map') || '[]');
+
+            // Construire le tour
             const tour: Tour = {
                 id: data.tour.id,
                 duration: data.tour.duration,
@@ -211,7 +219,212 @@ class OptimodApiService {
                 ),
             };
 
-            return tour;
+            // Construire le TourRequest
+            const warehouse = map.find(
+                (item: Intersection) =>
+                    item.key === data.tourRequest.warehouse.id,
+            );
+
+            if (!warehouse) {
+                console.error('Warehouse not found in map');
+                throw new Error('Warehouse not found in map');
+            }
+
+            const tourRequest: TourRequest = {
+                key: data.tourRequest.id,
+                warehouse: warehouse,
+                request: data.tourRequest.deliveryRequests.map(
+                    (deliveryRequest: any) => {
+                        // Points de pickup et de livraison
+                        const pickupPoint = map.find(
+                            (intersection: Intersection) =>
+                                intersection.key ===
+                                deliveryRequest['pickup-point'],
+                        );
+                        const deliveryPoint = map.find(
+                            (intersection: Intersection) =>
+                                intersection.key ===
+                                deliveryRequest['delivery-point'],
+                        );
+
+                        if (!pickupPoint || !deliveryPoint) {
+                            console.error(
+                                'Intersection not found for delivery request, map may not be loaded',
+                            );
+                            throw new Error(
+                                'Intersection not found for delivery request',
+                            );
+                        }
+
+                        return {
+                            key: deliveryRequest.id,
+                            pickupPoint: pickupPoint,
+                            deliveryPoint: deliveryPoint,
+                            pickupDuration: deliveryRequest['pickup-duration'],
+                            deliveryDuration:
+                                deliveryRequest['delivery-duration'],
+                        };
+                    },
+                ),
+            };
+
+            // Retourner les deux objets
+            return { tour, tourRequest };
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+
+    async computeMultipleTours(
+        numCouriers: number,
+    ): Promise<Record<string, Courier>> {
+        const mapFile = localStorage.getItem('map-file');
+        const requestFile = localStorage.getItem('request-file');
+
+        if (!mapFile || !requestFile) {
+            console.error(
+                'Map and request files must be loaded before computing multiple tours',
+            );
+            throw new Error('Map and request files must be loaded');
+        }
+
+        const body = {
+            'map-file': mapFile,
+            'request-file': requestFile,
+            'num-couriers': numCouriers,
+        };
+
+        try {
+            const response = await fetch(
+                `${this.baseUrl}${'/ActionServlet?action=compute-multiple-tours'}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            // Charger la carte depuis le localStorage
+            const map = JSON.parse(localStorage.getItem('map') || '[]');
+
+            const couriers: Record<string, Courier> = Object.fromEntries(
+                Object.entries(data.couriers).map(
+                    ([courierId, courierData]: any) => {
+                        // Trouver l'entrepôt dans la carte
+                        const warehouse = map.find(
+                            (item: Intersection) =>
+                                item.key ===
+                                courierData.tourRequest.warehouse.id,
+                        );
+
+                        if (!warehouse) {
+                            console.error('Warehouse not found in map');
+                        }
+
+                        return [
+                            courierId,
+                            {
+                                id: courierId,
+                                isAvailable: courierData.isAvailable,
+
+                                // Création du TourRequest
+                                tourRequest: {
+                                    key: courierData.tourRequest.id,
+                                    warehouse: warehouse,
+                                    request:
+                                        courierData.tourRequest.deliveryRequests.map(
+                                            (deliveryRequest: any) => {
+                                                // Points de pickup et de livraison
+                                                const pickupPoint = map.find(
+                                                    (
+                                                        intersection: Intersection,
+                                                    ) =>
+                                                        intersection.key ===
+                                                        deliveryRequest[
+                                                            'pickup-point'
+                                                        ],
+                                                );
+                                                const deliveryPoint = map.find(
+                                                    (
+                                                        intersection: Intersection,
+                                                    ) =>
+                                                        intersection.key ===
+                                                        deliveryRequest[
+                                                            'delivery-point'
+                                                        ],
+                                                );
+
+                                                if (
+                                                    !pickupPoint ||
+                                                    !deliveryPoint
+                                                ) {
+                                                    console.error(
+                                                        'Intersection not found for delivery request, map may not be loaded',
+                                                    );
+                                                }
+
+                                                return {
+                                                    key: deliveryRequest.id,
+                                                    pickupPoint: pickupPoint,
+                                                    deliveryPoint:
+                                                        deliveryPoint,
+                                                    pickupDuration:
+                                                        deliveryRequest[
+                                                            'pickup-duration'
+                                                        ],
+                                                    deliveryDuration:
+                                                        deliveryRequest[
+                                                            'delivery-duration'
+                                                        ],
+                                                };
+                                            },
+                                        ),
+                                },
+
+                                // Création du plan de livraison (tour)
+                                tour: {
+                                    id: courierData.tour.id,
+                                    duration: courierData.tour.duration,
+                                    intersections:
+                                        courierData.tour.intersections.map(
+                                            (item: {
+                                                id: string;
+                                                location: {
+                                                    latitude: number;
+                                                    longitude: number;
+                                                };
+                                            }) => {
+                                                const location: google.maps.LatLngLiteral =
+                                                    {
+                                                        lat: item.location
+                                                            .latitude,
+                                                        lng: item.location
+                                                            .longitude,
+                                                    };
+
+                                                return {
+                                                    key: item.id,
+                                                    location: location,
+                                                };
+                                            },
+                                        ),
+                                },
+                            },
+                        ];
+                    },
+                ),
+            );
+
+            return couriers;
         } catch (error) {
             console.error('Fetch error:', error);
             throw error;

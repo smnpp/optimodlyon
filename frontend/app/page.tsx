@@ -7,6 +7,7 @@ import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
 import Tour from './types/tour';
+import Courier from './types/courier';
 import Sidebar from './components/home/sidebar';
 import {
     FaMapMarkedAlt,
@@ -39,6 +40,9 @@ export default function Home() {
     const [tourCoordinates, setTourCoordinates] = React.useState<
         google.maps.LatLngLiteral[]
     >([]);
+    const [couriers, setCouriers] = React.useState<
+        Record<string, google.maps.LatLngLiteral[]>
+    >({});
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
     const [deliveryRequests, setDeliveryRequests] = useState<
         DeliveryRequest[] | null
@@ -47,6 +51,8 @@ export default function Home() {
     const [bannerType, setBannerType] = useState<'success' | 'error' | null>(
         null,
     );
+
+    const [numCouriers, setNumCouriers] = React.useState(1);
     const apiService = new OptimodApiService();
 
     const handleLoadMap = async (file: File) => {
@@ -98,12 +104,12 @@ export default function Home() {
 
     const handleComputeTour = async () => {
         try {
-            const tourRequest: TourRequest = {
+            const request: TourRequest = {
                 key: crypto.randomUUID(),
                 request: deliveryRequests!,
                 warehouse: warehouse!,
             };
-            const tour = await apiService.computeTour(tourRequest);
+            const { tour, tourRequest } = await apiService.computeTour(request);
             const coordinates = tour.intersections.map(
                 (intersection: Intersection) => ({
                     lat: intersection.location.lat,
@@ -112,6 +118,7 @@ export default function Home() {
             );
 
             setTourCoordinates(coordinates);
+
             let tours: Tour[] = [];
             const jsonTours = localStorage.getItem('tours');
             if (jsonTours) {
@@ -128,6 +135,71 @@ export default function Home() {
             setBannerMessage('Error computing tour.');
             setBannerType('error');
         }
+    };
+
+    const handleMultipleComputeTour = async () => {
+        try {
+            const courierData =
+                await apiService.computeMultipleTours(numCouriers);
+            const allCoordinates: Record<string, google.maps.LatLngLiteral[]> =
+                {};
+
+            const enrichedRelations: {
+                index: number;
+                courierId: string;
+                pickupPoint: Intersection;
+                deliveryPoint: Intersection;
+            }[] = [];
+
+            Object.entries(courierData).forEach(
+                ([courierId, courier]: [string, Courier]) => {
+                    const coordinates = courier.tour.intersections.map(
+                        (intersection: Intersection) => ({
+                            lat: intersection.location.lat,
+                            lng: intersection.location.lng,
+                        }),
+                    );
+                    allCoordinates[courierId] = coordinates;
+
+                    let index = 1;
+                    courier.tourRequest.request.forEach((deliveryRequest) => {
+                        enrichedRelations.push({
+                            index: index++, // index unique pour chaque couple pickup-delivery
+                            courierId: courierId, // ID du livreur
+                            pickupPoint: deliveryRequest.pickupPoint,
+                            deliveryPoint: deliveryRequest.deliveryPoint,
+                        });
+                    });
+                },
+            );
+
+            // Mettre à jour l'état React pour l'affichage des couriers
+            setCouriers(allCoordinates);
+
+            // Sauvegarder les couriers dans le localStorage
+            let storedCouriers: Courier[] = [];
+            const jsonCouriers = localStorage.getItem('couriers');
+
+            if (jsonCouriers) {
+                storedCouriers = JSON.parse(jsonCouriers) as Courier[];
+            }
+
+            // Ajouter les nouveaux couriers et mettre à jour le localStorage
+            storedCouriers.push(...Object.values(courierData));
+            localStorage.setItem('couriers', JSON.stringify(storedCouriers));
+            setBannerMessage('Multiple tours computed successfully!');
+            setBannerType('success');
+            console.log('Multiple tours computed successfully:', courierData);
+        } catch (error) {
+            console.error('Error computing multiple tours:', error);
+            setBannerMessage('Error computing multiple tours.');
+            setBannerType('error');
+        }
+    };
+
+    const getDynamicColor = (index: number): string => {
+        const hue = (index * 137) % 360; // Génère une teinte différente pour chaque index
+        return `hsl(${hue}, 70%, 50%)`; // Teinte, saturation et luminosité
     };
 
     const updateMarkerPosition = (
@@ -233,6 +305,30 @@ export default function Home() {
                         onClick={handleComputeTour}
                         text="Compute tour"
                     />
+                    {/* Zone pour saisir le nombre de livreurs */}
+                    <div style={{ marginTop: '10px' }}>
+                        <label
+                            htmlFor="numCouriers"
+                            style={{ marginRight: '10px' }}
+                        >
+                            Couriers:
+                        </label>
+                        <input
+                            id="numCouriers"
+                            type="number"
+                            min="1"
+                            value={numCouriers}
+                            onChange={(e) =>
+                                setNumCouriers(Number(e.target.value))
+                            }
+                            style={{ width: '60px', textAlign: 'center' }}
+                        />
+                    </div>
+                    <Button
+                        logo={MdCalculate}
+                        onClick={handleMultipleComputeTour}
+                        text="Compute multiple tours"
+                    />
                 </section>
             ),
         },
@@ -321,12 +417,28 @@ export default function Home() {
                                 }
                             />
                         )}
+
+                        {/* Affichage des polylines avec des couleurs dynamiques */}
+                        {Object.entries(couriers).map(
+                            ([courierId, coordinates], index) => (
+                                <Polyline
+                                    key={courierId}
+                                    path={coordinates}
+                                    strokeColor={getDynamicColor(index)} // Couleur dynamique basée sur l'index
+                                    strokeOpacity={1.0}
+                                    strokeWeight={3.0}
+                                    geodesic
+                                />
+                            ),
+                        )}
+                        {/* Afficher les relations enrichies */}
                         {deliveryRequests &&
-                            deliveryRequests.map((request) => (
+                            deliveryRequests.map((request, index) => (
                                 <React.Fragment key={request.key}>
                                     <PickupMarker
-                                        key={`pickup-${request.key}`}
+                                        key={crypto.randomUUID()}
                                         pickupPoint={request.pickupPoint}
+                                        index={index + 1}
                                         handleDragEnd={(
                                             marker: google.maps.marker.AdvancedMarkerElement,
                                             event: google.maps.MapMouseEvent,
@@ -344,8 +456,9 @@ export default function Home() {
                                         }
                                     />
                                     <DeliveryMarker
-                                        key={`delivery-${request.key}`}
+                                        key={crypto.randomUUID()}
                                         deliveryPoint={request.deliveryPoint}
+                                        index={index}
                                         handleDragEnd={(
                                             marker: google.maps.marker.AdvancedMarkerElement,
                                             event: google.maps.MapMouseEvent,

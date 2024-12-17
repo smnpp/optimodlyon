@@ -19,6 +19,14 @@ import metier.Map;
  * @author wockehs
  */
 public class MapSerialisation extends Serialisation {
+    
+    /**
+     * Generates a JSON containing the success status and the intersections of 
+     * the map, and subsequently sends it as a response to the client.
+     * @param request
+     * @param response
+     * @throws IOException 
+     */
 
 	@Override
 	public void appliquer(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -26,10 +26,17 @@ import service.Service;
  */
 public class ComputeMultipleTourAction extends Action {
     
+    /**
+     * @param service 
+     */
     public ComputeMultipleTourAction(Service service) {
         super(service);
     }
-
+    /**
+     * Processes a JSON request to compute and assign delivery tours for multiple couriers.
+     * @param request 
+     * @throws IllegalArgumentException if any required parameter is missing or invalid.
+     */
     @Override
     public void execute(HttpServletRequest request) {
         // Initialiser les valeurs par défaut
@@ -44,10 +51,10 @@ public class ComputeMultipleTourAction extends Action {
             JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
 
             // Vérification de la présence des clés et récupération des valeurs
-            if (jsonRequest.has("file-map-content") && jsonRequest.has("file-requests-content") && jsonRequest.has("nb-couriers")) {
-                fileMapContent = jsonRequest.get("file-map-content").getAsString();
-                fileRequestsContent = jsonRequest.get("file-requests-content").getAsString();
-                numCouriers = jsonRequest.get("nb-couriers").getAsInt();
+            if (jsonRequest.has("map-file") && jsonRequest.has("request-file") && jsonRequest.has("num-couriers")) {
+                fileMapContent = jsonRequest.get("map-file").getAsString();
+                fileRequestsContent = jsonRequest.get("request-file").getAsString();
+                numCouriers = jsonRequest.get("num-couriers").getAsInt();
 
                 if (numCouriers <= 0) {
                     numCouriers = 1; // Si le nombre de livreurs est 0 ou négatif, mettre à 1

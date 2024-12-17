@@ -28,6 +28,14 @@ import metier.Warehouse;
 public class XmlDemandeParser implements FileParser<TourRequest> {
 
     @Override
+    /**
+     * Parses the given file. This method currently throws an exception to indicate 
+     * that the operation is not supported.
+     *
+     * @param file The file to be parsed.
+     * @return null, as the operation is not supported and no parsing is performed.
+     * @throws UnsupportedOperationException if this method is called, as the operation is unsupported.
+     */
     public TourRequest parse(File file) {
         TourRequest tourRequest = null;
         try {

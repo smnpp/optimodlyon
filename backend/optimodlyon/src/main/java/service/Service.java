@@ -35,8 +35,18 @@ import java.io.File;
 /**
  *
  * @author jnoukam
+ * Service class that provides methods for loading maps, handling delivery requests,
+ * computing delivery tours, and saving results in XML format.
  */
 public class Service {
+
+     /**
+     * Loads a map from an XML string content.
+     * 
+     * @param fileContent The XML content representing the map.
+     * @return A Map object containing the loaded intersections.
+     * @throws IOException If there is an issue during file creation or reading.
+     */
 
 
     public Map loadMap(String fileContent) throws IOException {
@@ -67,6 +77,15 @@ public class Service {
 
         return map;
     }
+    
+     /**
+     * Loads a delivery request from an XML string content.
+     * 
+     * @param fileContent The XML content representing the delivery request.
+     * @return A TourRequest object containing the parsed delivery requests.
+     * @throws IOException If there is an issue during file creation or reading.
+     */
+
 
     public TourRequest loadRequestFile(String fileContent) throws IOException {
 
@@ -92,7 +111,15 @@ public class Service {
         return tourRequest;
 
     }  
-    
+
+     /**
+     * Computes the optimal delivery tour based on a TourRequest and Map.
+     * 
+     * @param tourRequest The TourRequest containing the delivery requests.
+     * @param map The map containing all the intersections.
+     * @return A Tour object representing the optimal delivery tour.
+     * @throws IllegalArgumentException If any of the pickup or delivery points are not present in the map.
+     */
     
     public Tour computeTour(TourRequest tourRequest, Map map) {
         // Vérification que tous les points sont dans la Map
@@ -138,6 +165,17 @@ public class Service {
 
         return tour;
     }
+    
+     /**
+     * Creates a new DeliveryRequest based on the provided parameters.
+     * 
+     * @param pickupPoint The ID of the pickup point.
+     * @param deliveryPoint The ID of the delivery point.
+     * @param pickupDuration The duration in seconds for pickup.
+     * @param deliveryDuration The duration in seconds for delivery.
+     * @return A new DeliveryRequest object.
+     * @throws IOException If there is an issue during the creation process.
+     */
 
     public DeliveryRequest createDeliveryRequest(Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
         Duration pickupDurationCast = Duration.ofSeconds(pickupDuration);
@@ -146,6 +184,19 @@ public class Service {
 
         return deliveryRequest;
     }
+    
+    
+    /**
+     * Adds a DeliveryRequest to a TourRequest.
+     * 
+     * @param tourRequest The TourRequest to which the delivery request will be added.
+     * @param pickupPoint The ID of the pickup point.
+     * @param deliveryPoint The ID of the delivery point.
+     * @param pickupDuration The duration in seconds for pickup.
+     * @param deliveryDuration The duration in seconds for delivery.
+     * @return The updated TourRequest with the new delivery request added.
+     * @throws IOException If there is an issue during the addition process.
+     */
 
     public TourRequest addDeliveryRequest(TourRequest tourRequest, Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
         DeliveryRequest deliveryRequest = createDeliveryRequest(pickupPoint, deliveryPoint, pickupDuration, deliveryDuration);
@@ -153,13 +204,30 @@ public class Service {
 
         return tourRequest;
     }
-
+    
+     /**
+     * Removes a DeliveryRequest from a TourRequest.
+     * 
+     * @param tourRequest The TourRequest from which the delivery request will be removed.
+     * @param deliveryRequest The DeliveryRequest to remove.
+     * @return The updated TourRequest with the delivery request removed.
+     * @throws IOException If there is an issue during the removal process.
+     */
     public TourRequest removeDeliveryRequest(TourRequest tourRequest, DeliveryRequest deliveryRequest) throws IOException {
         tourRequest.removeDeliveryRequest(deliveryRequest);
 
         return tourRequest;
     }
-
+    
+     /**
+     * Changes the pickup point for a DeliveryRequest within a TourRequest.
+     * 
+     * @param tourRequest The TourRequest containing the delivery request.
+     * @param deliveryRequest The DeliveryRequest to update.
+     * @param pickupPoint The new pickup point ID.
+     * @return The updated TourRequest with the modified pickup point.
+     * @throws IOException If there is an issue during the update process.
+     */
     public TourRequest changePickupPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long pickupPoint) throws IOException {
         java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
         requests.get(deliveryRequest.getId()).setPickupPoint(pickupPoint);
@@ -167,7 +235,16 @@ public class Service {
         /// TODO : RECOMPUTE BEST TOUR !!!
         return tourRequest;
     }
-
+    
+    /**
+     * Changes the delivery point for a DeliveryRequest within a TourRequest.
+     * 
+     * @param tourRequest The TourRequest containing the delivery request.
+     * @param deliveryRequest The DeliveryRequest to update.
+     * @param deliveryPoint The new delivery point ID.
+     * @return The updated TourRequest with the modified delivery point.
+     * @throws IOException If there is an issue during the update process.
+     */
     public TourRequest changeDeliveryPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long deliveryPoint) throws IOException {
         java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
         requests.get(deliveryRequest.getId()).setPickupPoint(deliveryPoint);
@@ -175,7 +252,12 @@ public class Service {
         /// TODO : RECOMPUTE BEST TOUR !!!
         return tourRequest;
     }
-
+    
+    /**
+     * Retrieves the absolute path of the project's root directory.
+     * 
+     * @return The absolute path of the project directory.
+     */
     private String getProjectDirectory() {
         // Obtenir le chemin absolu du projet à partir de la classe
         String projectDir = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -185,7 +267,13 @@ public class Service {
 
         return projectPath.getAbsolutePath(); // Retourne uniquement la racine
     }
-
+    
+    /**
+     * Saves a list of tours to a file in XML format.
+     * 
+     * @param tours The list of tours to save.
+     * @return A boolean indicating whether the save operation was successful.
+     */
     public Boolean saveToursToFile(List<Tour> tours) {
         Boolean resultat = false;
         try {
@@ -262,6 +350,22 @@ public class Service {
     }
 
    // Fonction pour calculer et attribuer les tours aux livreurs
+    
+    /**
+     * This method calculates and assigns tours to couriers based on delivery requests.
+     * 
+     * The process involves several steps:
+     * 1. Sorts the delivery requests by proximity to the warehouse.
+     * 2. Creates a given number of couriers and initializes them with empty tour requests.
+     * 3. Assigns the sorted delivery requests to each courier in a round-robin fashion.
+     * 4. Calculates the optimal route for each courier based on the requests assigned to them.
+     * 5. Returns a map containing the couriers and their respective calculated tours.
+     * 
+     * @param tourRequest The object representing the tour request, which contains information about the warehouse and delivery requests.
+     * @param map The object representing the map used to determine proximity and calculate routes.
+     * @param numCouriers The number of couriers to create and assign to handle the deliveries.
+     * @return A map where the keys are the courier IDs and the values are the Courier objects with their assigned tour.
+     */
     public HashMap<Long, Courier> computeAndAssignTour(TourRequest tourRequest, Map map, int numCouriers) {
 
         ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();
