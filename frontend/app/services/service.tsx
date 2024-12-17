@@ -187,8 +187,6 @@ class OptimodApiService {
             }
             const data = await response.json();
 
-            console.log(data);
-
             const tour: Tour = {
                 id: data.tour.id,
                 duration: data.tour.duration,

@@ -103,9 +103,7 @@ export default function Home() {
                 request: deliveryRequests!,
                 warehouse: warehouse!,
             };
-            console.log(tourRequest);
             const tour = await apiService.computeTour(tourRequest);
-            // console.log(tour);
             const coordinates = tour.intersections.map(
                 (intersection: Intersection) => ({
                     lat: intersection.location.lat,
