@@ -33,6 +33,15 @@ public class ComputeTourUtilTools {
     public static final double RADIUS_COEF = 20.0;
     
     // Fonction pour calculer la distance geographique entre deux intersections à partir des cooredonnées
+    
+    /**
+     * Calculates the geographical distance between two intersections using their coordinates.
+     * This method uses a simplified Euclidean distance calculation.
+     * 
+     * @param i1 The first intersection.
+     * @param i2 The second intersection.
+     * @return The Euclidean distance between the two intersections.
+     */
     public static double calculateDistance(Intersection i1, Intersection i2) {
         // Exemple simplifié : distance Euclidienne
         double dx = i1.getLocation().getLatitude() - i2.getLocation().getLatitude();
@@ -41,6 +50,15 @@ public class ComputeTourUtilTools {
     }
     
     // Vérifie si un point peut être visité (pickup avant delivery)
+    /**
+     * Checks if a point can be visited based on the delivery and pickup points.
+     * The point can only be visited if the corresponding pickup point has already been visited.
+     * 
+     * @param point The point to check.
+     * @param visited A map of visited points, where the key is the point and the value is whether it's been visited.
+     * @param requests A map of delivery requests, where the key is the point ID and the value is the request.
+     * @return true if the point can be visited, false otherwise.
+     */
     public static boolean isValidPoint(Long point, HashMap<Long, Boolean> visited, HashMap<String, DeliveryRequest> requests) {
         for (DeliveryRequest request : requests.values()) {
             if (request.getDeliveryPoint().equals(point) && !visited.getOrDefault(request.getPickupPoint(), false)) {
@@ -51,6 +69,14 @@ public class ComputeTourUtilTools {
     }  
     
     // Fonction pour calculer la distance entre deux intersections en sommant les longueurs de chaque segment
+     /**
+     * Calculates the total distance of a path by summing the lengths of each segment between intersections.
+     * 
+     * @param segmentPath A list of intersection IDs representing the path.
+     * @param map The map containing the intersections and their connections.
+     * @return The total distance of the path in the specified map.
+     * @throws IllegalArgumentException If no segment exists between two consecutive intersections in the path.
+     */
     public static double calculateSegmentDistance(List<Long> segmentPath, Map map) {
         double totalDistance = 0.0;
         for (int i = 0; i < segmentPath.size() - 1; i++) {
@@ -72,11 +98,29 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction pour calculer la durée pour parcourir une distance
+    /**
+     * Calculates the travel time for a given distance based on the courier's speed.
+     * The time is calculated using the formula: time = distance / speed.
+     * The courier's speed is assumed to be constant at 15 km/h.
+     * 
+     * @param distance The distance to be traveled in kilometers.
+     * @return A {@link Duration} object representing the time taken to travel the given distance.
+     */
+
     public static Duration calculateTravelTime(double distance) {
         double timeInSeconds = distance / (COURIER_SPEED_KM_PER_HOUR / 3.6); // Utilise la vitesse globale
         return Duration.ofSeconds((long) (timeInSeconds)); // Convertit en secondes
     }
-
+    
+     /**
+     * Sorts the delivery requests based on their proximity to the warehouse.
+     * The requests are sorted by the distance between the pickup point and the warehouse.
+     * 
+     * @param map The map containing all intersections and their connections.
+     * @param tourRequest The tour request containing the delivery requests.
+     * @return A sorted list of {@link DeliveryRequest} objects, ordered by proximity to the warehouse.
+     * @throws IllegalArgumentException If an intersection is not found in the map.
+     */
     public List<DeliveryRequest> sortRequestsByProximityToWarehouse(Map map, TourRequest tourRequest) {
         // Récupérer l'entrepôt du TourRequest
         Warehouse warehouse = tourRequest.getWarehouse();  // Warehouse devrait être correctement importé
@@ -108,6 +152,17 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction pour trouver le point le plus proche d'un point de vue géographique respectant les contraintes
+     /**
+     * Finds the closest point to a given current point from a list of candidate points,
+     * while respecting the constraint that a pickup must occur before delivery.
+     * 
+     * @param currentPoint The ID of the current point from which the closest point is to be found.
+     * @param candidates A list of candidate points to check for proximity.
+     * @param map The map containing all intersections.
+     * @param visited A map of visited points, where the key is the point and the value is whether it has been visited.
+     * @param requests A map of delivery requests containing pickup and delivery points.
+     * @return The ID of the closest valid point from the list of candidates.
+     */
     public static Long findClosestPoint(Long currentPoint, List<Long> candidates, Map map, HashMap<Long, Boolean> visited, HashMap<String, DeliveryRequest> requests) {
         double minDistance = Double.MAX_VALUE;
         Long closestPoint = null;
@@ -149,6 +204,13 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction principale pour ordonnancer les requêtes d'un point de vue géographique 
+    /**
+     * Fonction pour ordonnancer les requêtes de livraison d'un point de vue géographique.
+     * 
+     * @param tourRequest L'objet TourRequest contenant les requêtes de livraison et les informations sur l'entrepôt.
+     * @param map L'objet Map représentant la carte avec les intersections et les adjacences.
+     * @return Liste ordonnée des points à visiter (pickup et delivery), incluant le warehouse au début et à la fin.
+     */
     public static List<Long> scheduleOptimizedDeliveryRequests(TourRequest tourRequest, Map map) {
         // Liste pour l'ordre final des points à visiter
         List<Long> orderedPoints = new ArrayList<>();
@@ -225,6 +287,14 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction pour réduire la map à une zone circulaire spécifique d'un point de vue géographique
+    /**
+     * Fonction pour filtrer une carte afin de ne conserver que les intersections dans un rayon donné d'un point central.
+     * 
+     * @param originalMap La carte d'origine avec toutes les intersections et adjacences.
+     * @param center L'intersection centrale à partir de laquelle filtrer.
+     * @param radius Le rayon dans lequel inclure les intersections.
+     * @return Une nouvelle carte contenant uniquement les intersections dans le rayon spécifié et leurs adjacences.
+     */
     public static Map filterMapByZone(Map originalMap, Intersection center, double radius) {
         HashMap<Long, Intersection> filteredIntersections = new HashMap<>();
         HashSet<Long> toAdd = new HashSet<>(); // Ensemble temporaire pour les ajouts
@@ -282,6 +352,16 @@ public class ComputeTourUtilTools {
     }
 
     // Dijkstra modifié pour inclure les chemins complets
+    /**
+     * Computes the shortest paths from a given source intersection to all other intersections in the map
+     * using a modified Dijkstra algorithm, which includes the full path for each destination.
+     * 
+     * @param sourceId The ID of the source intersection.
+     * @param map The map object containing intersections and adjacencies.
+     * @return A HashMap containing the shortest path results for each intersection, where the key is 
+     *         the intersection ID and the value is a PathResult object that contains the distance and 
+     *         the path leading to that intersection.
+     */
     public static HashMap<Long, PathResult> computeShortestPathsFromSourceWithPaths(Long sourceId, Map map) {
         PriorityQueue<util.tsp.UtilPair> priorityQueue = new PriorityQueue<>(Comparator.comparingDouble(pair -> pair.distance));
         HashMap<Long, Double> distances = new HashMap<>();
@@ -329,6 +409,15 @@ public class ComputeTourUtilTools {
     }
     
     // Fonction permettant de calculer tous les plus court chemins en utilisant l'algo de Dijkstra précédent
+    /**
+     * Computes the shortest paths between all pairs of intersections in the map, using the modified 
+     * Dijkstra algorithm to include the full paths for each pair.
+     * 
+     * @param map The map object containing intersections and adjacencies.
+     * @return A HashMap containing the shortest paths between each pair of intersections. The key is 
+     *         a Pair of intersection IDs, and the value is a List of Longs representing the path 
+     *         between the two intersections.
+     */
     public static HashMap<Pair<Long, Long>, List<Long>> computeAllShortestPathsWithPaths(Map map) {
         HashMap<Pair<Long, Long>, List<Long>> allPaths = new HashMap<>();
 
@@ -346,8 +435,18 @@ public class ComputeTourUtilTools {
 
         return allPaths;
     }
-    
-    
+
+    /**
+     * Constructs a tour based on the provided ordered list of intersection IDs, considering geographic zones 
+     * and computing the shortest path between each successive pair of points. 
+     * This method filters the map to focus on relevant intersections and calculates travel time based on 
+     * the distance between points.
+     * 
+     * @param orderedPoints A list of intersection IDs representing the ordered points of the tour.
+     * @param map The map object containing intersections and adjacencies.
+     * @return A Tour object that contains the full path of intersections and the total travel duration.
+     * @throws IllegalArgumentException If any intersection is missing or unreachable.
+     */
     public static Tour constructTourWithGeographicZones(List<Long> orderedPoints, Map map) {
        
         List<Intersection> fullPath = new ArrayList<>();
@@ -471,7 +570,15 @@ public class ComputeTourUtilTools {
         tour.setPointslist(fullPath);
         return tour;
     }
-  
+    /**
+     * Constructs a tour based on the provided ordered list of intersection IDs, considering specific shortest paths
+     * between each successive pair of points. This method computes the shortest path for each pair on-demand and 
+     * accumulates the total travel time.
+     * 
+     * @param orderedPoints A list of intersection IDs representing the ordered points of the tour.
+     * @param map The map object containing intersections and adjacencies.
+     * @return A Tour object that contains the full path of intersections and the total travel duration.
+ */
     public static Tour constructTourWithSpecificShortestPaths(List<Long> orderedPoints, Map map) {
         // Liste complète des intersections du tour
         List<Intersection> fullPath = new ArrayList<>();
@@ -505,7 +612,22 @@ public class ComputeTourUtilTools {
         tour.setPointslist(fullPath);
         return tour;
     }
-     
+    
+    /**
+     * Constructs a tour using precomputed shortest paths between intersections.
+     * This method uses a list of ordered points and a map containing precomputed shortest paths between pairs of intersections.
+     * It calculates the total duration of the tour and constructs a list of intersections representing the tour's path.
+     *
+     * @param orderedPoints A list of ordered intersection IDs representing the order in which intersections are visited in the tour.
+     *                      The list must contain valid intersection IDs that exist in the map.
+     * @param map A map containing all intersections and their adjacencies. Used to retrieve intersections and calculate distances.
+     * @param shortestPaths A map containing the precomputed shortest paths between pairs of intersections.
+     *                      The map key is a pair of intersection IDs, and the value is a list of intersection IDs representing the shortest path between them.
+     * @return A {@link Tour} object representing the completed tour with all intersections and the total travel duration.
+     *         The duration is calculated based on the distances of the segments defined in the shortestPaths map.
+     * 
+     * @throws IllegalArgumentException If any of the required intersections are not found in the map or if the shortest path data is missing.
+     */
     public static Tour constructTourWithAllShortestPaths(List<Long> orderedPoints, Map map, HashMap<Pair<Long, Long>, List<Long>> shortestPaths) {
         // Liste complète des intersections du tour
         List<Intersection> fullPath = new ArrayList<>();
