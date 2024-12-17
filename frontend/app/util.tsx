@@ -1,15 +1,18 @@
 export const findClosestPoint = (
     position: google.maps.LatLngLiteral,
     map: { key: number; location: google.maps.LatLngLiteral }[],
-): google.maps.LatLngLiteral | null => {
-    let closestPoint = null;
+): { key: number; location: google.maps.LatLngLiteral } | null => {
+    let closestPoint: {
+        key: number;
+        location: google.maps.LatLngLiteral;
+    } | null = null;
     let minDistance = Infinity;
 
     map.forEach((point) => {
         const distance = getDistance(position, point.location);
         if (distance < minDistance) {
             minDistance = distance;
-            closestPoint = point.location;
+            closestPoint = point;
         }
     });
     return closestPoint;
