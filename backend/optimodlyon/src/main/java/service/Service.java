@@ -32,6 +32,14 @@ import javax.xml.transform.stream.StreamResult;
 import java.time.LocalDate;
 import java.io.File;
 
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.layout.element.Paragraph;
+
+import java.io.FileOutputStream;
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  *
  * @author jnoukam
@@ -344,6 +352,46 @@ public class Service {
             System.err.println("Erreur lors de la création du fichier XML : " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Erreur inattendue : " + e.getMessage());
+        }
+        saveToursToPdf(tours);
+
+        return resultat;
+    }
+
+    public Boolean saveToursToPdf(List<Tour> tours) {
+        Boolean resultat = false;
+
+        try {
+            StringBuilder string = new StringBuilder("Delivery Tours - Date: ");
+            string.append(LocalDate.now()).append("\n\n");
+
+            for (Tour tour : tours) {
+                string.append("Tour ID: ").append(tour.getId()).append("\n");
+                string.append("Duration: ").append(tour.getDuration().toMinutes()).append(" minutes\n\n");
+                string.append("\tIntersections:\n");
+                for (Intersection intersection : tour.getPointslist()) {
+                    string.append("\t\t- Intersection ID: ").append(intersection.getId());
+                    string.append("(lat: ").append(intersection.getLocation().getLatitude());
+                    string.append("; long: ").append(intersection.getLocation().getLongitude()).append(")\n");
+                }
+                string.append("\n");
+            }
+
+            String filePath = getProjectDirectory() + "/data/" + LocalDate.now() + ".pdf";
+            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdfDoc);
+
+            for (String line : string.toString().split("\n")) {
+                document.add(new Paragraph(line));
+            }
+
+            document.close();
+            System.out.println("Fichier PDF généré avec succès dans : " + filePath);
+            resultat = true;
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la génération du PDF : " + e.getMessage());
         }
 
         return resultat;

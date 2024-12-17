@@ -23,6 +23,12 @@
             <version>15.0.1</version>
             <classifier>mac</classifier>
         </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>9.0.0</version>
+            <type>pom.sha512</type>
+        </dependency>
     </dependencies>
 
     <build>
