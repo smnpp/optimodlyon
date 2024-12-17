@@ -7,6 +7,7 @@ import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
 import Tour from './types/tour';
+import Courier from './types/courier';
 import Sidebar from './components/home/sidebar';
 import {
     FaMapMarkedAlt,
@@ -33,11 +34,13 @@ export default function Home() {
     const [tourCoordinates, setTourCoordinates] = React.useState<
         google.maps.LatLngLiteral[]
     >([]);
+    const [couriers, setCouriers] = React.useState<Record<string, google.maps.LatLngLiteral[]>>({});
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
     const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
     const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
         [],
-    );
+    );   
+    const [numCouriers, setNumCouriers] = React.useState(1);
     const apiService = new OptimodApiService();
 
     const handleLoadMap = async (file: File) => {
@@ -99,7 +102,51 @@ export default function Home() {
             console.error('Error computing tour:', error);
         }
     };
+    
+    const handleMultipleComputeTour = async () => {
+        try {
+            // Appel à l'API pour récupérer les données des livreurs
+            const courierData = await apiService.computeMultipleTours(numCouriers);
 
+            // Préparer un état pour stocker les coordonnées des tournées
+            const allCoordinates: Record<string, google.maps.LatLngLiteral[]> = {};
+
+            // Extraire les coordonnées des intersections pour chaque livreur
+            Object.entries(courierData).forEach(([courierId, courier]: [string, Courier]) => {
+                const coordinates = courier.tour.intersections.map((intersection: Intersection) => ({
+                    lat: intersection.location.lat,
+                    lng: intersection.location.lng,
+                }));
+                allCoordinates[courierId] = coordinates;
+            });
+
+            // Mettre à jour l'état React pour l'affichage des couriers
+            setCouriers(allCoordinates);
+
+            // Sauvegarder les couriers dans le localStorage
+            let storedCouriers: Courier[] = [];
+            const jsonCouriers = localStorage.getItem('couriers');
+
+            if (jsonCouriers) {
+                storedCouriers = JSON.parse(jsonCouriers) as Courier[];
+            }
+
+            // Ajouter les nouveaux couriers et mettre à jour le localStorage
+            storedCouriers.push(...Object.values(courierData));
+            localStorage.setItem('couriers', JSON.stringify(storedCouriers));
+
+            console.log('Multiple tours computed successfully:', courierData);
+        } catch (error) {
+            console.error('Error computing multiple tours:', error);
+        }
+    };
+
+    const getDynamicColor = (index: number): string => {
+        const hue = (index * 137) % 360; // Génère une teinte différente pour chaque index
+        return `hsl(${hue}, 70%, 50%)`; // Teinte, saturation et luminosité
+    };
+    
+    
     const sidebarItems = [
         {
             id: 'Map',
@@ -121,6 +168,25 @@ export default function Home() {
                         logo={MdCalculate}
                         onClick={handleComputeTour}
                         text="Compute tour"
+                    />
+                    {/* Zone pour saisir le nombre de livreurs */}
+                    <div style={{ marginTop: '10px' }}>
+                        <label htmlFor="numCouriers" style={{ marginRight: '10px' }}>
+                            Couriers:
+                        </label>
+                        <input
+                            id="numCouriers"
+                            type="number"
+                            min="1"
+                            value={numCouriers}
+                            onChange={(e) => setNumCouriers(Number(e.target.value))}
+                            style={{ width: '60px', textAlign: 'center' }}
+                        />
+                    </div>
+                    <Button
+                        logo={MdCalculate}
+                        onClick={handleMultipleComputeTour}
+                        text="Compute multiple tours"
                     />
                 </section>
             ),
@@ -182,6 +248,19 @@ export default function Home() {
                             strokeWeight={2.0}
                             geodesic
                         />
+
+                        {/* Affichage des polylines avec des couleurs dynamiques */}
+                        {Object.entries(couriers).map(([courierId, coordinates], index) => (
+                            <Polyline
+                                key={courierId}
+                                path={coordinates}
+                                strokeColor={getDynamicColor(index)} // Couleur dynamique basée sur l'index
+                                strokeOpacity={1.0}
+                                strokeWeight={3.0}
+                                geodesic
+                            />
+                        ))}
+
                         {warehouse && <WarehouseMarker warehouse={warehouse} />}
                         {pickupPoints && (
                             <PickupMarker pickupPoints={pickupPoints} />
