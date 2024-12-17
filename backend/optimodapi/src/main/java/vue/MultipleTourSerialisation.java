@@ -48,7 +48,7 @@ public class MultipleTourSerialisation extends Serialisation {
                 Tour tour = (Tour)courier.getDeliveryPlan();  
                 JsonObject tourJson = serializeTour(tour);
 
-                courierJson.add("tour-request", tourRequestJson);
+                courierJson.add("tourRequest", tourRequestJson);
                 courierJson.add("tour", tourJson);
                 couriersJsonArray.add(courierJson);
             }
@@ -114,7 +114,7 @@ public class MultipleTourSerialisation extends Serialisation {
 
             tourRequestJson.addProperty("id", tourRequest.getId());
             tourRequestJson.add("warehouse", warehouseJson);
-            tourRequestJson.add("delivery-requests", deliveryRequestsArray);
+            tourRequestJson.add("deliveryRequests", deliveryRequestsArray);
         }
         return tourRequestJson;
     }
