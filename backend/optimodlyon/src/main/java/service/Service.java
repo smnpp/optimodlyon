@@ -37,8 +37,12 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.layout.element.Paragraph;
 
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import metier.Adjacent;
 
 /**
@@ -374,7 +378,7 @@ public class Service {
         return resultat;
     }
 
-    private Boolean saveToursToPdf(List<Tour> tours) {
+    public Boolean saveToursToPdf(List<Tour> tours) {
         Boolean resultat = false;
 
         try {
@@ -399,7 +403,7 @@ public class Service {
                         HashMap<Long, Adjacent> adjacents = intersection.getAdjacents();
                         boolean foundAdjacent = false;
                         for (Adjacent adjacent : adjacents.values()) {
-                            if (adjacent.getDestination().getId() == nextIntersection.getId()) {
+                            if (Objects.equals(adjacent.getDestination().getId(), nextIntersection.getId())) {
                                 string.append("\t\t\tStreet: ").append(adjacent.getName()).append("\n");
                                 string.append("\t\t\tDistance: ").append(adjacent.getLength()).append(" meters\n");
                                 foundAdjacent = true;
@@ -414,7 +418,15 @@ public class Service {
                 string.append("\n");
             }
 
-            String filePath = getProjectDirectory() + "/data/" + LocalDate.now() + ".pdf";
+            // Spécifier le chemin du fichier PDF
+            String filePath = getProjectDirectory() + "/agile/data/" + LocalDate.now() + ".pdf";
+            
+            // Créer le dossier si nécessaire
+            Path path = Paths.get(filePath).getParent();
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+
             PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
             PdfDocument pdfDoc = new PdfDocument(writer);
             com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdfDoc);
