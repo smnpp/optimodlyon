@@ -379,19 +379,17 @@ public class Service {
     }
 
     public Boolean saveToursToPdf(List<Tour> tours) {
-        Boolean resultat = false;
+    Boolean resultat = false;
 
         try {
-            StringBuilder string = new StringBuilder("Delivery Tours - Date: ");
-            string.append(LocalDate.now()).append("\n\n");
-
-            List<String> streets = new ArrayList<>();
-            List<Double> distances = new ArrayList<>();
-
             for (Tour tour : tours) {
+                StringBuilder string = new StringBuilder("Delivery Tour - Date: ");
+                string.append(LocalDate.now()).append("\n\n");
                 string.append("Tour ID: ").append(tour.getId()).append("\n");
                 string.append("Duration: ").append(tour.getDuration().toMinutes()).append(" minutes\n\n");
 
+                List<String> streets = new ArrayList<>();
+                List<Double> distances = new ArrayList<>();
                 String lastStreet = null;
 
                 for (int i = 0; i < tour.getPointslist().size(); i++) {
@@ -402,6 +400,7 @@ public class Service {
 
                         HashMap<Long, Adjacent> adjacents = intersection.getAdjacents();
                         boolean foundAdjacent = false;
+
                         for (Adjacent adjacent : adjacents.values()) {
                             if (Objects.equals(adjacent.getDestination().getId(), nextIntersection.getId())) {
                                 String currentStreet = adjacent.getName();
@@ -419,46 +418,46 @@ public class Service {
                                 break;
                             }
                         }
+
                         if (!foundAdjacent) {
-                            System.out.println("Aucun adjacent trouvé");
+                            string.append("\tNo adjacent found for intersection ID: ").append(intersection.getId()).append("\n");
                         }
                     }
                 }
 
-                string.append("\n");
+                string.append("\nDelivery Route:\n");
+                for (int i = 0; i < streets.size(); i++) {
+                    string.append("\t- Street: ").append(streets.get(i));
+                    string.append(", Distance: ").append(distances.get(i)).append(" meters\n");
+                }
+
+                String filePath = getProjectDirectory() + "/datas/" + tour.getId() + ".pdf";
+
+                Path path = Paths.get(filePath).getParent();
+                if (!Files.exists(path)) {
+                    Files.createDirectories(path);
+                }
+
+                PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+                PdfDocument pdfDoc = new PdfDocument(writer);
+                com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdfDoc);
+
+                for (String line : string.toString().split("\n")) {
+                    document.add(new Paragraph(line));
+                }
+
+                document.close();
+                System.out.println("PDF généré avec succès pour le tour ID: " + tour.getId() + " dans : " + filePath);
             }
-
-            string.append("Itinéraire de livraison:\n");
-            for (int i = 0; i < streets.size(); i++) {
-                string.append("\t- Rue : ").append(streets.get(i));
-                string.append(", distance: ").append(distances.get(i)).append(" mètres\n");
-            }
-
-            String filePath = getProjectDirectory() + "/datas/" + LocalDate.now() + ".pdf";
-            
-            Path path = Paths.get(filePath).getParent();
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
-            }
-
-            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdfDoc);
-
-            for (String line : string.toString().split("\n")) {
-                document.add(new Paragraph(line));
-            }
-
-            document.close();
-            System.out.println("Fichier PDF généré avec succès dans : " + filePath);
             resultat = true;
 
         } catch (Exception e) {
-            System.err.println("Erreur lors de la génération du PDF : " + e.getMessage());
+            System.err.println("Erreur lors de la génération des fichiers PDF : " + e.getMessage());
         }
 
         return resultat;
     }
+
 
    // Fonction pour calculer et attribuer les tours aux livreurs
     
