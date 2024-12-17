@@ -17,14 +17,12 @@ const MarkerWithInfoWindow = ({
     initialContent,
     color,
     type,
-    onPositionChange,
     handleDragEnd,
 }: {
     position: google.maps.LatLngLiteral;
     initialContent: React.ReactNode;
     color?: string;
     type: MarkerType;
-    onPositionChange?: (position: google.maps.LatLngLiteral) => void;
     handleDragEnd?: (
         marker: google.maps.marker.AdvancedMarkerElement,
         event: google.maps.MapMouseEvent,
