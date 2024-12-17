@@ -156,9 +156,8 @@ class OptimodApiService {
         }
     }
 
-    async computeTour(): Promise<Tour> {
+    async computeTour(request: TourRequest): Promise<Tour> {
         const mapFile = localStorage.getItem('map-file');
-        const request = localStorage.getItem('request');
 
         if (!mapFile || !request) {
             console.error(
@@ -166,9 +165,10 @@ class OptimodApiService {
             );
             throw new Error('Map and request files must be loaded');
         }
+
         const body = {
             'map-file': mapFile,
-            request: JSON.parse(request),
+            request: request,
         };
 
         try {
@@ -186,6 +186,8 @@ class OptimodApiService {
                 throw new Error(`Error: ${response.statusText}`);
             }
             const data = await response.json();
+
+            console.log(data);
 
             const tour: Tour = {
                 id: data.tour.id,
