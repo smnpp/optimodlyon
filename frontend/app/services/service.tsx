@@ -154,7 +154,38 @@ class OptimodApiService {
             throw error;
         }
     }
+    async loadTour(request: File): Promise<string> {
+        const fileContent = await this.readFileContent(request);
 
+        const body = {
+            'file-content': fileContent,
+        };
+
+        try {
+            const response = await fetch(
+                `${this.baseUrl}${'/ActionServlet?action=restore-tour'}`,
+
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const data = await response;
+
+            return data.text();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
     async computeTour(): Promise<Tour> {
         const mapFile = localStorage.getItem('map-file');
         const requestFile = localStorage.getItem('request-file');
@@ -233,10 +264,10 @@ class OptimodApiService {
         const deliveryPoints = requests.map((req) => req.deliveryPoint);
         const pickupPoints = requests.map((req) => req.pickupPoint);
         const warehouse = parsedRequest.warehouse;
-        console.log('Requests:', requests);
-        console.log('Delivery points:', deliveryPoints);
-        console.log('Pickup points:', pickupPoints);
-        console.log('Warehouse:', warehouse);
+        // console.log('Requests:', requests);
+        // console.log('Delivery points:', deliveryPoints);
+        // console.log('Pickup points:', pickupPoints);
+        // console.log('Warehouse:', warehouse);
         const body = {
             tours: tours.map((tour) => {
                 if (

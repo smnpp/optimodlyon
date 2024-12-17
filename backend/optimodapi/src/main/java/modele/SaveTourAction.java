@@ -141,7 +141,7 @@ public class SaveTourAction extends Action {
 
             }
 
-            Boolean success = service.saveToursToFile(tours, pickupPoints, deliveryPoints, warehouse);
+            Boolean success = service.saveToursToFile(tours, deliveryPoints, pickupPoints, warehouse);
             request.setAttribute("success", success);
 
         } catch (IOException ex) {

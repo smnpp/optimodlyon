@@ -5,6 +5,7 @@
  */
 package service;
 
+import com.google.gson.JsonObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -88,6 +89,31 @@ public class Service {
         TourRequest tourRequest = parser.parse(file);
 
         return tourRequest;
+
+    }
+
+    public JsonObject restoreTour(String fileContent) throws IOException {
+
+        // Déterminer le type de fichier
+        File file = File.createTempFile("temp", ".xml");
+        file.deleteOnExit();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(fileContent);
+        }
+
+        FileType fileType = FileParserFactory.determineFileType(file);
+        // Vérifier si le type de fichier est bien XmlMap
+        if (fileType != FileType.XMLTOUR) {
+            throw new IllegalArgumentException("Invalid file type for loading delivery request: " + fileType);
+        }
+
+        // Récupérer le parser approprié via la factory
+        FileParser<JsonObject> parser = (FileParser<JsonObject>) FileParserFactory.getParser(fileType);
+
+        JsonObject tour = parser.parse(file);
+
+        return tour;
 
     }
 
@@ -247,7 +273,7 @@ public class Service {
 
             Element pickupPointsElement = doc.createElement("pickupPoints");
             type.appendChild(pickupPointsElement);
-            for (Intersection intersection : deliveryPoints) {
+            for (Intersection intersection : pickupPoints) {
                 Element parIntersection = doc.createElement("intersection");
                 parIntersection.setAttribute("id", intersection.getId().toString());
                 pickupPointsElement.appendChild(parIntersection);

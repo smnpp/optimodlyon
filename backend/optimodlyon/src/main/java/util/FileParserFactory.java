@@ -16,45 +16,47 @@ import java.io.IOException;
  */
 public class FileParserFactory {
 
-	public static FileParser<?> getParser(FileType fileType) {
-		switch (fileType) {
-			case XMLMAP:
-				return new XmlMapParser(); // retourne un FileParser<Map>
-			case XMLDEMANDE:
-				return new XmlDemandeParser(); // retourne un FileParser<Void>
-			case TXT:
-				return new TextFileParser(); // retourne un FileParser<Void>
-			default:
-				throw new IllegalArgumentException("Unsupported file type: " + fileType);
-		}
-	}
+    public static FileParser<?> getParser(FileType fileType) {
+        switch (fileType) {
+            case XMLMAP:
+                return new XmlMapParser(); // retourne un FileParser<Map>
+            case XMLDEMANDE:
+                return new XmlDemandeParser(); // retourne un FileParser<Void>
+            case XMLTOUR:
+                return new XmlTourParser();
+            case TXT:
+                return new TextFileParser(); // retourne un FileParser<Void>
+            default:
+                throw new IllegalArgumentException("Unsupported file type: " + fileType);
+        }
+    }
 
-        public static FileType determineFileType(File file) {
-		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-			// Parcours des premières lignes pour trouver une balise identifiable
-			String line;
-			while ((line = reader.readLine()) != null) {
-			line = line.trim();
-				// Ignorer les lignes XML d'entête ou vides
-				if (line.isEmpty() || line.startsWith("<?xml")) {
-					continue;
-				}
-				// Identifier le type de fichier à partir de la balise principale
-				if (line.contains("<reseau")) {
-					return FileType.XMLMAP;
-				} else if (line.contains("<demandeDeLivraisons")) {
-					return FileType.XMLDEMANDE;
-				} else {
-					throw new IllegalArgumentException("Unsupported XML format ");
-				}
-			}
+    public static FileType determineFileType(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            // Parcours des premières lignes pour trouver une balise identifiable
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                // Ignorer les lignes XML d'entête ou vides
+                if (line.isEmpty() || line.startsWith("<?xml")) {
+                    continue;
+                }
+                // Identifier le type de fichier à partir de la balise principale
+                if (line.contains("<reseau")) {
+                    return FileType.XMLMAP;
+                } else if (line.contains("<demandeDeLivraisons")) {
+                    return FileType.XMLDEMANDE;
+                } else if (line.contains("<tours")) {
+                    return FileType.XMLTOUR;
+                } else {
+                    throw new IllegalArgumentException("Unsupported XML format ");
+                }
+            }
 
-			// Si aucune balise identifiable n'est trouvée
-			throw new IllegalArgumentException("Invalid or empty XML file ");
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading file ", e);
-		}
-	} 
+            // Si aucune balise identifiable n'est trouvée
+            throw new IllegalArgumentException("Invalid or empty XML file ");
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading file ", e);
+        }
+    }
 }
-
-

@@ -88,6 +88,90 @@ export default function Home() {
         }
     };
 
+    const handleRestoreTour = async (file: File) => {
+        try {
+            const str = await apiService.loadTour(file);
+            console.log('Raw response:', str);
+
+            const parsedRequest = JSON.parse(str);
+            console.log('Parsed JSON:', parsedRequest);
+
+            const tour = parsedRequest.tour;
+            const tours = tour.tours || [];
+
+            if (!tour || !tour.typePoints) {
+                throw new Error("Missing 'typePoints' in the JSON structure.");
+            }
+
+            const typePoints = tour.typePoints;
+
+            // Transformer les points en format Intersection
+            const transformToIntersection = (points: any[]): Intersection[] =>
+                points.map((point) => ({
+                    key: point.id,
+                    location: { lat: point.latitude, lng: point.longitude },
+                }));
+
+            // Extraire les intersections depuis chaque tour
+            const allIntersections: google.maps.LatLngLiteral[] = tours.flatMap(
+                (tourItem: any) =>
+                    tourItem.intersections.map((intersection: any) => ({
+                        lat: intersection.latitude,
+                        lng: intersection.longitude,
+                    })),
+            );
+
+            // Traiter warehousePoint comme un objet unique
+            const warehouse: Intersection | null = typePoints.warehousePoint
+                ? {
+                      key: typePoints.warehousePoint.id,
+                      location: {
+                          lat: typePoints.warehousePoint.latitude,
+                          lng: typePoints.warehousePoint.longitude,
+                      },
+                  }
+                : null;
+
+            // Mise à jour de l'état avec une vérification
+            if (warehouse) {
+                setWarehouse(warehouse);
+            }
+
+            // Traiter pickupPoints et deliveryPoints normalement
+            const deliveryPoints: Intersection[] = transformToIntersection(
+                typePoints.deliveryPoints || [],
+            );
+            const pickupPoints: Intersection[] = transformToIntersection(
+                typePoints.pickupPoints || [],
+            );
+
+            // Log pour vérification
+            console.log('Transformed Warehouse Point:', warehouse);
+            console.log('Transformed Delivery Points:', deliveryPoints);
+            console.log('Transformed Pickup Points:', pickupPoints);
+            console.log('Tour Intersections:', allIntersections);
+
+            // Mise à jour de l'état
+            if (warehouse) {
+                setWarehouse(warehouse); // Un seul point
+            } else {
+                console.warn('No warehouse point found.');
+            }
+
+            setDeliveryPoints(deliveryPoints);
+            setPickupPoints(pickupPoints);
+            setTourCoordinates(allIntersections);
+
+            setBannerMessage('Restore successfully!');
+            setBannerType('success');
+        } catch (error) {
+            console.error('Error restoring tour:', error);
+            setBannerMessage(
+                'Error restoring tour. Please check the file format and try again.',
+            );
+            setBannerType('error');
+        }
+    };
     const handleComputeTour = async () => {
         try {
             const tour = await apiService.computeTour();
@@ -150,12 +234,17 @@ export default function Home() {
             id: 'Save',
             logo: FaArrowCircleDown,
             content: (
-                <section>
+                <section className={styles.section}>
                     <h5>Save</h5>
                     <Button
                         onClick={handleSaveTours}
                         text="Save tour"
                         logo={FaArrowCircleDown}
+                    />
+                    <FileDialog
+                        logo={FaFileUpload}
+                        text="Restore tour"
+                        validateFile={handleRestoreTour}
                     />
                 </section>
             ),
