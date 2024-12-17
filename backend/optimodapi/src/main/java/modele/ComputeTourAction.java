@@ -85,10 +85,10 @@ public class ComputeTourAction extends Action {
 
 			// Create TourRequest with parsed warehouse and delivery requests
 			TourRequest tourRequest = new TourRequest(requestsMap, warehouse);
-
+			
 			// Compute the tour using the service
 			Tour tour = service.computeTour(tourRequest, map);
-
+			
 			// Set attributes for the response
 			request.setAttribute("success", true);
 			request.setAttribute("tour", tour);
@@ -96,11 +96,9 @@ public class ComputeTourAction extends Action {
 		} catch (IOException ex) {
 			Logger.getLogger(ComputeTourAction.class.getName()).log(Level.SEVERE, null, ex);
 			request.setAttribute("success", false);
-			request.setAttribute("error", "Failed to process request.");
 		} catch (Exception ex) {
 			Logger.getLogger(ComputeTourAction.class.getName()).log(Level.SEVERE, null, ex);
 			request.setAttribute("success", false);
-			request.setAttribute("error", "Unexpected error occurred.");
 		}
 	}
 
