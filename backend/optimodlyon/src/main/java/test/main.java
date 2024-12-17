@@ -3,6 +3,7 @@ package test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import metier.DeliveryRequest;
@@ -18,8 +19,8 @@ import service.Service;
 public class main {
 
     public static void main(String[] args) {
-        String fileMapPath = "H:\\fichiersXMLPickupDelivery\\grandPlan.xml"; // Remplace par le chemin du fichier de carte
-        String fileRequestPath = "H:\\fichiersXMLPickupDelivery\\demandeGrand9.xml"; // Remplace par le chemin du fichier des demandes
+        String fileMapPath = "C:\\Users\\Junior Noukam\\Downloads\\fichiersXMLPickupDelivery\\grandPlan.xml"; // Remplace par le chemin du fichier de carte
+        String fileRequestPath = "C:\\Users\\Junior Noukam\\Downloads\\fichiersXMLPickupDelivery\\demandeGrand9.xml"; // Remplace par le chemin du fichier des demandes
 
         try {
             // Instanciation du service
@@ -52,13 +53,23 @@ public class main {
 
             // Appeler la méthode computeAndAssignTour pour attribuer les requêtes aux livreurs
             HashMap<Long, Courier> couriers = service.computeAndAssignTour(tourRequest, map, numCouriers);
+            
+            // Initialiser une liste pour stocker les objets Tour
+            List<Tour> tours = new ArrayList<>();
 
+            // Parcourir les couriers et collecter les deliveryPlans
+            for (Courier courier : couriers.values()) {
+                if (courier.getDeliveryPlan() != null) { // Vérifiez si le deliveryPlan n'est pas null
+                    tours.add(courier.getDeliveryPlan());
+                }
+            }
             System.out.println("Nombre total de livreurs : " + couriers.size());
-
+            
+            Boolean ispdf = service.saveToursToPdf(tours);
             // Afficher les informations pour chaque livreur
             for (Courier courier : couriers.values()) {
                 System.out.println("\n=== Informations du livreur " + courier.getId() + " ===");
-                System.out.println("Plan de livraison : " + courier.getDeliveryPlan());
+                //System.out.println("Plan de livraison : " + courier.getDeliveryPlan());
                 System.out.println("Liste des requêtes : " + courier.getTourRequest().getRequests().keySet());
 
                 Tour tour = courier.getDeliveryPlan();
