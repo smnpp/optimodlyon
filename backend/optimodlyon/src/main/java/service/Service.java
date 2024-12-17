@@ -357,8 +357,9 @@ public class Service {
 
         return resultat;
     }
+    
 
-    public Boolean saveToursToPdf(List<Tour> tours) {
+    private Boolean saveToursToPdf(List<Tour> tours) {
         Boolean resultat = false;
 
         try {
