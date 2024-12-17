@@ -31,15 +31,10 @@ import {
 } from 'react-google-map-wrapper';
 import Banner from './components/home/banner';
 import { findClosestPoint } from './util';
-import { randomUUID } from 'crypto';
 import TourRequest from './types/tour-request';
 import DeliveryRequest from './types/delivery-request';
 
 export default function Home() {
-    // const [map, setMap] = React.useState<Intersection[]>([]);
-    const [tourCoordinates, setTourCoordinates] = React.useState<
-        google.maps.LatLngLiteral[]
-    >([]);
     const [couriers, setCouriers] = React.useState<
         Record<string, google.maps.LatLngLiteral[]>
     >({});
@@ -109,42 +104,7 @@ export default function Home() {
                 request: deliveryRequests!,
                 warehouse: warehouse!,
             };
-            const tour = await apiService.computeTour(request);
-            const coordinates = tour.intersections.map(
-                (intersection: Intersection) => ({
-                    lat: intersection.location.lat,
-                    lng: intersection.location.lng,
-                }),
-            );
-
-            setTourCoordinates(coordinates);
-
-            let tours: Tour[] = [];
-            const jsonTours = localStorage.getItem('tours');
-            if (jsonTours) {
-                tours = JSON.parse(jsonTours) as Tour[];
-            }
-
-            tours.push(tour);
-
-            localStorage.setItem('tours', JSON.stringify(tours));
-            setBannerMessage('Tour computed successfully!');
-            setBannerType('success');
-        } catch (error) {
-            console.error('Error computing tour:', error);
-            setBannerMessage('Error computing tour.');
-            setBannerType('error');
-        }
-    };
-
-    const handleMultipleComputeTour = async () => {
-        try {
-            const request: TourRequest = {
-                key: crypto.randomUUID(),
-                request: deliveryRequests!,
-                warehouse: warehouse!,
-            };
-            const courierData = await apiService.computeMultipleTours(
+            const courierData = await apiService.computeTours(
                 numCouriers,
                 request,
             );
@@ -179,7 +139,6 @@ export default function Home() {
             localStorage.setItem('couriers', JSON.stringify(storedCouriers));
             setBannerMessage('Multiple tours computed successfully!');
             setBannerType('success');
-            console.log('Multiple tours computed successfully:', courierData);
         } catch (error) {
             console.error('Error computing multiple tours:', error);
             setBannerMessage('Error computing multiple tours.');
@@ -290,12 +249,6 @@ export default function Home() {
                         text="Load request"
                         validateFile={handleLoadRequest}
                     />
-                    <Button
-                        logo={MdCalculate}
-                        onClick={handleComputeTour}
-                        text="Compute tour"
-                    />
-                    {/* Zone pour saisir le nombre de livreurs */}
                     <div style={{ marginTop: '10px' }}>
                         <label
                             htmlFor="numCouriers"
@@ -316,8 +269,8 @@ export default function Home() {
                     </div>
                     <Button
                         logo={MdCalculate}
-                        onClick={handleMultipleComputeTour}
-                        text="Compute multiple tours"
+                        onClick={handleComputeTour}
+                        text="Compute tours"
                     />
                 </section>
             ),
@@ -379,13 +332,6 @@ export default function Home() {
                             mapId: '67b4524f1a110aa8',
                         }}
                     >
-                        <Polyline
-                            path={tourCoordinates}
-                            strokeColor="#FF0000"
-                            strokeOpacity={10.0}
-                            strokeWeight={2.0}
-                            geodesic
-                        />
                         {warehouse && (
                             <WarehouseMarker
                                 key={crypto.randomUUID()}
