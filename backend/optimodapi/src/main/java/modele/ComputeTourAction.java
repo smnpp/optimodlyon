@@ -61,6 +61,7 @@ public class ComputeTourAction extends Action {
 			
 			request.setAttribute("success", true);
 			request.setAttribute("tour", tour);
+                        request.setAttribute("tourRequest", tourRequest);
 		} catch (IOException ex) {
 			Logger.getLogger(ComputeTourAction.class.getName()).log(Level.SEVERE, null, ex);
 		}
