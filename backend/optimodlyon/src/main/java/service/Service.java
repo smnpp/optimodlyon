@@ -285,6 +285,21 @@ public class Service {
     public Boolean saveToursToFile(List<Tour> tours) {
         Boolean resultat = false;
         try {
+            Boolean xmlSuccess = saveToursToXml(tours);
+            Boolean pdfSuccess = saveToursToPdf(tours);
+
+            resultat = xmlSuccess && pdfSuccess;
+
+        } catch (Exception e) {
+            System.err.println("Erreur inattendue : " + e.getMessage());
+        }
+
+        return resultat;
+    }
+
+    private Boolean saveToursToXml(List<Tour> tours) {
+        Boolean resultat = false;
+        try {
             // Initialiser le constructeur de document XML
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -357,7 +372,6 @@ public class Service {
 
         return resultat;
     }
-    
 
     private Boolean saveToursToPdf(List<Tour> tours) {
         Boolean resultat = false;
