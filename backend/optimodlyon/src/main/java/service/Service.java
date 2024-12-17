@@ -39,6 +39,7 @@ import com.itextpdf.layout.element.Paragraph;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.util.List;
+import metier.Adjacent;
 
 /**
  *
@@ -384,11 +385,32 @@ public class Service {
                 string.append("Tour ID: ").append(tour.getId()).append("\n");
                 string.append("Duration: ").append(tour.getDuration().toMinutes()).append(" minutes\n\n");
                 string.append("\tIntersections:\n");
-                for (Intersection intersection : tour.getPointslist()) {
+
+                for (int i = 0; i < tour.getPointslist().size(); i++) {
+                    Intersection intersection = tour.getPointslist().get(i);
                     string.append("\t\t- Intersection ID: ").append(intersection.getId());
-                    string.append("(lat: ").append(intersection.getLocation().getLatitude());
+                    string.append(" (lat: ").append(intersection.getLocation().getLatitude());
                     string.append("; long: ").append(intersection.getLocation().getLongitude()).append(")\n");
+
+                    if (i < tour.getPointslist().size() - 1) {
+                        Intersection nextIntersection = tour.getPointslist().get(i + 1);
+                        string.append("\t\t\tNext: Intersection ID: ").append(nextIntersection.getId()).append("\n");
+
+                        HashMap<Long, Adjacent> adjacents = intersection.getAdjacents();
+                        boolean foundAdjacent = false;
+                        for (Adjacent adjacent : adjacents.values()) {
+                            if (adjacent.getDestination().getId() == nextIntersection.getId()) {
+                                string.append("\t\t\tStreet: ").append(adjacent.getName()).append("\n");
+                                string.append("\t\t\tDistance: ").append(adjacent.getLength()).append(" meters\n");
+                                foundAdjacent = true;
+                            }
+                        }
+                        if (!foundAdjacent) {
+                            string.append("\t\t\tNo adjacent found for the next intersection.\n");
+                        }
+                    }
                 }
+
                 string.append("\n");
             }
 
