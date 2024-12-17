@@ -385,32 +385,42 @@ public class Service {
             StringBuilder string = new StringBuilder("Delivery Tours - Date: ");
             string.append(LocalDate.now()).append("\n\n");
 
+            List<String> streets = new ArrayList<>();
+            List<Double> distances = new ArrayList<>();
+
             for (Tour tour : tours) {
                 string.append("Tour ID: ").append(tour.getId()).append("\n");
                 string.append("Duration: ").append(tour.getDuration().toMinutes()).append(" minutes\n\n");
-                string.append("\tIntersections:\n");
+
+                String lastStreet = null;
 
                 for (int i = 0; i < tour.getPointslist().size(); i++) {
                     Intersection intersection = tour.getPointslist().get(i);
-                    string.append("\t\t- Intersection ID: ").append(intersection.getId());
-                    string.append(" (lat: ").append(intersection.getLocation().getLatitude());
-                    string.append("; long: ").append(intersection.getLocation().getLongitude()).append(")\n");
 
                     if (i < tour.getPointslist().size() - 1) {
                         Intersection nextIntersection = tour.getPointslist().get(i + 1);
-                        string.append("\t\t\tNext: Intersection ID: ").append(nextIntersection.getId()).append("\n");
 
                         HashMap<Long, Adjacent> adjacents = intersection.getAdjacents();
                         boolean foundAdjacent = false;
                         for (Adjacent adjacent : adjacents.values()) {
                             if (Objects.equals(adjacent.getDestination().getId(), nextIntersection.getId())) {
-                                string.append("\t\t\tStreet: ").append(adjacent.getName()).append("\n");
-                                string.append("\t\t\tDistance: ").append(adjacent.getLength()).append(" meters\n");
+                                String currentStreet = adjacent.getName();
+                                double currentDistance = adjacent.getLength();
+
+                                if (lastStreet != null && lastStreet.equals(currentStreet)) {
+                                    int index = streets.indexOf(currentStreet);
+                                    distances.set(index, distances.get(index) + currentDistance);
+                                } else {
+                                    streets.add(currentStreet);
+                                    distances.add(currentDistance);
+                                    lastStreet = currentStreet;
+                                }
                                 foundAdjacent = true;
+                                break;
                             }
                         }
                         if (!foundAdjacent) {
-                            string.append("\t\t\tNo adjacent found for the next intersection.\n");
+                            System.out.println("Aucun adjacent trouvé");
                         }
                     }
                 }
@@ -418,10 +428,14 @@ public class Service {
                 string.append("\n");
             }
 
-            // Spécifier le chemin du fichier PDF
-            String filePath = getProjectDirectory() + "/agile/data/" + LocalDate.now() + ".pdf";
+            string.append("Itinéraire de livraison:\n");
+            for (int i = 0; i < streets.size(); i++) {
+                string.append("\t- Rue : ").append(streets.get(i));
+                string.append(", distance: ").append(distances.get(i)).append(" mètres\n");
+            }
+
+            String filePath = getProjectDirectory() + "/datas/" + LocalDate.now() + ".pdf";
             
-            // Créer le dossier si nécessaire
             Path path = Paths.get(filePath).getParent();
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
