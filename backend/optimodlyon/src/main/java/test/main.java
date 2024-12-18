@@ -65,7 +65,7 @@ public class main {
             }
             System.out.println("Nombre total de livreurs : " + couriers.size());
             
-            Boolean ispdf = service.saveToursToPdf(tours);
+            Boolean ispdf = service.saveToursToPdf(tours, map);
             // Afficher les informations pour chaque livreur
             for (Courier courier : couriers.values()) {
                 System.out.println("\n=== Informations du livreur " + courier.getId() + " ===");

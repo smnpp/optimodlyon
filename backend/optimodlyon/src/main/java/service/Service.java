@@ -311,12 +311,12 @@ public class Service {
      * @param tours The list of tours to save.
      * @return A boolean indicating whether the save operation was successful.
      */
-    public Boolean saveToursToFile(List<Tour> tours, JsonArray deliveryRequests, Intersection warehouse) {
+    public Boolean saveToursToFile(List<Tour> tours, JsonArray deliveryRequests, Intersection warehouse, Map map) {
 
         Boolean resultat = false;
         try {
             Boolean xmlSuccess = saveToursToXml(tours, deliveryRequests, warehouse);
-            Boolean pdfSuccess = saveToursToPdf(tours);
+            Boolean pdfSuccess = saveToursToPdf(tours, map);
 
             resultat = xmlSuccess && pdfSuccess;
 
@@ -488,7 +488,7 @@ public class Service {
         return resultat;
     }
 
-    public Boolean saveToursToPdf(List<Tour> tours) {
+    public Boolean saveToursToPdf(List<Tour> tours, Map map) {
     Boolean resultat = false;
 
         try {
@@ -508,7 +508,7 @@ public class Service {
                     if (i < tour.getPointslist().size() - 1) {
                         Intersection nextIntersection = tour.getPointslist().get(i + 1);
 
-                        HashMap<Long, Adjacent> adjacents = intersection.getAdjacents();
+                        HashMap<Long, Adjacent> adjacents = map.getIntersections().get(intersection.getId()).getAdjacents();
                         boolean foundAdjacent = false;
 
                         for (Adjacent adjacent : adjacents.values()) {
@@ -541,7 +541,7 @@ public class Service {
                     string.append(", Distance: ").append(distances.get(i)).append(" meters\n");
                 }
 
-                String filePath = getProjectDirectory() + "/datas/" + tour.getId() + ".pdf";
+                String filePath = getProjectDirectory() + "/data/" + tour.getId() + ".pdf";
 
                 Path path = Paths.get(filePath).getParent();
                 if (!Files.exists(path)) {
