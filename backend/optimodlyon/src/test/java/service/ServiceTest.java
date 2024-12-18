@@ -210,6 +210,10 @@ class ServiceTest {
                 List<Intersection> tourPoints = tour.getPointslist();
                 assertEquals(Long.valueOf(2835339774L), tourPoints.get(0).getId(), "The tour must start at the warehouse.");
                 assertEquals(Long.valueOf(2835339774L), tourPoints.get(tourPoints.size() - 1).getId(), "The tour must end at the warehouse.");
+                for (DeliveryRequest request : courier.getTourRequest().getRequests().values()) {
+                    assertTrue(tourRequest.getRequests().containsValue(request),
+                            "La TourRequest du courier doit correspondre à la TourRequest originale.");
+                }
             }
 
 
