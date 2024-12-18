@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import metier.Map;
 import modele.ChargerMapAction;
+import modele.ChargerTourAction;
 import modele.ComputeTourAction;
 import modele.LoadRequestAction;
 import modele.SaveTourAction;
@@ -21,6 +22,7 @@ import vue.TourRequestSerialisation;
 import vue.TourSerialisation;
 import vue.SuccessSerialisation;
 import vue.MultipleTourSerialisation;
+import vue.TourRestoreSerialialisation;
 
 /**
  *
@@ -72,6 +74,11 @@ public class ActionServlet extends HttpServlet {
                 case "save-tour": {
                     new SaveTourAction(service).execute(request);
                     new SuccessSerialisation().appliquer(request, response);
+                    break;
+                }
+                case "restore-tour": {
+                    new ChargerTourAction(service).execute(request);
+                    new TourRestoreSerialialisation().appliquer(request, response);
                     break;
                 }
                 case "test": {

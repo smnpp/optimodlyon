@@ -63,12 +63,12 @@ export default function Home() {
     };
     const handleSaveTours = async () => {
         try {
-            const Jsontours = localStorage.getItem('tours');
-            if (!Jsontours) {
+            const strCouriers = localStorage.getItem('couriers');
+            if (!strCouriers) {
                 throw new Error('No tour to save');
             }
-            const tours = JSON.parse(Jsontours) as Tour[];
-
+            const jsonCouriers = JSON.parse(strCouriers) as Courier[];
+            const tours: Tour[] = jsonCouriers.map((courier) => courier.tour);
             await apiService.saveTours(tours);
         } catch (error) {
             console.error('Error loading map:', error);
@@ -97,6 +97,111 @@ export default function Home() {
         }
     };
 
+    const handleRestoreTour = async (file: File) => {
+        try {
+            const str = await apiService.loadTour(file);
+            console.log('Raw response:', str);
+
+            const parsedRequest = JSON.parse(str);
+            console.log('Parsed JSON:', parsedRequest);
+
+            const tour = parsedRequest.tour;
+            const tours = tour.tours || [];
+
+            if (!tour || !tour.typePoints) {
+                throw new Error("Missing 'typePoints' in the JSON structure.");
+            }
+
+            const typePoints = tour.typePoints;
+
+            // **Transformer les points en format Intersection**
+            const transformToIntersection = (points: any[]): Intersection[] =>
+                points.map((point) => ({
+                    key: point.id,
+                    location: {
+                        lat: point.latitude || 0,
+                        lng: point.longitude || 0,
+                    },
+                }));
+
+            // **Extraire les intersections depuis chaque tour**
+            const allIntersections: Record<
+                string,
+                google.maps.LatLngLiteral[]
+            > = {};
+            tours.forEach((tourItem: any, index: number) => {
+                const courierId = `courier_${index + 1}`; // ID auto-généré : courier_1, courier_2, etc.
+                const coordinates = tourItem.intersections.map(
+                    (intersection: any) => ({
+                        lat: intersection.latitude || 0,
+                        lng: intersection.longitude || 0,
+                    }),
+                );
+                allIntersections[courierId] = coordinates;
+            });
+
+            // **Traiter warehousePoint comme un objet unique**
+            const warehouse: Intersection | null = typePoints.warehousePoint
+                ? {
+                      key: typePoints.warehousePoint.id,
+                      location: {
+                          lat: typePoints.warehousePoint.latitude,
+                          lng: typePoints.warehousePoint.longitude,
+                      },
+                  }
+                : null;
+
+            // **Transformer deliveryRequests au format DeliveryRequest**
+            const deliveryRequests: DeliveryRequest[] =
+                typePoints.deliveryRequests?.map((request: any) => ({
+                    key: request.key,
+                    pickupPoint: {
+                        key: request.pickupPoint.key,
+                        location: {
+                            lat: request.pickupPoint.location.latitude,
+                            lng: request.pickupPoint.location.longitude,
+                        },
+                    },
+                    deliveryPoint: {
+                        key: request.deliveryPoint.key,
+                        location: {
+                            lat: request.deliveryPoint.location.latitude,
+                            lng: request.deliveryPoint.location.longitude,
+                        },
+                    },
+                    pickupDuration: Number(request.pickupDuration),
+                    deliveryDuration: Number(request.deliveryDuration),
+                })) || [];
+
+            // **Traiter les autres points (pickup et delivery)**
+            const deliveryPoints: Intersection[] = transformToIntersection(
+                typePoints.deliveryPoints || [],
+            );
+            const pickupPoints: Intersection[] = transformToIntersection(
+                typePoints.pickupPoints || [],
+            );
+
+            // **Mise à jour de l'état**
+            if (warehouse) {
+                setWarehouse(warehouse); // Un seul point
+            } else {
+                console.warn('No warehouse point found.');
+            }
+
+            setDeliveryRequests(deliveryRequests);
+            setCouriers(allIntersections);
+
+            // **Message de succès**
+            setBannerMessage('Restore successfully!');
+            setBannerType('success');
+        } catch (error) {
+            console.error('Error restoring tour:', error);
+            setBannerMessage(
+                'Error restoring tour. Please check the file format and try again.',
+            );
+            setBannerType('error');
+        }
+    };
     const handleComputeTour = async () => {
         try {
             const request: TourRequest = {
@@ -276,20 +381,20 @@ export default function Home() {
             ),
         },
         {
-            id: 'Tour',
-            logo: GrDirections,
-            content: <section className={styles.section}></section>,
-        },
-        {
             id: 'Save',
             logo: FaArrowCircleDown,
             content: (
-                <section>
+                <section className={styles.section}>
                     <h5>Save</h5>
                     <Button
                         onClick={handleSaveTours}
                         text="Save tour"
                         logo={FaArrowCircleDown}
+                    />
+                    <FileDialog
+                        logo={FaFileUpload}
+                        text="Restore tour"
+                        validateFile={handleRestoreTour}
                     />
                 </section>
             ),

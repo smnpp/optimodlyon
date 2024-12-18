@@ -156,6 +156,38 @@ class OptimodApiService {
             throw error;
         }
     }
+    async loadTour(request: File): Promise<string> {
+        const fileContent = await this.readFileContent(request);
+
+        const body = {
+            'file-content': fileContent,
+        };
+
+        try {
+            const response = await fetch(
+                `${this.baseUrl}${'/ActionServlet?action=restore-tour'}`,
+
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+
+            const data = await response;
+
+            return data.text();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
 
     async computeTours(
         numCouriers: number,
@@ -318,7 +350,18 @@ class OptimodApiService {
                 'Invalid input: Tours must be an array of Tour objects.',
             );
         }
+        const request = localStorage.getItem('request');
+        if (!request) {
+            throw new Error('No request to save');
+        }
 
+        const parsedRequest: TourRequest = JSON.parse(request);
+        const requests: DeliveryRequest[] = parsedRequest.request;
+        const warehouse = parsedRequest.warehouse;
+        // console.log('Requests:', requests);
+        // console.log('Delivery points:', deliveryPoints);
+        // console.log('Pickup points:', pickupPoints);
+        // console.log('Warehouse:', warehouse);
         const body = {
             tours: tours.map((tour) => {
                 if (
@@ -351,6 +394,8 @@ class OptimodApiService {
                     }),
                 };
             }),
+            deliveryRequests: requests,
+            warehouse: warehouse,
         };
 
         try {

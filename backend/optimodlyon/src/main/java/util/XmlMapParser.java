@@ -8,8 +8,6 @@ package util;
  *
  * @author jassirhabba
  */
-
-
 import java.io.BufferedWriter;
 import metier.Intersection;
 import metier.Adjacent;
@@ -25,22 +23,27 @@ public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
 
     @Override
     /**
-    * Parses the given XML file to create and populate a map of {@link Intersection} objects. 
-    * The XML file is expected to contain data about intersections (nodes) and adjacent street segments (troncons).
-    * The intersections are identified by their unique IDs, and the adjacent street segments 
-    * define connections between intersections with additional information like street name and length.
-    * 
-    * @param file The XML file containing intersection and street segment data. The file should contain 
-    *             elements with the tags "noeud" for intersections and "troncon" for adjacent street segments.
-    * @return A {@link HashMap} where the key is the intersection ID (Long) and the value is the {@link Intersection} object.
-    * @throws RuntimeException If any error occurs during the XML parsing process, such as invalid format or missing data.
-    */
+     * Parses the given XML file to create and populate a map of
+     * {@link Intersection} objects. The XML file is expected to contain data
+     * about intersections (nodes) and adjacent street segments (troncons). The
+     * intersections are identified by their unique IDs, and the adjacent street
+     * segments define connections between intersections with additional
+     * information like street name and length.
+     *
+     * @param file The XML file containing intersection and street segment data.
+     * The file should contain elements with the tags "noeud" for intersections
+     * and "troncon" for adjacent street segments.
+     * @return A {@link HashMap} where the key is the intersection ID (Long) and
+     * the value is the {@link Intersection} object.
+     * @throws RuntimeException If any error occurs during the XML parsing
+     * process, such as invalid format or missing data.
+     */
     public HashMap<Long, Intersection> parse(File file) {
         HashMap<Long, Intersection> intersectionMap = new HashMap<>();
 
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();	   
+            DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(file);
             document.getDocumentElement().normalize();
 
@@ -53,7 +56,7 @@ public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
                 Double latitude = Double.parseDouble(noeud.getAttribute("latitude"));
                 Double longitude = Double.parseDouble(noeud.getAttribute("longitude"));
                 Coords location = new Coords(latitude, longitude);
-                
+
                 Intersection intersection = new Intersection(id, location);
                 intersectionMap.put(id, intersection); // Stocker dans la HashMap
 
@@ -61,7 +64,7 @@ public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
 
             // Parsing adjacents
             NodeList troncons = document.getElementsByTagName("troncon");
-            
+
             for (int i = 0; i < troncons.getLength(); i++) {
                 Element troncon = (Element) troncons.item(i);
                 Long origineId = Long.parseLong(troncon.getAttribute("origine"));
@@ -79,8 +82,8 @@ public class XmlMapParser implements FileParser<HashMap<Long, Intersection>> {
                     continue;
                 }
 
-                Adjacent adjacent_to_dest = new Adjacent( dest, nomRue, longueur);
-                Adjacent adjacent_to_origin = new Adjacent( origin, nomRue, longueur);
+                Adjacent adjacent_to_dest = new Adjacent(dest, nomRue, longueur);
+                Adjacent adjacent_to_origin = new Adjacent(origin, nomRue, longueur);
                 intersectionMap.get(origineId).addAdjacent(destinationId, adjacent_to_dest);
                 intersectionMap.get(destinationId).addAdjacent(origineId, adjacent_to_origin);
 
