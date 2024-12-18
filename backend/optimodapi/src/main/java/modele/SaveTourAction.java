@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import metier.Intersection;
 import java.time.Duration;
 import metier.Coords;
+import metier.Map;
 
 import metier.Tour;
 import service.Service;
@@ -110,7 +111,10 @@ public class SaveTourAction extends Action {
                 tours.add(tour);
             }
 
-            Boolean success = service.saveToursToFile(tours, deliveryRequestArray, warehouse);
+
+            String mapFile = jsonRequest.get("map-file").getAsString();
+            Map map = service.loadMap(mapFile);
+            Boolean success = service.saveToursToFile(tours, deliveryRequestArray, warehouse, map);
             request.setAttribute("success", success);
 
         } catch (IOException ex) {

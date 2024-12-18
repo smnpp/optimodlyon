@@ -351,6 +351,7 @@ class OptimodApiService {
             );
         }
         const request = localStorage.getItem('request');
+        const mapFile = localStorage.getItem('map-file');
         if (!request) {
             throw new Error('No request to save');
         }
@@ -396,6 +397,7 @@ class OptimodApiService {
             }),
             deliveryRequests: requests,
             warehouse: warehouse,
+            'map-file': mapFile,
         };
 
         try {
