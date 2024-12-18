@@ -388,11 +388,6 @@ export default function Home() {
             ),
         },
         {
-            id: 'Tour',
-            logo: GrDirections,
-            content: <section className={styles.section}></section>,
-        },
-        {
             id: 'Save',
             logo: FaArrowCircleDown,
             content: (
