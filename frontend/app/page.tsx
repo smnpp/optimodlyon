@@ -243,11 +243,6 @@ export default function Home() {
 
             // Sauvegarder les couriers dans le localStorage
             let storedCouriers: Courier[] = [];
-            const jsonCouriers = localStorage.getItem('couriers');
-
-            if (jsonCouriers) {
-                storedCouriers = JSON.parse(jsonCouriers) as Courier[];
-            }
 
             // Ajouter les nouveaux couriers et mettre à jour le localStorage
             storedCouriers.push(...Object.values(courierData));
@@ -451,7 +446,7 @@ export default function Home() {
                     <GoogleMap
                         style={{ width: '800px', height: '500px' }}
                         center={{ lat: 45.75, lng: 4.85 }}
-                        zoom={12}
+                        zoom={10}
                         containerProps={{ id: 'google-map' }}
                         mapOptions={{
                             mapId: '67b4524f1a110aa8',
