@@ -7,6 +7,7 @@ import FileDialog from './components/home/file-dialog';
 import OptimodApiService from './services/service';
 import Intersection from './types/intersection';
 import Tour from './types/tour';
+import Courier from './types/courier';
 import Sidebar from './components/home/sidebar';
 import {
     FaMapMarkedAlt,
@@ -19,6 +20,7 @@ import { Button } from './components/home/button';
 import { MdCalculate } from 'react-icons/md';
 import {
     DeliveryMarker,
+    MarkerType,
     PickupMarker,
     WarehouseMarker,
 } from './components/home/marker';
@@ -28,21 +30,24 @@ import {
     Polyline,
 } from 'react-google-map-wrapper';
 import Banner from './components/home/banner';
+import { findClosestPoint } from './util';
+import TourRequest from './types/tour-request';
+import DeliveryRequest from './types/delivery-request';
 
 export default function Home() {
-    // const [map, setMap] = React.useState<Intersection[]>([]);
-    const [tourCoordinates, setTourCoordinates] = React.useState<
-        google.maps.LatLngLiteral[]
-    >([]);
+    const [couriers, setCouriers] = React.useState<
+        Record<string, google.maps.LatLngLiteral[]>
+    >({});
     const [warehouse, setWarehouse] = React.useState<Intersection | null>(null);
-    const [pickupPoints, setPickupPoints] = React.useState<Intersection[]>([]);
+    const [deliveryRequests, setDeliveryRequests] = useState<
+        DeliveryRequest[] | null
+    >(null);
     const [bannerMessage, setBannerMessage] = useState<string | null>(null);
     const [bannerType, setBannerType] = useState<'success' | 'error' | null>(
         null,
     );
-    const [deliveryPoints, setDeliveryPoints] = React.useState<Intersection[]>(
-        [],
-    );
+
+    const [numCouriers, setNumCouriers] = React.useState(1);
     const apiService = new OptimodApiService();
 
     const handleLoadMap = async (file: File) => {
@@ -58,12 +63,12 @@ export default function Home() {
     };
     const handleSaveTours = async () => {
         try {
-            const Jsontours = localStorage.getItem('tours');
-            if (!Jsontours) {
+            const strCouriers = localStorage.getItem('couriers');
+            if (!strCouriers) {
                 throw new Error('No tour to save');
             }
-            const tours = JSON.parse(Jsontours) as Tour[];
-
+            const jsonCouriers = JSON.parse(strCouriers) as Courier[];
+            const tours: Tour[] = jsonCouriers.map((courier) => courier.tour);
             await apiService.saveTours(tours);
         } catch (error) {
             console.error('Error loading map:', error);
@@ -74,11 +79,15 @@ export default function Home() {
         try {
             const tourRequest = await apiService.loadRequest(file);
             const warehouse = tourRequest.warehouse;
-            const requests = tourRequest.request;
+            const request = tourRequest.request;
+
+            // Clear existing markers
+            setWarehouse(null);
+            setDeliveryRequests(null);
 
             setWarehouse(warehouse);
-            setPickupPoints([...requests.map((req) => req.pickupPoint)]);
-            setDeliveryPoints([...requests.map((req) => req.deliveryPoint)]);
+            setDeliveryRequests(request);
+
             setBannerMessage('Request loaded successfully!');
             setBannerType('success');
         } catch (error) {
@@ -105,23 +114,33 @@ export default function Home() {
 
             const typePoints = tour.typePoints;
 
-            // Transformer les points en format Intersection
+            // **Transformer les points en format Intersection**
             const transformToIntersection = (points: any[]): Intersection[] =>
                 points.map((point) => ({
                     key: point.id,
-                    location: { lat: point.latitude, lng: point.longitude },
+                    location: {
+                        lat: point.latitude || 0,
+                        lng: point.longitude || 0,
+                    },
                 }));
 
-            // Extraire les intersections depuis chaque tour
-            const allIntersections: google.maps.LatLngLiteral[] = tours.flatMap(
-                (tourItem: any) =>
-                    tourItem.intersections.map((intersection: any) => ({
-                        lat: intersection.latitude,
-                        lng: intersection.longitude,
-                    })),
-            );
+            // **Extraire les intersections depuis chaque tour**
+            const allIntersections: Record<
+                string,
+                google.maps.LatLngLiteral[]
+            > = {};
+            tours.forEach((tourItem: any, index: number) => {
+                const courierId = `courier_${index + 1}`; // ID auto-généré : courier_1, courier_2, etc.
+                const coordinates = tourItem.intersections.map(
+                    (intersection: any) => ({
+                        lat: intersection.latitude || 0,
+                        lng: intersection.longitude || 0,
+                    }),
+                );
+                allIntersections[courierId] = coordinates;
+            });
 
-            // Traiter warehousePoint comme un objet unique
+            // **Traiter warehousePoint comme un objet unique**
             const warehouse: Intersection | null = typePoints.warehousePoint
                 ? {
                       key: typePoints.warehousePoint.id,
@@ -132,12 +151,29 @@ export default function Home() {
                   }
                 : null;
 
-            // Mise à jour de l'état avec une vérification
-            if (warehouse) {
-                setWarehouse(warehouse);
-            }
+            // **Transformer deliveryRequests au format DeliveryRequest**
+            const deliveryRequests: DeliveryRequest[] =
+                typePoints.deliveryRequests?.map((request: any) => ({
+                    key: request.key,
+                    pickupPoint: {
+                        key: request.pickupPoint.key,
+                        location: {
+                            lat: request.pickupPoint.location.latitude,
+                            lng: request.pickupPoint.location.longitude,
+                        },
+                    },
+                    deliveryPoint: {
+                        key: request.deliveryPoint.key,
+                        location: {
+                            lat: request.deliveryPoint.location.latitude,
+                            lng: request.deliveryPoint.location.longitude,
+                        },
+                    },
+                    pickupDuration: Number(request.pickupDuration),
+                    deliveryDuration: Number(request.deliveryDuration),
+                })) || [];
 
-            // Traiter pickupPoints et deliveryPoints normalement
+            // **Traiter les autres points (pickup et delivery)**
             const deliveryPoints: Intersection[] = transformToIntersection(
                 typePoints.deliveryPoints || [],
             );
@@ -145,23 +181,24 @@ export default function Home() {
                 typePoints.pickupPoints || [],
             );
 
-            // Log pour vérification
+            // **Log pour vérification**
             console.log('Transformed Warehouse Point:', warehouse);
+            console.log('Transformed Delivery Requests:', deliveryRequests);
             console.log('Transformed Delivery Points:', deliveryPoints);
             console.log('Transformed Pickup Points:', pickupPoints);
-            console.log('Tour Intersections:', allIntersections);
+            console.log('Courier Intersections:', allIntersections);
 
-            // Mise à jour de l'état
+            // **Mise à jour de l'état**
             if (warehouse) {
                 setWarehouse(warehouse); // Un seul point
             } else {
                 console.warn('No warehouse point found.');
             }
 
-            setDeliveryPoints(deliveryPoints);
-            setPickupPoints(pickupPoints);
-            setTourCoordinates(allIntersections);
+            setDeliveryRequests(deliveryRequests);
+            setCouriers(allIntersections);
 
+            // **Message de succès**
             setBannerMessage('Restore successfully!');
             setBannerType('success');
         } catch (error) {
@@ -174,29 +211,136 @@ export default function Home() {
     };
     const handleComputeTour = async () => {
         try {
-            const tour = await apiService.computeTour();
-            const coordinates = tour.intersections.map(
-                (intersection: Intersection) => ({
-                    lat: intersection.location.lat,
-                    lng: intersection.location.lng,
-                }),
+            const request: TourRequest = {
+                key: crypto.randomUUID(),
+                request: deliveryRequests!,
+                warehouse: warehouse!,
+            };
+            const courierData = await apiService.computeTours(
+                numCouriers,
+                request,
             );
-            setTourCoordinates(coordinates);
-            let tours: Tour[] = [];
-            const jsonTours = localStorage.getItem('tours');
-            if (jsonTours) {
-                tours = JSON.parse(jsonTours) as Tour[];
+            const allCoordinates: Record<string, google.maps.LatLngLiteral[]> =
+                {};
+
+            Object.entries(courierData).forEach(
+                ([courierId, courier]: [string, Courier]) => {
+                    const coordinates = courier.tour.intersections.map(
+                        (intersection: Intersection) => ({
+                            lat: intersection.location.lat,
+                            lng: intersection.location.lng,
+                        }),
+                    );
+                    allCoordinates[courierId] = coordinates;
+                },
+            );
+
+            // Mettre à jour l'état React pour l'affichage des couriers
+            setCouriers(allCoordinates);
+
+            // Sauvegarder les couriers dans le localStorage
+            let storedCouriers: Courier[] = [];
+            const jsonCouriers = localStorage.getItem('couriers');
+
+            if (jsonCouriers) {
+                storedCouriers = JSON.parse(jsonCouriers) as Courier[];
             }
 
-            tours.push(tour);
-
-            localStorage.setItem('tours', JSON.stringify(tours));
-            setBannerMessage('Tour computed successfully!');
+            // Ajouter les nouveaux couriers et mettre à jour le localStorage
+            storedCouriers.push(...Object.values(courierData));
+            localStorage.setItem('couriers', JSON.stringify(storedCouriers));
+            setBannerMessage('Multiple tours computed successfully!');
             setBannerType('success');
         } catch (error) {
-            console.error('Error computing tour:', error);
-            setBannerMessage('Error computing tour.');
+            console.error('Error computing multiple tours:', error);
+            setBannerMessage('Error computing multiple tours.');
             setBannerType('error');
+        }
+    };
+
+    const getDynamicColor = (index: number): string => {
+        const hue = (index * 137) % 360; // Génère une teinte différente pour chaque index
+        return `hsl(${hue}, 70%, 50%)`; // Teinte, saturation et luminosité
+    };
+
+    const updateMarkerPosition = (
+        key: string,
+        newPosition: google.maps.LatLngLiteral,
+        type: MarkerType,
+        newKey: string,
+    ) => {
+        if (type === MarkerType.Warehouse) {
+            setWarehouse((prevWarehouse) =>
+                prevWarehouse && prevWarehouse.key === key
+                    ? { ...prevWarehouse, location: newPosition, key: newKey }
+                    : prevWarehouse,
+            );
+        } else if (type === MarkerType.Pickup) {
+            setDeliveryRequests((prevRequests) =>
+                prevRequests!.map((request) =>
+                    request.pickupPoint.key === key
+                        ? {
+                              ...request,
+                              pickupPoint: {
+                                  ...request.pickupPoint,
+                                  location: newPosition,
+                                  key: newKey,
+                              },
+                          }
+                        : request,
+                ),
+            );
+        } else if (type === MarkerType.Delivery) {
+            setDeliveryRequests((prevRequests) =>
+                prevRequests!.map((request) =>
+                    request.deliveryPoint.key === key
+                        ? {
+                              ...request,
+                              deliveryPoint: {
+                                  ...request.deliveryPoint,
+                                  location: newPosition,
+                                  key: newKey,
+                              },
+                          }
+                        : request,
+                ),
+            );
+        }
+    };
+
+    const handleDragEnd = (
+        marker: google.maps.marker.AdvancedMarkerElement,
+        event: google.maps.MapMouseEvent,
+        key: string,
+        type: MarkerType,
+        setContent: (content: React.ReactNode) => void,
+    ) => {
+        if (event.latLng) {
+            const newPos = {
+                lat: event.latLng.lat(),
+                lng: event.latLng.lng(),
+            };
+            const map = JSON.parse(localStorage.getItem('map') || '[]');
+            const closestPoint = findClosestPoint(newPos, map);
+            if (closestPoint) {
+                marker.position = closestPoint.location;
+                updateMarkerPosition(
+                    key,
+                    closestPoint.location,
+                    type,
+                    closestPoint.key.toString(),
+                );
+                const content = (
+                    <div style={{ color: 'black' }}>
+                        <h3>{type}</h3>
+                        <p>
+                            Location:{' '}
+                            {`${closestPoint.location.lat.toPrecision(8)}, ${closestPoint.location.lng.toPrecision(8)}`}
+                        </p>
+                    </div>
+                );
+                setContent(content);
+            }
         }
     };
 
@@ -217,10 +361,28 @@ export default function Home() {
                         text="Load request"
                         validateFile={handleLoadRequest}
                     />
+                    <div style={{ marginTop: '10px' }}>
+                        <label
+                            htmlFor="numCouriers"
+                            style={{ marginRight: '10px' }}
+                        >
+                            Couriers:
+                        </label>
+                        <input
+                            id="numCouriers"
+                            type="number"
+                            min="1"
+                            value={numCouriers}
+                            onChange={(e) =>
+                                setNumCouriers(Number(e.target.value))
+                            }
+                            style={{ width: '60px', textAlign: 'center' }}
+                        />
+                    </div>
                     <Button
                         logo={MdCalculate}
                         onClick={handleComputeTour}
-                        text="Compute tour"
+                        text="Compute tours"
                     />
                 </section>
             ),
@@ -287,20 +449,87 @@ export default function Home() {
                             mapId: '67b4524f1a110aa8',
                         }}
                     >
-                        <Polyline
-                            path={tourCoordinates}
-                            strokeColor="#FF0000"
-                            strokeOpacity={10.0}
-                            strokeWeight={2.0}
-                            geodesic
-                        />
-                        {warehouse && <WarehouseMarker warehouse={warehouse} />}
-                        {pickupPoints && (
-                            <PickupMarker pickupPoints={pickupPoints} />
+                        {warehouse && (
+                            <WarehouseMarker
+                                key={crypto.randomUUID()}
+                                warehouse={warehouse}
+                                handleDragEnd={(
+                                    marker: google.maps.marker.AdvancedMarkerElement,
+                                    event: google.maps.MapMouseEvent,
+                                    setContent: (
+                                        content: React.ReactNode,
+                                    ) => void,
+                                ) =>
+                                    handleDragEnd(
+                                        marker,
+                                        event,
+                                        warehouse.key,
+                                        MarkerType.Warehouse,
+                                        setContent,
+                                    )
+                                }
+                            />
                         )}
-                        {deliveryPoints && (
-                            <DeliveryMarker deliveryPoints={deliveryPoints} />
+
+                        {/* Affichage des polylines avec des couleurs dynamiques */}
+                        {Object.entries(couriers).map(
+                            ([courierId, coordinates], index) => (
+                                <Polyline
+                                    key={courierId}
+                                    path={coordinates}
+                                    strokeColor={getDynamicColor(index)} // Couleur dynamique basée sur l'index
+                                    strokeOpacity={1.0}
+                                    strokeWeight={3.0}
+                                    geodesic
+                                />
+                            ),
                         )}
+                        {/* Afficher les relations enrichies */}
+                        {deliveryRequests &&
+                            deliveryRequests.map((request, index) => (
+                                <React.Fragment key={request.key}>
+                                    <PickupMarker
+                                        key={crypto.randomUUID()}
+                                        pickupPoint={request.pickupPoint}
+                                        index={index + 1}
+                                        handleDragEnd={(
+                                            marker: google.maps.marker.AdvancedMarkerElement,
+                                            event: google.maps.MapMouseEvent,
+                                            setContent: (
+                                                content: React.ReactNode,
+                                            ) => void,
+                                        ) =>
+                                            handleDragEnd(
+                                                marker,
+                                                event,
+                                                request.pickupPoint.key,
+                                                MarkerType.Pickup,
+                                                setContent,
+                                            )
+                                        }
+                                    />
+                                    <DeliveryMarker
+                                        key={crypto.randomUUID()}
+                                        deliveryPoint={request.deliveryPoint}
+                                        index={index}
+                                        handleDragEnd={(
+                                            marker: google.maps.marker.AdvancedMarkerElement,
+                                            event: google.maps.MapMouseEvent,
+                                            setContent: (
+                                                content: React.ReactNode,
+                                            ) => void,
+                                        ) =>
+                                            handleDragEnd(
+                                                marker,
+                                                event,
+                                                request.deliveryPoint.key,
+                                                MarkerType.Delivery,
+                                                setContent,
+                                            )
+                                        }
+                                    />
+                                </React.Fragment>
+                            ))}
                     </GoogleMap>
                 </GoogleMapApiLoader>
             </main>

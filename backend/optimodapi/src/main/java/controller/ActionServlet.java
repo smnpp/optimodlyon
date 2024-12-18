@@ -66,7 +66,7 @@ public class ActionServlet extends HttpServlet {
                     new TourSerialisation().appliquer(request, response);
                     break;
                 }
-                case "compute-n-tour": {
+                case "compute-multiple-tours": {
                     new ComputeMultipleTourAction(service).execute(request);
                     new MultipleTourSerialisation().appliquer(request, response);
                     break;

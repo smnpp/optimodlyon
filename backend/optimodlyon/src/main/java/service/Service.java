@@ -5,6 +5,8 @@
  */
 package service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,13 +34,24 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.time.LocalDate;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 
 /**
  *
- * @author jnoukam
+ * @author jnoukam Service class that provides methods for loading maps,
+ * handling delivery requests, computing delivery tours, and saving results in
+ * XML format.
  */
 public class Service {
 
+    /**
+     * Loads a map from an XML string content.
+     *
+     * @param fileContent The XML content representing the map.
+     * @return A Map object containing the loaded intersections.
+     * @throws IOException If there is an issue during file creation or reading.
+     */
     public Map loadMap(String fileContent) throws IOException {
 
         // Déterminer le type de fichier
@@ -67,6 +80,13 @@ public class Service {
         return map;
     }
 
+    /**
+     * Loads a delivery request from an XML string content.
+     *
+     * @param fileContent The XML content representing the delivery request.
+     * @return A TourRequest object containing the parsed delivery requests.
+     * @throws IOException If there is an issue during file creation or reading.
+     */
     public TourRequest loadRequestFile(String fileContent) throws IOException {
 
         // Déterminer le type de fichier
@@ -117,6 +137,15 @@ public class Service {
 
     }
 
+    /**
+     * Computes the optimal delivery tour based on a TourRequest and Map.
+     *
+     * @param tourRequest The TourRequest containing the delivery requests.
+     * @param map The map containing all the intersections.
+     * @return A Tour object representing the optimal delivery tour.
+     * @throws IllegalArgumentException If any of the pickup or delivery points
+     * are not present in the map.
+     */
     public Tour computeTour(TourRequest tourRequest, Map map) {
         // Vérification que tous les points sont dans la Map
         for (DeliveryRequest request : tourRequest.getRequests().values()) {
@@ -162,6 +191,16 @@ public class Service {
         return tour;
     }
 
+    /**
+     * Creates a new DeliveryRequest based on the provided parameters.
+     *
+     * @param pickupPoint The ID of the pickup point.
+     * @param deliveryPoint The ID of the delivery point.
+     * @param pickupDuration The duration in seconds for pickup.
+     * @param deliveryDuration The duration in seconds for delivery.
+     * @return A new DeliveryRequest object.
+     * @throws IOException If there is an issue during the creation process.
+     */
     public DeliveryRequest createDeliveryRequest(Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
         Duration pickupDurationCast = Duration.ofSeconds(pickupDuration);
         Duration deliveryDurationCast = Duration.ofSeconds(deliveryDuration);
@@ -170,6 +209,18 @@ public class Service {
         return deliveryRequest;
     }
 
+    /**
+     * Adds a DeliveryRequest to a TourRequest.
+     *
+     * @param tourRequest The TourRequest to which the delivery request will be
+     * added.
+     * @param pickupPoint The ID of the pickup point.
+     * @param deliveryPoint The ID of the delivery point.
+     * @param pickupDuration The duration in seconds for pickup.
+     * @param deliveryDuration The duration in seconds for delivery.
+     * @return The updated TourRequest with the new delivery request added.
+     * @throws IOException If there is an issue during the addition process.
+     */
     public TourRequest addDeliveryRequest(TourRequest tourRequest, Long pickupPoint, Long deliveryPoint, Long pickupDuration, Long deliveryDuration) throws IOException {
         DeliveryRequest deliveryRequest = createDeliveryRequest(pickupPoint, deliveryPoint, pickupDuration, deliveryDuration);
         tourRequest.putDeliveryRequest(deliveryRequest);
@@ -177,12 +228,30 @@ public class Service {
         return tourRequest;
     }
 
+    /**
+     * Removes a DeliveryRequest from a TourRequest.
+     *
+     * @param tourRequest The TourRequest from which the delivery request will
+     * be removed.
+     * @param deliveryRequest The DeliveryRequest to remove.
+     * @return The updated TourRequest with the delivery request removed.
+     * @throws IOException If there is an issue during the removal process.
+     */
     public TourRequest removeDeliveryRequest(TourRequest tourRequest, DeliveryRequest deliveryRequest) throws IOException {
         tourRequest.removeDeliveryRequest(deliveryRequest);
 
         return tourRequest;
     }
 
+    /**
+     * Changes the pickup point for a DeliveryRequest within a TourRequest.
+     *
+     * @param tourRequest The TourRequest containing the delivery request.
+     * @param deliveryRequest The DeliveryRequest to update.
+     * @param pickupPoint The new pickup point ID.
+     * @return The updated TourRequest with the modified pickup point.
+     * @throws IOException If there is an issue during the update process.
+     */
     public TourRequest changePickupPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long pickupPoint) throws IOException {
         java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
         requests.get(deliveryRequest.getId()).setPickupPoint(pickupPoint);
@@ -191,6 +260,15 @@ public class Service {
         return tourRequest;
     }
 
+    /**
+     * Changes the delivery point for a DeliveryRequest within a TourRequest.
+     *
+     * @param tourRequest The TourRequest containing the delivery request.
+     * @param deliveryRequest The DeliveryRequest to update.
+     * @param deliveryPoint The new delivery point ID.
+     * @return The updated TourRequest with the modified delivery point.
+     * @throws IOException If there is an issue during the update process.
+     */
     public TourRequest changeDeliveryPoint(TourRequest tourRequest, DeliveryRequest deliveryRequest, Long deliveryPoint) throws IOException {
         java.util.Map<String, DeliveryRequest> requests = tourRequest.getRequests();
         requests.get(deliveryRequest.getId()).setPickupPoint(deliveryPoint);
@@ -199,6 +277,11 @@ public class Service {
         return tourRequest;
     }
 
+    /**
+     * Retrieves the absolute path of the project's root directory.
+     *
+     * @return The absolute path of the project directory.
+     */
     private String getProjectDirectory() {
         // Obtenir le chemin absolu du projet à partir de la classe
         String projectDir = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -209,7 +292,14 @@ public class Service {
         return projectPath.getAbsolutePath(); // Retourne uniquement la racine
     }
 
-    public Boolean saveToursToFile(List<Tour> tours, List<Intersection> deliveryPoints, List<Intersection> pickupPoints, Intersection warehouse) {
+    /**
+     * Saves a list of tours to a file in XML format.
+     *
+     * @param tours The list of tours to save.
+     * @return A boolean indicating whether the save operation was successful.
+     */
+    public Boolean saveToursToFile(List<Tour> tours, JsonArray deliveryRequests, Intersection warehouse) {
+
         Boolean resultat = false;
         try {
             // Initialiser le constructeur de document XML
@@ -253,41 +343,68 @@ public class Service {
             Element type = doc.createElement("typePoints");
             root.appendChild(type);
 
-            Element deliveryPointsElement = doc.createElement("deliveryPoints");
-            type.appendChild(deliveryPointsElement);
-            for (Intersection intersection : deliveryPoints) {
-                Element parIntersection = doc.createElement("intersection");
-                parIntersection.setAttribute("id", intersection.getId().toString());
-                deliveryPointsElement.appendChild(parIntersection);
+            Element deliveryRequestsElement = doc.createElement("deliveryRequests");
+            type.appendChild(deliveryRequestsElement);
+// Pour chaque élément dans deliveryRequests
+            for (JsonElement deliveryElement : deliveryRequests) {
+                JsonObject deliveryRequest = deliveryElement.getAsJsonObject();
 
-                // Ajouter latitude et longitude
-                Element lat = doc.createElement("latitude");
-                lat.appendChild(doc.createTextNode(intersection.getLocation().getLatitude().toString()));
+                // Extraire les durées
+                String pickupDuration = deliveryRequest.get("pickupDuration").getAsString();
+                String deliveryDuration = deliveryRequest.get("deliveryDuration").getAsString();
+                String key = deliveryRequest.get("key").getAsString();
+                // Extraire pickupPoint
+                JsonObject pickupPoint = deliveryRequest.getAsJsonObject("pickupPoint");
+                String pickupKey = pickupPoint.get("key").getAsString();
+                JsonObject pickupLocation = pickupPoint.getAsJsonObject("location");
+                Double pickupLat = pickupLocation.get("lat").getAsDouble();
+                Double pickupLng = pickupLocation.get("lng").getAsDouble();
 
-                Element lon = doc.createElement("longitude");
-                lon.appendChild(doc.createTextNode(intersection.getLocation().getLongitude().toString()));
+                // Extraire deliveryPoint
+                JsonObject deliveryPoint = deliveryRequest.getAsJsonObject("deliveryPoint");
+                String deliveryKey = deliveryPoint.get("key").getAsString();
+                JsonObject deliveryLocation = deliveryPoint.getAsJsonObject("location");
+                Double deliveryLat = deliveryLocation.get("lat").getAsDouble();
+                Double deliveryLng = deliveryLocation.get("lng").getAsDouble();
 
-                parIntersection.appendChild(lat);
-                parIntersection.appendChild(lon);
+                // Création de l'élément XML deliveryRequest
+                Element deliveryRequestElement = doc.createElement("deliveryRequest");
+                deliveryRequestElement.setAttribute("key", key);
+                deliveryRequestElement.setAttribute("pickupDuration", pickupDuration);
+                deliveryRequestElement.setAttribute("deliveryDuration", deliveryDuration);
+
+                // Créer l'élément pickupPoint
+                Element pickupPointElement = doc.createElement("pickupPoint");
+                pickupPointElement.setAttribute("key", pickupKey);
+                Element pickupLocationElement = doc.createElement("location");
+                Element pickupLatElement = doc.createElement("latitude");
+                pickupLatElement.appendChild(doc.createTextNode(pickupLat.toString()));
+                Element pickupLngElement = doc.createElement("longitude");
+                pickupLngElement.appendChild(doc.createTextNode(pickupLng.toString()));
+                pickupLocationElement.appendChild(pickupLatElement);
+                pickupLocationElement.appendChild(pickupLngElement);
+                pickupPointElement.appendChild(pickupLocationElement);
+
+                // Créer l'élément deliveryPoint
+                Element deliveryPointElement = doc.createElement("deliveryPoint");
+                deliveryPointElement.setAttribute("key", deliveryKey);
+                Element deliveryLocationElement = doc.createElement("location");
+                Element deliveryLatElement = doc.createElement("latitude");
+                deliveryLatElement.appendChild(doc.createTextNode(deliveryLat.toString()));
+                Element deliveryLngElement = doc.createElement("longitude");
+                deliveryLngElement.appendChild(doc.createTextNode(deliveryLng.toString()));
+                deliveryLocationElement.appendChild(deliveryLatElement);
+                deliveryLocationElement.appendChild(deliveryLngElement);
+                deliveryPointElement.appendChild(deliveryLocationElement);
+
+                // Ajouter pickupPoint et deliveryPoint à deliveryRequest
+                deliveryRequestElement.appendChild(pickupPointElement);
+                deliveryRequestElement.appendChild(deliveryPointElement);
+
+                // Ajouter deliveryRequestElement à la racine
+                deliveryRequestsElement.appendChild(deliveryRequestElement);
             }
 
-            Element pickupPointsElement = doc.createElement("pickupPoints");
-            type.appendChild(pickupPointsElement);
-            for (Intersection intersection : pickupPoints) {
-                Element parIntersection = doc.createElement("intersection");
-                parIntersection.setAttribute("id", intersection.getId().toString());
-                pickupPointsElement.appendChild(parIntersection);
-
-                // Ajouter latitude et longitude
-                Element lat = doc.createElement("latitude");
-                lat.appendChild(doc.createTextNode(intersection.getLocation().getLatitude().toString()));
-
-                Element lon = doc.createElement("longitude");
-                lon.appendChild(doc.createTextNode(intersection.getLocation().getLongitude().toString()));
-
-                parIntersection.appendChild(lat);
-                parIntersection.appendChild(lon);
-            }
             Element warehouseElement = doc.createElement("warehousePoint");
             type.appendChild(warehouseElement);
             Element parIntersection = doc.createElement("intersection");
@@ -321,7 +438,12 @@ public class Service {
             if (file.getParentFile() != null) {
                 file.getParentFile().mkdirs();
             }
-
+            // **Effacer le contenu du fichier s'il existe**
+            // **Effacer le contenu du fichier s'il existe**
+            if (file.exists()) {
+                PrintWriter writer = new PrintWriter(file);
+                writer.close(); // Ferme immédiatement, ce qui vide le fichier
+            }
             // Sauvegarder le fichier
             StreamResult result = new StreamResult(file);
             transformer.transform(source, result);
@@ -339,6 +461,27 @@ public class Service {
     }
 
     // Fonction pour calculer et attribuer les tours aux livreurs
+    /**
+     * This method calculates and assigns tours to couriers based on delivery
+     * requests.
+     *
+     * The process involves several steps: 1. Sorts the delivery requests by
+     * proximity to the warehouse. 2. Creates a given number of couriers and
+     * initializes them with empty tour requests. 3. Assigns the sorted delivery
+     * requests to each courier in a round-robin fashion. 4. Calculates the
+     * optimal route for each courier based on the requests assigned to them. 5.
+     * Returns a map containing the couriers and their respective calculated
+     * tours.
+     *
+     * @param tourRequest The object representing the tour request, which
+     * contains information about the warehouse and delivery requests.
+     * @param map The object representing the map used to determine proximity
+     * and calculate routes.
+     * @param numCouriers The number of couriers to create and assign to handle
+     * the deliveries.
+     * @return A map where the keys are the courier IDs and the values are the
+     * Courier objects with their assigned tour.
+     */
     public HashMap<Long, Courier> computeAndAssignTour(TourRequest tourRequest, Map map, int numCouriers) {
 
         ComputeTourUtilTools computeTourUtil = new ComputeTourUtilTools();

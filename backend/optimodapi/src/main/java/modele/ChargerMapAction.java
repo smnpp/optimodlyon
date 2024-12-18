@@ -20,10 +20,25 @@ import service.Service;
  */
 public class ChargerMapAction extends Action {
 
+    /**
+     * @param service
+     */
     public ChargerMapAction(Service service) {
         super(service);
     }
+        
+	/**
+	 * Processes a JSON, uploads a file using a service, and marks success 
+	 * or failure on the request.
 
+		* @param request : file The XML file containing intersection and street segment data. 
+		* The file should contain elements with the tags "noeud" for intersections
+		* and "troncon" for adjacent street segments.
+		* return : A {HashMap} where the key is the intersection ID (Long) 
+		* and the value is the {Intersection} object.
+		* @throws RuntimeException If any error occurs during the XML parsing process, 
+		* such as invalid format or missing data.
+		*/
 	@Override
 	public void execute(HttpServletRequest request) {
 		BufferedReader reader = null;
