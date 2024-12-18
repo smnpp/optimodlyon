@@ -48,6 +48,9 @@ export default function Home() {
     );
 
     const [numCouriers, setNumCouriers] = React.useState(1);
+    const [courierDurations, setCourierDurations] = useState<
+        { courierId: string; duration: number }[]
+    >([]);
     const apiService = new OptimodApiService();
 
     const handleLoadMap = async (file: File) => {
@@ -215,9 +218,14 @@ export default function Home() {
             );
             const allCoordinates: Record<string, google.maps.LatLngLiteral[]> =
                 {};
+            const durations: { courierId: string; duration: number }[] = [];
 
             Object.entries(courierData).forEach(
                 ([courierId, courier]: [string, Courier]) => {
+                    durations.push({
+                        courierId,
+                        duration: courier.tour.duration,
+                    });
                     const coordinates = courier.tour.intersections.map(
                         (intersection: Intersection) => ({
                             lat: intersection.location.lat,
@@ -227,6 +235,8 @@ export default function Home() {
                     allCoordinates[courierId] = coordinates;
                 },
             );
+            // Update state with durations
+            setCourierDurations(durations);
 
             // Mettre à jour l'état React pour l'affichage des couriers
             setCouriers(allCoordinates);
@@ -377,6 +387,16 @@ export default function Home() {
                         onClick={handleComputeTour}
                         text="Compute tours"
                     />
+                    <div>
+                        <h5>Courier Durations</h5>
+                        <div style={{ marginTop: '10px' }}>
+                            {courierDurations.map(({ courierId, duration }) => (
+                                <p key={courierId}>
+                                    {courierId}: {duration / 60} minutes
+                                </p>
+                            ))}
+                        </div>
+                    </div>
                 </section>
             ),
         },
