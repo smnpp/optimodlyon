@@ -181,13 +181,6 @@ export default function Home() {
                 typePoints.pickupPoints || [],
             );
 
-            // **Log pour vérification**
-            console.log('Transformed Warehouse Point:', warehouse);
-            console.log('Transformed Delivery Requests:', deliveryRequests);
-            console.log('Transformed Delivery Points:', deliveryPoints);
-            console.log('Transformed Pickup Points:', pickupPoints);
-            console.log('Courier Intersections:', allIntersections);
-
             // **Mise à jour de l'état**
             if (warehouse) {
                 setWarehouse(warehouse); // Un seul point
