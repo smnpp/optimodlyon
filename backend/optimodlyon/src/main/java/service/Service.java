@@ -37,6 +37,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.layout.element.Paragraph;
+
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import metier.Adjacent;
+
 /**
  *
  * @author jnoukam Service class that provides methods for loading maps,
@@ -298,8 +311,23 @@ public class Service {
      * @param tours The list of tours to save.
      * @return A boolean indicating whether the save operation was successful.
      */
-    public Boolean saveToursToFile(List<Tour> tours, JsonArray deliveryRequests, Intersection warehouse) {
+    public Boolean saveToursToFile(List<Tour> tours, JsonArray deliveryRequests, Intersection warehouse, Map map) {
 
+        Boolean resultat = false;
+        try {
+            Boolean xmlSuccess = saveToursToXml(tours, deliveryRequests, warehouse);
+            Boolean pdfSuccess = saveToursToPdf(tours, map);
+
+            resultat = xmlSuccess && pdfSuccess;
+
+        } catch (Exception e) {
+            System.err.println("Erreur inattendue : " + e.getMessage());
+        }
+
+        return resultat;
+    }
+
+    private Boolean saveToursToXml(List<Tour> tours, JsonArray deliveryRequests, Intersection warehouse) {
         Boolean resultat = false;
         try {
             // Initialiser le constructeur de document XML
@@ -460,7 +488,89 @@ public class Service {
         return resultat;
     }
 
-    // Fonction pour calculer et attribuer les tours aux livreurs
+    public Boolean saveToursToPdf(List<Tour> tours, Map map) {
+    Boolean resultat = false;
+
+        try {
+            for (Tour tour : tours) {
+                StringBuilder string = new StringBuilder("Delivery Tour - Date: ");
+                string.append(LocalDate.now()).append("\n\n");
+                string.append("Tour ID: ").append(tour.getId()).append("\n");
+                string.append("Duration: ").append(tour.getDuration().toMinutes()).append(" minutes\n\n");
+
+                List<String> streets = new ArrayList<>();
+                List<Double> distances = new ArrayList<>();
+                String lastStreet = null;
+
+                for (int i = 0; i < tour.getPointslist().size(); i++) {
+                    Intersection intersection = tour.getPointslist().get(i);
+
+                    if (i < tour.getPointslist().size() - 1) {
+                        Intersection nextIntersection = tour.getPointslist().get(i + 1);
+
+                        HashMap<Long, Adjacent> adjacents = map.getIntersections().get(intersection.getId()).getAdjacents();
+                        boolean foundAdjacent = false;
+
+                        for (Adjacent adjacent : adjacents.values()) {
+                            if (Objects.equals(adjacent.getDestination().getId(), nextIntersection.getId())) {
+                                String currentStreet = adjacent.getName();
+                                double currentDistance = adjacent.getLength();
+
+                                if (lastStreet != null && lastStreet.equals(currentStreet)) {
+                                    int index = streets.indexOf(currentStreet);
+                                    distances.set(index, distances.get(index) + currentDistance);
+                                } else {
+                                    streets.add(currentStreet);
+                                    distances.add(currentDistance);
+                                    lastStreet = currentStreet;
+                                }
+                                foundAdjacent = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundAdjacent) {
+                            string.append("\tNo adjacent found for intersection ID: ").append(intersection.getId()).append("\n");
+                        }
+                    }
+                }
+
+                string.append("\nDelivery Route:\n");
+                for (int i = 0; i < streets.size(); i++) {
+                    string.append("\t- Street: ").append(streets.get(i));
+                    string.append(", Distance: ").append(distances.get(i)).append(" meters\n");
+                }
+
+                String filePath = getProjectDirectory() + "/data/" + tour.getId() + ".pdf";
+
+                Path path = Paths.get(filePath).getParent();
+                if (!Files.exists(path)) {
+                    Files.createDirectories(path);
+                }
+
+                PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+                PdfDocument pdfDoc = new PdfDocument(writer);
+                com.itextpdf.layout.Document document = new com.itextpdf.layout.Document(pdfDoc);
+
+                for (String line : string.toString().split("\n")) {
+                    document.add(new Paragraph(line));
+                }
+
+                document.close();
+                System.out.println("PDF généré avec succès pour le tour ID: " + tour.getId() + " dans : " + filePath);
+            }
+            resultat = true;
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la génération des fichiers PDF : " + e.getMessage());
+        }
+
+        return resultat;
+    }
+
+
+   // Fonction pour calculer et attribuer les tours aux livreurs
+    
     /**
      * This method calculates and assigns tours to couriers based on delivery
      * requests.
