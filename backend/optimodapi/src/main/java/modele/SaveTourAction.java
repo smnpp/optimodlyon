@@ -27,17 +27,20 @@ import service.Service;
  * @author jassirhabba
  */
 public class SaveTourAction extends Action {
-    
+
     public SaveTourAction(Service service) {
         super(service);
     }
+
     /**
-     * Processes a JSON request to construct and save a list of tours and sets the success status 
-     * in the HTTP request.
+     * Processes a JSON request to construct and save a list of tours and sets
+     * the success status in the HTTP request.
      *
-     * @param request The JSON request containing the necessary data to construct the list of tours.
-     * @param request The HTTP request object where the success status will be set.
-     * throws SomeException If an error occurs while processing the request or saving the tours.
+     * @param request The JSON request containing the necessary data to
+     * construct the list of tours.
+     * @param request The HTTP request object where the success status will be
+     * set. throws SomeException If an error occurs while processing the request
+     * or saving the tours.
      */
     @Override
     public void execute(HttpServletRequest request) {
@@ -50,10 +53,24 @@ public class SaveTourAction extends Action {
             // Utiliser Gson pour convertir le JSON en objet
             Gson gson = new Gson();
             JsonObject jsonRequest = gson.fromJson(reader, JsonObject.class);
-            JsonArray toursArray = jsonRequest.getAsJsonArray("tours");
 
+            JsonArray toursArray = jsonRequest.getAsJsonArray("tours");
+            JsonArray deliveryRequestArray = jsonRequest.getAsJsonArray("deliveryRequests");
+            JsonObject jsonWarehouse = jsonRequest.getAsJsonObject("warehouse");
             // Construire manuellement les objets Tour
             List<Tour> tours = new ArrayList<>();
+
+            String keyWarehouse = jsonWarehouse.get("key").getAsString();
+            Long idIntersectionWarehouse = Long.parseLong(keyWarehouse);
+            JsonObject locationObjectWarehouse = jsonWarehouse.getAsJsonObject("location");
+            double latWarehouse = locationObjectWarehouse.get("lat").getAsDouble();
+            double lngWarehouse = locationObjectWarehouse.get("lng").getAsDouble();
+
+            // Créer l'objet Location
+            Coords locationWarehouse = new Coords(latWarehouse, lngWarehouse);
+
+            // Créer l'objet Intersection
+            Intersection warehouse = new Intersection(idIntersectionWarehouse, locationWarehouse);
 
             for (JsonElement tourElement : toursArray) {
                 JsonObject tourObject = tourElement.getAsJsonObject();
@@ -93,7 +110,7 @@ public class SaveTourAction extends Action {
                 tours.add(tour);
             }
 
-            Boolean success = service.saveToursToFile(tours);
+            Boolean success = service.saveToursToFile(tours, deliveryRequestArray, warehouse);
             request.setAttribute("success", success);
 
         } catch (IOException ex) {
