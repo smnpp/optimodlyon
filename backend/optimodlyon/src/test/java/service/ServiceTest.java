@@ -1,7 +1,9 @@
 package service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import metier.Courier;
 import metier.DeliveryRequest;
 import metier.Intersection;
 import metier.Map;
@@ -78,7 +80,7 @@ class ServiceTest {
     }
 
     @Test
-    void testComputeTourWithMoreNodesAndConditions() {
+    void testComputeTour() {
 
         String fileMapContent = ""
                 + "<reseau>\n"
@@ -154,6 +156,66 @@ class ServiceTest {
             // Vérification de la durée totale
             assertFalse(tour.getDuration().isZero(), "The total duration of the tour must not be null.");
             assertFalse(tour.getDuration().isNegative(), "The total duration must be positive.");
+
+        } catch (Exception e) {
+            fail("Compute tour failed: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    void testComputeNTour() {
+
+        String fileMapContent = ""
+                + "<reseau>\n"
+                + "<noeud id=\"2835339774\" latitude=\"45.75406\" longitude=\"4.857418\"/>\n" // Entrepôt
+                + "<noeud id=\"1679901320\" latitude=\"45.750404\" longitude=\"4.8744674\"/>\n" // Pickup 1
+                + "<noeud id=\"208769457\" latitude=\"45.7585\" longitude=\"4.8356\"/>\n" // Delivery 1
+                + "<noeud id=\"223344556\" latitude=\"45.7590\" longitude=\"4.8500\"/>\n" // Pickup 2
+                + "<noeud id=\"556677889\" latitude=\"45.7600\" longitude=\"4.8400\"/>\n" // Delivery 2
+                + "<noeud id=\"123456789\" latitude=\"45.7560\" longitude=\"4.8600\"/>\n" // point intermédiaire
+                + "<noeud id=\"987654321\" latitude=\"45.7520\" longitude=\"4.8700\"/>\n" // point intermédiaire
+                + "<noeud id=\"999999999\" latitude=\"45.8000\" longitude=\"4.9000\"/>\n"
+                + "<troncon destination=\"1679901320\" longueur=\"51.028988\" nomRue=\"Rue A\" origine=\"2835339774\"/>\n" // Entrepôt -> Pickup 1
+                + "<troncon destination=\"208769457\" longueur=\"75.0\" nomRue=\"Rue B\" origine=\"1679901320\"/>\n" // Pickup 1 -> Delivery 1
+                + "<troncon destination=\"223344556\" longueur=\"30.0\" nomRue=\"Rue C\" origine=\"208769457\"/>\n" // Delivery 1 -> Pickup 2
+                + "<troncon destination=\"556677889\" longueur=\"40.0\" nomRue=\"Rue D\" origine=\"223344556\"/>\n" // Pickup 2 -> Delivery 2
+                + "<troncon destination=\"2835339774\" longueur=\"100.0\" nomRue=\"Rue E\" origine=\"556677889\"/>\n" // Delivery 2 -> Entrepôt
+                + "<troncon destination=\"123456789\" longueur=\"30.0\" nomRue=\"Rue F\" origine=\"2835339774\"/>\n" // Entrepôt -> Intermédiaire 1
+                + "<troncon destination=\"987654321\" longueur=\"40.0\" nomRue=\"Rue G\" origine=\"123456789\"/>\n" // Intermédiaire 1 -> Intermédiaire 2
+                + "<troncon destination=\"1679901320\" longueur=\"60.0\" nomRue=\"Rue H\" origine=\"987654321\"/>\n" // Intermédiaire 2 -> Pickup 1
+                + "</reseau>";
+
+        // Contenu XML des requêtes avec au moins 2 requêtes
+        String fileRequestContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+                + "<demandeDeLivraisons>\n"
+                + "<entrepot adresse=\"2835339774\" heureDepart=\"8:0:0\"/>\n"
+                + "<livraison adresseEnlevement=\"1679901320\" adresseLivraison=\"208769457\" dureeEnlevement=\"300\" dureeLivraison=\"400\"/>\n"
+                + "<livraison adresseEnlevement=\"223344556\" adresseLivraison=\"556677889\" dureeEnlevement=\"300\" dureeLivraison=\"400\"/>\n"
+                + "</demandeDeLivraisons>";
+
+        try {
+            Map map = service.loadMap(fileMapContent);
+
+            TourRequest tourRequest = service.loadRequestFile(fileRequestContent);
+
+            HashMap<Long, Courier> tours = service.computeAndAssignTour(tourRequest, map, 2);
+            assertNotNull(tours, "The computed tour must not be null.");
+
+            assertEquals(tours.size(), 2, "There must be 2 tours");
+            // Vérifier chaque tour
+            for (Courier courier : tours.values()) {
+                Tour tour = courier.getDeliveryPlan();
+                assertFalse(tour.getDuration().isZero(), "The total duration of the tour must not be null.");
+                assertFalse(tour.getDuration().isNegative(), "The total duration must be positive.");
+                List<Intersection> tourPoints = tour.getPointslist();
+                assertEquals(Long.valueOf(2835339774L), tourPoints.get(0).getId(), "The tour must start at the warehouse.");
+                assertEquals(Long.valueOf(2835339774L), tourPoints.get(tourPoints.size() - 1).getId(), "The tour must end at the warehouse.");
+                for (DeliveryRequest request : courier.getTourRequest().getRequests().values()) {
+                    assertTrue(tourRequest.getRequests().containsValue(request),
+                            "La TourRequest du courier doit correspondre à la TourRequest originale.");
+                }
+            }
+
 
         } catch (Exception e) {
             fail("Compute tour failed: " + e.getMessage());
