@@ -1,0 +1,245 @@
+\documentclass[a4paper]{article}
+
+%====================== PACKAGES ======================
+
+\usepackage[french]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{setspace}
+\usepackage{abstract}
+\usepackage[T1]{fontenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage{subfig}
+\usepackage{svg}
+
+%====================== INFORMATION ET REGLES ======================
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+%======================== DEBUT DU DOCUMENT ========================
+
+\begin{document}
+
+%régler l'espacement entre les lignes
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+%page de garde
+\input{./pagegarde.tex}
+
+~
+%ne pas numéroter cette page
+\thispagestyle{empty}
+
+\tableofcontents
+\thispagestyle{empty}
+\setcounter{page}{0}
+%ne pas numéroter le sommaire
+
+%espacement entre les lignes d'un tableau
+\renewcommand{\arraystretch}{1.5}
+
+~
+\thispagestyle{empty}
+\setcounter{page}{0}
+
+%====================== INTRODUCTION ======================
+
+\section{Introduction} \label{ch1}
+Ce document constitue le livrable final du PLD Agile. Ce projet s’inscrit dans une démarche de développement orienté objet tout en appliquant la méthodologie agile Scrum. \\
+\newline
+\indent Ce rapport est structuré en deux grandes parties : la description détaillée de la troisième et dernière livraison, et une rétrospective sur le projet dans son ensemble. Nous y aborderons les fonctionnalités implémentées, la planification des tâches, les réussites, ainsi que les difficultés rencontrées tout au long du dernier sprint.
+
+%====================== TROISIEME LIVRAISON ======================
+\newpage
+\section{Troisième livraison}
+
+\subsection{Introduction de la dernière livraison}
+Ce document constitue le livrable de la troisième et dernière itération de notre projet. Lors de cette phase, nous nous sommes principalement concentrés sur l'amélioration et l'ajout de fonctionnalités précédemment développées et la préparation à la clôture du projet.\\
+\newline
+\indent Lors des deux premières itérations, nous avons identifié certaines erreurs. Grâce aux conclusions tirées de ces phases, nous avons ajusté notre méthode de travail pour éviter leur répétition.\\
+\newline
+\indent Durant cette itération, la conception et l'architecture corrigées lors de la deuxième itération n'ont pas été modifiées. Cependant, nous avons amélioré des modules critiques, tels que :
+\begin{itemize}
+    \item La sauvegarde des tournées dans des fichiers
+    \item Le calcul des tournées optimales
+    \item La rédaction d'une documentation utilisateur et technique complète.
+\end{itemize}
+
+\subsection{Développement des fonctionnalités}
+Voici les fonctionnalités développées au cours de cette phase :
+\begin{itemize}
+    \item \textbf{Modification d'une demande de livraison :} Possibilité de modifier les points de collecte et de livraisons
+    \item \textbf{Configuration de plusieurs coursiers} 
+    \item \textbf{Sauvegarde dynamique d’un tour} 
+    \item \textbf{Amélioration de l’UI :} flèche, numéro d’identification des livraison et durée d’un tour
+    \item \textbf{Intersections bidirectionnelles}
+    \item \textbf{Documentation technique}
+\end{itemize}
+
+\subsection{Planning des tâches}
+Suite à la deuxième itération, nous avons conclu que les rôles n'avaient pas été correctement définis avant l'itération. Voici alors les rôles des membres de l'équipe qui leur ont été attribués en fonction des tâches qu'ils ont effectués lors des deux premières itérations :
+
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{0.6\textwidth}{|c|X|}
+    \hline
+    \textbf{Membre} & \textbf{Rôle} \\ \hline
+    Ana  & tests \& intégration \\ \hline
+    Hazim & Scrum Master \& développeur fullstack \\ \hline
+    Jassir & développeur fullstack et fileManager\\ \hline
+    Junior &  développeur fullstack et tsp \\ \hline
+    Nihal  & tests \& documentation \\ \hline
+    Simon & Chef de projet \& développeur backend \\ \hline
+    \end{tabularx}
+    \caption{Rôles des membres de l'équipe pour la troisième livraison}
+    \end{table}
+
+Voici donc ci-dessous le tableau qui détaille les tâches réalisées, leur durée estimée, la difficulté et le membre assigné (voir tableau~\ref{tab:planning-taches}). Lors de cette itération, nous avons ajouté la colonne "Coût" qui indique la difficulté estimée de chaque tâche selon une échelle de 1 à 3, où 1 correspond à une tâche simple et 3 à une tâche particulièrement complexe nécessitant une expertise technique ou une coordination importante. Cette colonne que nous avons négligé lors des 2 premières itérations nous a permis de mieux répartir les tâches en fonction des compétences de chacun.
+
+Les tâches de cette dernière itération ont été définies en tenant compte des besoins fonctionnels restants, des améliorations techniques nécessaires, ainsi que de la documentation et des tests finaux. Une attention particulière a été portée à la correction des bugs et à l'amélioration de l'interface utilisateur. Le tableau ci-dessous détaille les tâches accomplies, leur durée estimée, ainsi que la personne ou l'équipe chargé de leur réalisation.
+
+Nous avons également passé du temps a merge les branches de chacun pour avoir une branche main propre et prête pour la release.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|X|c|c|c|}
+\hline
+\textbf{Description de la tâche} & \textbf{Durée} & \textbf{Coût} & \textbf{Assigné} \\ \hline
+Résout le bug lorsqu'on charge un mauvais type de fichier & 10 minutes & 1 & Junior \\ \hline
+Calcul de tour multiples pour n coursiers & 1 heure & 1 & Junior \\ \hline
+Chargement d'une carte avec les intersections bidirectionnelles & 30 minutes & 1 & Junior \\ \hline
+Bannière de succès ou d'erreur & 45 minutes & 1 & Hazim \\ \hline
+Documentation du CI/CD & 30 minutes & 1 & Ana \\ \hline
+Documentation des tests de front & 30 minutes & 1 & Nihal \\ \hline
+Documentation du technique du code & 2 heures & 1 & Nihal \& Ana \\ \hline
+Release first version & 15 minutes & 1 & Hazim \\ \hline
+Documentation de la dernière itération & 2 heure & 1 & Simon \\ \hline
+Numérotation des marqueurs sur la carte & 10 minutes & 1 & Junior \\ \hline
+Implémentation au front de la modification d'une demande de livraison & 3 heures & 2 & Simon \\ \hline
+Restore d'un tour depuis un fichier & 4 heures & 2 & Jassir \\ \hline
+Affiche la durée d'un tour & 15 minutes & 2 & Hazim \\ \hline
+Drag and drop les marqueurs de carte & 2 heures & 3 & Hazim \\ \hline
+Ajout de flèches pour indiquer le sens de déplacement & $\emptyset$ & 3 & Hazim \\ \hline
+Merge final de toutes les branches & 6 & 3 & Hazim \& Jassir \& Simon \& Junior\\ \hline
+\end{tabularx}
+\caption{Planning des tâches de la troisième livraison}
+\label{tab:planning-taches}
+\end{table}
+
+Cette itération a montré que la clarification des rôles et la planification détaillée des tâches ont permis de gagner en efficacité. La gestion agile des priorités a permis de résoudre rapidement les problèmes critiques et d'intégrer de nouvelles fonctionnalités, tout en respectant les délais fixés. Cependant, des points d'amélioration subsistent, notamment pour mieux anticiper les conflits lors des merges ou pour optimiser la gestion des tests. \\
+
+Concernant les flèches pour indiquer le sens de déplacement, nous n'avons pas pu les implémenter comme prévu, car la bibliothèque nécessaire n'était pas disponible dans la version de NetBeans que nous utilisions. Nous avons remplacé cette fonctionnalité par l'affichage d'index sur les marqueurs, permettant une visualisation claire et fonctionnelle de l'ordre des livraisons.
+
+\subsection{Conclusion}
+Cette dernière livraison nous a permis de stabiliser les fonctionnalités clés de l'application et d'assurer sa conformité avec les besoins spécifiés. La rédaction d'une documentation technique complète constitue également une étape essentielle pour faciliter la prise en main future de l'application.\\
+\newline
+Les conclusions tirées de ce sprint, résumées dans les deux tableaux ci-dessous, mettent en lumière à la fois les points positifs (voir tableau~\ref{tab:positifs})qui ont favorisé notre réussite et les points négatifs, accompagnés d'axes d'amélioration pour des projets futurs(voir tableau~\ref{tab:negatifs}).
+    \begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{|X|}
+    \hline
+    \textbf{Point positifs} \\ \hline
+    Nous avons appris de nos précédentes erreurs pour ne pas les reproduire \\ \hline
+    Nous avons pris le temps de merge avant la dernière séance pour ne pas avoir de conflits au dernier moment \\ \hline
+    Nous avons été très réactif lors du développement si quelqu'un avait un problème \\ \hline
+    Meilleur répartition des tâches que précédemment en fonction des compétences et envie de chacun \\ \hline
+    Nous avons estimé le coût de chaque tâche et leur priorité \\ \hline
+    Bon respect de l'architecture choisie \\ \hline
+    Nous avons rendu les tâches plus atomiques \\ \hline
+    Formation de certains membres de l'equipe au front\\ \hline
+    \end{tabularx}
+    \caption{Points positifs de la troisième livraison}
+    \label{tab:positifs}
+    \end{table}
+
+    \begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{|X|X|}
+    \hline
+    \textbf{Point négatifs} & \textbf{Axe d'amélioration} \\ \hline
+    Désaccords sur la conception du frontend & Nous aurions dû mettre au claire dans un document disponible pour tout le monde \\ \hline
+    Manque encore de communication pour les changements majeurs & Pourquoi pas mettre un serveur discord en place pour les changements majeurs\\ \hline
+    Commit pas assez réguliers & rendre les commits plus atomiques et pousser sa branche régulièrements \\ \hline
+    Fichier ajouté au commit qui ne devrait pas & Éviter les "git add ." et vérifier les fichiers ajoutés \\ \hline
+    Convention de nommage de fonctions, variables, branches... non explicite & Préciser ce type d'information dans CONTRIBUTING.md \\ \hline
+    Prise de risque de l'attribution de tâche critique au dernier moment & Nous pouvons améliorer encore la distribution des tâches \\ \hline
+    \end{tabularx}
+    \caption{Points négatifs de la troisième livraison}
+    \label{tab:negatifs}
+    \end{table}
+
+
+%====================== RETROSPECTIVE ======================
+\newpage
+\section{Rétrospective du projet}
+
+\subsection{Rétrospective de groupe}
+Voici une rétrospective de groupe sur le projet dans son ensemble :
+\subsubsection{Réussites du projet}
+Voici les points forts identifiés au cours du projet :
+
+\begin{itemize}
+    \item Le repo GitHub bien organisé et documenté, avec des branches distinctes pour chaque fonctionnalité
+    \item Le choix de la technologie Java pour le backend et React pour le frontend, qui ont permis une bonne séparation des préoccupations
+    \item Le choix de l'IDE Netbeans avec lequel nous étions familier et pour lequel nous n'avons donc pas eu à nous former
+    \item Une bonne ambiance de travail et une communication ouverte au sein de l'équipe
+    \item Le fait que le projet nous ai tous intéressé et que nous avons tous appris de nouvelles choses
+\end{itemize}
+
+\subsubsection{Difficultés rencontrées}
+Malgré les réussites, nous avons rencontré certaines difficultés :
+\begin{itemize}
+    \item Convention de nommage : Nous avons constaté un manque d’uniformité dans les conventions de nommage des fichiers, classes, et variables, ce qui a parfois compliqué la lecture du code. Nous aurions pu mettre en place un guide de style codifié dès le début du projet.
+    \item Version trop ancienne de Netbeans : L’utilisation d’une version obsolète de NetBeans a entraîné des problèmes de compatibilité avec certaines bibliothèques, ce qui a ralenti le développement. Nous pourrions notamment utiliser une version plus récente ou envisager de migrer vers un IDE plus moderne, comme IntelliJ IDEA.
+    \item Pas assez de temps sur la conception : La phase de conception a été réduite, ce qui a entraîné des ajustements fréquents et des difficultés d’intégration lors des itérations. Nous pourrions donc allouer davantage de temps sur la conception initiale pour anticiper les problématiques potentielles, par exemple en utilisant des outils comme des diagrammes UML pour valider les choix avant le développement.
+    \item Méthodologie Scrum : L’application des principes Scrum a parfois été approximative, notamment en ce qui concerne la gestion des sprints et le suivi des tâches. Nous avons eu des retards dans la livraison en oubliant le principe même de la méthode Scrum pour laquelle les retards ne sont pas recevables. Nous avons par exemple lors du dernier sprint ajouté le coût des tâches pour mieux les répartir en fonction des compétences de chacun.
+    \item Communication : Les échanges au sein de l’équipe n’ont pas toujours été fluides, notamment lors de modifications importantes ou de décisions impactant plusieurs membres. Il serait préférable d'organiser des points réguliers pour synchroniser l’équipe et utiliser une plateforme centralisée de communication, comme Discord, pour éviter les malentendus.
+    \item IHM : L'interface utilisateur n'avait pas été suffisamment définie en amont, ce qui a conduit à des ajustements imprévus et des incohérences dans son développement. Nous aurions dû préparer des maquettes détaillées dès la phase de conception pour avoir une vision claire des fonctionnalités et de l'organisation visuelle de l'IHM, en impliquant toute l'équipe dans la validation.
+\end{itemize}
+
+Même si les difficultés semblent nombreuses, l'ensemble de l'équipe considère le projet comme une réussite. En effet, il semble plus facile à la fin du projet de voir les points négatifs que les points positifs.
+
+\subsection{Point de vue personnel}
+Cette partie a pour objectif de permettre à tout le monde de faire un retour d'expérience du PLD :
+\begin{itemize}
+    \item \textbf{Ana : }Even if I am an exchange student and some knowledges I did not have it , I reckon the development of the projet went pretty well. At the same time, I consider that the work environment is quite comfortable and it has been quite easy and plasant to work with them.
+    \item \textbf{Hazim : } En assumant le rôle de Scrum Master, j’ai appris à attribuer les issues, mais surtout à découper le travail de manière à garantir une répartition équitable tout en veillant à ce que le projet ne soit pas retardé. Cela n’a pas toujours été évident au début, car certaines tâches peuvent bloquer le démarrage d’autres tâches. Cependant, grâce à une communication régulière avec l’équipe, nous avons réussi à livrer le projet dans les délais impartis.
+    \item \textbf{Jassir : }J’ai beaucoup apprécié ce projet, que j’ai trouvé très intéressant, notamment grâce au développement et à l’apprentissage de nouvelles technologies que je ne maîtrisais pas auparavant. De plus, l’esprit d’équipe était excellent : chacun avait sa place, et tout le monde s’entendait bien. La bonne humeur et l’humour de chacun ont également permis de travailler rapidement dans une ambiance conviviale.
+    \item \textbf{Junior : }J'ai trouvé le projet fascinant. J'ai pu découvrir des  outils comme React et Next.js qui m’ont permis de plonger dans le front-end et d’acquérir de nouvelles compétences. J’ai vraiment apprécié  d'une part l’aspect full-stack du travail, et d'autre part l'utilisation plus ou moins professionnelle, de GitHub avec des conventions bien définies. Bref, ça a été une expérience très formatrice.
+
+    Cependant, quatre semaines, c’était trop court pour ce projet je pense. Il fallait privilégier ceux qui maitrisaient déjà les techs pour les tâches critiques histoire de gagner en temps, en évitant les temps de formation. De meme, le choix des techs s'est également basé sur ce qu'on maîtrisait déjà plus ou moins, mais on aurait pu essayer de nouveaux outils si le temps était suffisant. 
+    
+    On a terminé le projet avec le sentiment d’avoir certe accompli beaucoup, mais aussi avec une liste d’idées en tête qu’on aurait vraiment voulu concrétiser si on avait eu plus de temps. Il reste que je suis très satisfait de ce qu’on a fait et des compétences que j’ai pu acquérir dans un laps de temps aussi court.
+    \item \textbf{Nihal : }Ce projet a été une expérience très enrichissante. Une des choses qui m’a marqué, c’est l’apprentissage des tests unitaires en Java avec JUnit 5, qui a vraiment permis d’automatiser les tests des fonctionnalités développés au fur et à mesure .
+
+    Cependant, le temps imparti était trop court. Quatre semaines, c’est vraiment peu pour un projet de cette envergure. On a dû se concentrer sur les tâches critiques, et parfois, ça a été compliqué de permettre à tout le monde de se former aux nouvelles technologies, ce qui a parfois rendu difficile l’implication de tout le monde sur tous les aspects du projet.
+    
+    Pour ma part, je n’ai pas pu faire tout ce que j’aurais aimé, mais  j’ai fait de mon mieux dans le temps qu’on avait, même si je reste avec le sentiment qu’il y avait encore beaucoup à explorer et développer Cela reste une belle expérience.
+    \item \textbf{Simon :} En tant que chef de projet, cette expérience m'a permis de développer des compétences en gestion de projet agile, en communication et en leadership. J'ai appris à coordonner une équipe, à adapter les plannings en fonction des imprévus, et à maintenir une documentation claire et précise tout au long du projet.
+\end{itemize}
+
+
+\subsection{Conclusions et suggestions}
+Ce projet a été une expérience riche et formatrice pour l’ensemble de l’équipe. Bien que nous ayons rencontré des difficultés techniques, comme les limitations liées à certains outils ou le manque de temps initialement alloué à la conception, nous avons su nous adapter en trouvant des solutions pragmatiques et en capitalisant sur les forces de chacun. \\
+
+La méthodologie agile, bien qu’imparfaitement appliquée, nous a permis d’itérer rapidement et de corriger nos erreurs au fil des sprints. L'intégration des feedbacks des premières itérations a clairement amélioré la qualité de notre travail lors de cette dernière phase, avec une meilleure répartition des tâches et une planification plus aboutie. \\
+
+Nous terminons ce projet avec un livrable fonctionnel, documenté, et conforme au cahier des charges initial.. Les apprentissages réalisés dans la méthodologie agile, le développement "fullstack", et la collaboration en équipe seront des atouts indispensable pour nos futurs projets. Ce projet a également permis de montrer à tout le monde l'importance de la communication et de la documentation dans un projet de développement logiciel ainsi que l'utilisation propre d'un système de versioning. \\
+
+Pour de futurs projets similaires, voici quelques recommandations :
+\begin{itemize}
+    \item Mieux planifier les estimations de temps avec des méthodes comme Planning Poker pour dès le départ échanger sur les difficultés de chaque tâche
+    \item Renforcer les compétences techniques de l'équipe par des formations préalables dès le début du projet sans attendre que le besoin se fasse sentir
+    \item Maintenir une communication constante et documenter tout changement structurel dans le projet
+    \item S'assurer d'une répartition équitable et pertinente des tâches en fonction des compétences des membres et de leurs envies
+\end{itemize}
+
+\end{document}

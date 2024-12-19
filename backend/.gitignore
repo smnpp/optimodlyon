@@ -1,0 +1,65 @@
+# === Fichiers de compilation Java ===
+*.class
+
+# === Fichiers d'archive de build (Maven, Gradle, etc.) ===
+*.jar
+*.war
+*.ear
+
+# === Dossiers de build ===
+# Maven
+**/target/
+# Gradle
+**/build/
+
+# === Fichiers générés par les IDEs ===
+# IntelliJ IDEA
+**/.idea/
+**/*.iml
+*.ipr
+*.iws
+
+# Eclipse
+**/.classpath
+**/.project
+**/.settings/
+
+# NetBeans
+**/nbproject/private/
+
+# Visual Studio Code
+.vscode/
+
+# === Logs et fichiers temporaires ===
+*.log
+*.bak
+*.swp
+*.swo
+
+# === Dépendances téléchargées ===
+*.tar.gz
+*.zip
+
+# === Configuration sensible ou locale ===
+**/.env
+**/.db
+*.sqlite
+*.db
+
+# === Caches spécifiques aux outils ===
+# Gradle
+.gradle/
+# Maven
+.mvn/
+
+# === Fichiers générés par le système d'exploitation ===
+*.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === Autres exclusions spécifiques ===
+# Données temporaires ou caches divers
+**/data/
+
+# Fichiers de tests
+*.test

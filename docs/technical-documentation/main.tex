@@ -1,0 +1,251 @@
+\documentclass[a4paper]{article}
+
+%====================== PACKAGES ======================
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+%pour gérer les positionnement d'images
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{url}
+%pour les informations sur un document compilé en PDF et les liens externes / internes
+\usepackage{hyperref}
+%pour la mise en page des tableaux
+\usepackage{array}
+\usepackage{tabularx}
+%pour utiliser \floatbarrier
+%\usepackage{placeins}
+%\usepackage{floatrow}
+%espacement entre les lignes
+\usepackage{setspace}
+%modifier la mise en page de l'abstract
+\usepackage{abstract}
+%police et mise en page (marges) du document
+\usepackage[T1]{fontenc}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+%Pour les galerie d'images
+\usepackage{subfig}
+\usepackage{svg}
+
+%====================== INFORMATION ET REGLES ======================
+
+%rajouter les numérotation pour les \paragraphe et \subparagraphe
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+%======================== DEBUT DU DOCUMENT ========================
+
+\begin{document}
+
+%régler l'espacement entre les lignes
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+%page de garde
+\input{./pagegarde.tex}
+
+~
+%ne pas numéroter cette page
+\thispagestyle{empty}
+
+\tableofcontents
+\thispagestyle{empty}
+\setcounter{page}{0}
+%ne pas numéroter le sommaire
+
+%espacement entre les lignes d'un tableau
+\renewcommand{\arraystretch}{1.5}
+
+%====================== INCLUSION DES PARTIES ======================
+
+~
+\thispagestyle{empty}
+%recommencer la numérotation des pages à "1"
+\setcounter{page}{0}
+
+\section*{Introduction}
+
+This technical documentation aims to provide a comprehensive and detailed overview of the \textbf{[Optimod'Lyon]} application. It is intended for developers and technical personnel who seek to understand the technical decisions, architecture, and core functionalities of the system, as well as the steps required to configure, use, and maintain the code. \\
+\newline
+\noindent
+The project follows an \textbf{object-oriented development} approach, adhering to the principles of modularity, reusability, and maintainability. We adopted the \textbf{Agile Scrum methodology} to ensure iterative and incremental deliveries, allowing for quick adjustments to the needs and challenges encountered. The application is built on a \textbf{Model-View-Controller (MVC)} architecture and leverages modern technologies such as \textbf{Java}, \textbf{React}, and the \textbf{Google Maps API}.\\
+\newline
+\noindent
+This document is structured as follows:
+\begin{itemize}
+    \item A description of the architecture and the technical choices made;
+    \item The main components of the system and their responsibilities;
+    \item The processes for installation, configuration, and deployment;
+    \item The tests conducted to validate the application’s functionality;
+    \item A section dedicated to best practices for contributors.
+\end{itemize}
+\noindent
+With this documentation, we aim to ensure a seamless transition for future teams tasked with maintaining or extending the application, while facilitating onboarding for new contributors.
+
+%====================== CLASS AND PACKAGE DIAGRAMS ======================
+
+\section{Class and Package Diagrams}
+
+\subsection{Class Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/class.pdf}
+    \caption{Class Diagram}
+\end{figure}
+The class diagram provides an overview of the structure of the system, including key classes, their attributes, and relationships. It reflects the modularity and reusability principles applied during the design phase.
+
+\subsection{Package Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/package.pdf}
+    \caption{Package Diagram}
+\end{figure}
+The package diagram illustrates the organization of the codebase into logical groupings. It showcases the separation of concerns, where each package handles a specific set of responsibilities, ensuring scalability and maintainability.
+
+%====================== ARCHITECTURE ======================
+
+\section{System Architecture}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/archi.png}
+    \caption{Package Diagram}
+\end{figure}
+The system is designed using a \textbf{Model-View-Controller (MVC)} architecture. The backend, developed in \textbf{Java}, serves as the core of the application, providing APIs to communicate with the frontend. The frontend, developed in \textbf{React}, interacts with the Google Maps API to display the network and manage user interactions.
+
+%====================== ALGORITHMS ======================
+
+\section{Algorithms}
+\subsection{Assigning Tours}
+\begin{itemize}
+    \item Step 1: Ranking Delivery Requests \\
+    The requests are sorted by increasing distance between the pickup point and the warehouse. This step ensures that the
+    nearest requests are processed first.
+    
+    \item Step 2: Assigning Requests to Delivery Persons \\
+    The sorted requests are assigned in a round-robin fashion to the available delivery persons. Each delivery person receives a TourRequest containing the requests assigned to him.
+\end{itemize}
+
+\subsection{Calculating a Tour}
+\begin{itemize}
+    \item Step 1: Ordering Points \\
+    The tour starts with the warehouse. Then, each point (pickup or delivery) is added respecting:
+    \begin{itemize}
+        \item The proximity to the last added point.
+        \item The constraint that the pickup must precede the corresponding delivery.
+        \item The tour ends with a return to the warehouse.
+    \end{itemize}
+
+    \item Step 2: Calculating Shortest Paths \\
+    For each successive pair of points (current and next) in the ordered list:
+    \begin{itemize}
+        \item The optimal path is calculated using Dijkstra's algorithm
+        \item All intersections and the total distance between these two points are extracted
+    \end{itemize}
+    \item Step 3: Concatenation of Segments \\
+    The calculated segments are concatenated to form a complete grand tour, passing through:
+    \begin{itemize}
+        \item The warehouse at the start and end.
+        \item All pickups and deliveries in between.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Synthesis}
+\begin{enumerate}
+    \item Assigning Tours:
+    \begin{itemize}
+        \item Sort the requests by proximity to the warehouse
+        \item Distribute them to the delivery people using the Round-Robin method.
+    \end{itemize}
+    \item Construction of a Tour
+    \begin{itemize}
+        \item Order the points to respect the pickup before delivery constraint
+        \item Calculate and concatenate the paths between each pair of successive points
+    \end{itemize}
+    \item Final Result
+    \begin{itemize}
+        \item A complete tour is obtained, ready to be saved or displayed
+    \end{itemize}
+\end{enumerate}
+
+%====================== CI/CD DOCUMENTATION ======================
+
+\section{CI/CD Documentation}
+
+This pipeline configuration file defines a Continuous Integration and Continuous Deployment (CI/CD) workflow for a Java project using Maven as the build system. It automates essential tasks such as building, testing, optimizing execution time, and ensuring code quality. By automating these processes, the pipeline contributes to maintaining a robust, efficient, and secure delivery workflow. The pipeline is triggered by changes made to the develop branch, ensuring that all updates are validated continuously before being merged into production.
+
+\subsection{Workflow Triggers}
+
+Triggers determine the conditions under which the workflow is executed. For this pipeline:
+\begin{itemize}
+    \item The workflow is automatically triggered on every push to the develop branch.
+    \item This setup ensures continuous validation of new changes, promoting consistent code quality and reducing integration issues.
+\end{itemize}
+
+\subsection{Jobs in the Workflow}
+
+The workflow is composed of multiple jobs that automate different stages of the CI/CD process.
+
+\begin{itemize}
+    \item \textbf{Repository Checkout:} The flow uses the actions/checkout@v4 action to clone the current repository into the workspace. This step ensures that all project files are available for subsequent tasks, such as building and testing.
+    \item \textbf{Java Configuration:} The environment is set up using actions/setup-java@v4 to install JDK 11. Maven is configured with dependency caching enabled. This optimization allows the workflow to reuse previously downloaded dependencies, significantly reducing execution time and improving overall efficiency.
+
+    \item \textbf{Build and Test:} Maven is used to build the project and execute all unit and integration tests. Any build failures or test errors immediately halt the pipeline, ensuring that only valid changes progress further.
+\end{itemize}
+
+\subsection{Dependency Graph Update}
+
+The pipeline generates a dependency graph that maps all project dependencies and their relationships.
+\begin{itemize}
+    \item This graph helps identify outdated or vulnerable dependencies more accurately.
+    \item By maintaining an up-to-date dependency graph, the pipeline improves the project's security posture and ensures compatibility with external libraries.
+\end{itemize}
+    
+    
+\subsection{Benefits of the Pipeline}
+
+The CI/CD pipeline provides several advantages:
+\begin{itemize}
+    \item \textbf{Improved Code Quality:} Automated tests ensure that new code adheres to the project's standards and does not introduce regressions.
+    \item \textbf{Efficiency:} Dependency caching and automated processes reduce manual intervention and save time during development cycles.
+    \item \textbf{Enhanced Security:} The dependency graph provides better visibility into potential vulnerabilities.
+    \item \textbf{Scalability:} The pipeline supports a consistent and repeatable process, making it suitable for teams of all sizes.
+\end{itemize}
+This CI/CD pipeline is a cornerstone of maintaining high-quality and efficient continuous delivery in modern software development practices.
+Next Steps
+
+%====================== FRONTEND TESTS ======================
+
+\section{Frontend Tests}
+
+During this phase of the project, the frontend was tested manually instead of using automated testing frameworks like Jest or React Testing Library. This decision was made due to the relatively small number of functionalities to validate, which made manual testing more practical and time-efficient.
+
+\subsection{Testing Scope}
+Manual testing was conducted on the following key functionalities:
+\begin{itemize}
+    \item \textbf{Map Rendering:} Ensuring the map loads correctly with all delivery points displayed as markers.
+    \item \textbf{Delivery Point Updates:} Verifying the ability to move pins on the map to modify delivery or pickup points.
+    \item \textbf{API Integration:} Ensuring seamless communication with the backend for loading delivery requests and saving updated tours.
+    \item \textbf{Edge Cases:} Checking basic error handling, such as invalid inputs or network connectivity issues.
+\end{itemize}
+
+\subsection{Limitations of Manual Testing}
+While manual testing was effective for this phase, it has inherent limitations:
+\begin{itemize}
+    \item It is less scalable as the application grows and additional features are introduced.
+    \item Automated regression testing is not possible without proper test cases.
+    \item Ensuring consistency across test runs can be challenging.
+\end{itemize}
+
+\subsection{Future Possible Improvements}
+As the project evolves, transitioning to automated frontend testing is recommended to:
+\begin{itemize}
+    \item Reduce the time spent on repetitive tests.
+    \item Increase the accuracy and reliability of testing, especially for edge cases.
+    \item Enable continuous validation of the frontend during CI/CD pipeline execution.
+\end{itemize}
+
+%====================== CONCLUSION ======================
+
+\end{document}

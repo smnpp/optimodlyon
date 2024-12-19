@@ -1,0 +1,42 @@
+.button {
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px; /* Add gap between logo and text */
+}
+
+.button:hover {
+    opacity: 0.8;
+}
+
+.primary {
+    background: rgb(48, 48, 48);
+}
+
+.secondary {
+    background: rgb(202, 202, 202);
+}
+
+.red {
+    background: rgb(220, 62, 62);
+}
+
+.green {
+    background: rgb(64, 219, 92);
+}
+
+.purple {
+    background-color: rgb(103, 64, 219);
+}
+
+@media (prefers-color-scheme: dark) {
+    .button {
+        filter: invert();
+    }
+}
