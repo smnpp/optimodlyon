@@ -114,6 +114,61 @@ The package diagram illustrates the organization of the codebase into logical gr
 \end{figure}
 The system is designed using a \textbf{Model-View-Controller (MVC)} architecture. The backend, developed in \textbf{Java}, serves as the core of the application, providing APIs to communicate with the frontend. The frontend, developed in \textbf{React}, interacts with the Google Maps API to display the network and manage user interactions.
 
+%====================== ALGORITHMS ======================
+
+\section{Algorithms}
+\subsection{Assigning Tours}
+\begin{itemize}
+    \item Step 1: Ranking Delivery Requests \\
+    The requests are sorted by increasing distance between the pickup point and the warehouse. This step ensures that the
+    nearest requests are processed first.
+    
+    \item Step 2: Assigning Requests to Delivery Persons \\
+    The sorted requests are assigned in a round-robin fashion to the available delivery persons. Each delivery person receives a TourRequest containing the requests assigned to him.
+\end{itemize}
+
+\subsection{Calculating a Tour}
+\begin{itemize}
+    \item Step 1: Ordering Points \\
+    The tour starts with the warehouse. Then, each point (pickup or delivery) is added respecting:
+    \begin{itemize}
+        \item The proximity to the last added point.
+        \item The constraint that the pickup must precede the corresponding delivery.
+        \item The tour ends with a return to the warehouse.
+    \end{itemize}
+
+    \item Step 2: Calculating Shortest Paths \\
+    For each successive pair of points (current and next) in the ordered list:
+    \begin{itemize}
+        \item The optimal path is calculated using Dijkstra's algorithm
+        \item All intersections and the total distance between these two points are extracted
+    \end{itemize}
+    \item Step 3: Concatenation of Segments \\
+    The calculated segments are concatenated to form a complete grand tour, passing through:
+    \begin{itemize}
+        \item The warehouse at the start and end.
+        \item All pickups and deliveries in between.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Synthesis}
+\begin{enumerate}
+    \item Assigning Tours:
+    \begin{itemize}
+        \item Sort the requests by proximity to the warehouse
+        \item Distribute them to the delivery people using the Round-Robin method.
+    \end{itemize}
+    \item Construction of a Tour
+    \begin{itemize}
+        \item Order the points to respect the pickup before delivery constraint
+        \item Calculate and concatenate the paths between each pair of successive points
+    \end{itemize}
+    \item Final Result
+    \begin{itemize}
+        \item A complete tour is obtained, ready to be saved or displayed
+    \end{itemize}
+\end{enumerate}
+
 %====================== CI/CD DOCUMENTATION ======================
 
 \section{CI/CD Documentation}
