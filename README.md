@@ -19,40 +19,29 @@ parties :
 
 ### **Prérequis**
 
--   **Frontend** :
-
-    -   Node.js 15
-    -   React 19
-
 -   **Backend** :
     -   Java 11
-    -   Maven pour gérer les dépendances.
+    -   Maven 2.3
+    -   Apache Tomcat 9.0.97
+-   **Frontend** :
+    -   Node.js 15
+    -   React 19
+    -   npm ou yarn
+-   **Prérequis supplémentaires**
+    -   Clé API Google Maps
+    -   Il est fortement conseillé de build et run le backend avec NetBeans 12.6
+
+### **Sauvegarde de la clé API**
+
+1. Créer un fichier .env à la racine du projet et y copier le contenu de
+   .env.template en y remplaçant la clé API
+2. sauver le document
 
 ### **Lancement du Backend**
 
-1. Rendez-vous dans le dossier `backend/optimodlyon` :
-
-    ```bash
-    cd backend/optimodlyon
-    ```
-
-2. Compilez le projet avec Maven :
-
-    ```bash
-    mvn clean install
-    ```
-
-3. Rendez-vous dans le dossier `backend/optimodapi` :
-
-    ```bash
-    cd ../optimodapi
-    ```
-
-4. Compilez le projet avec Maven :
-
-    ```bash
-    mvn clean install
-    ```
+1. Compilez le projet `optimodlyon`
+2. Compilez le projet `optimodapi`
+3. Lancer `optimodapi`
 
 ### **Lancement du Frontend**
 
